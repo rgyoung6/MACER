@@ -145,7 +145,8 @@ The A_Total_Table.dat and the constructed Chipmunk_marker_table.dat were selecte
 
 The output from the create_fastas() function is the creation of fasta files. In this example two fasta files were created Tamias_COI-5P.fas and Tamias_CYTB.fas and they are both included in the 'Example' file folder. After creating the fasta files of interest using the create_fastas() function and the above steps, they need to be manually sorted and placed in to filefolders for each target molecular marker. In the example they were placed in to the COI and CytB. 
 
-## Align the fasta files to a reference sequence. For this example, we will align the COI sequences to the closely related taxa Sciurus carolinensis. The reference fasta file used in this example is included in the 'Example' file folder. Please note that the header of the reference sequence needs to reflect the same format as those in the fasta files created in the create_fastas() function. Also, there can be no spaces in the naming for the reference fasta file. This format is shown below.
+## Align the fasta files to a reference sequence. 
+For this example, we will align the COI sequences to the closely related taxa Sciurus carolinensis. The reference fasta file used in this example is included in the 'Example' file folder. Please note that the header of the reference sequence needs to reflect the same format as those in the fasta files created in the create_fastas() function. Also, there can be no spaces in the naming for the reference fasta file. This format is shown below.
 
 	>ABMC288-05||Sciurus|carolinensis|JF457099|COI-5P
 
