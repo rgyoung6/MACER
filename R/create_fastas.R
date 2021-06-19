@@ -12,6 +12,11 @@
 #' Input: File with list of genera with the molecular markers names below the taxa. The information to create this parameters file can be obtained from A_Summary.txt file from the download script results.
 #' For further details please see the documentation.
 #'
+#' Some example formats for the running of the function are...
+#' create_fastas()
+#' create_fastas(no_marker = 1, no_taxa = 1)
+#' create_fastas(no_seq  = 1, name_issue = 1)
+#'
 #' @param no_marker If set to 1 then will include records filtered out due to no marker data. Default is 0 to not include records with no marker data.
 #' @param no_taxa If set to 1 then will include records filtered out due to no taxa data. Default is 0 to not include records with no taxa data.
 #' @param no_seq If set to 1 then will include records filtered out due to no sequence data. Default is 0 to not include records with no sequence data.
@@ -24,11 +29,6 @@
 #' This script outputs a fasta file of sequences for each column in the submitted parameters file. These files are named with the genera of interest and the first marker name in the column of the parameters file.
 #' These files are located in the folder where the Total_tables.txt file is located.
 #'
-#' @examples
-#' create_fastas()
-#' create_fastas(no_marker = 1, no_taxa = 1)
-#' create_fastas(no_seq  = 1, name_issue = 1)
-#'
 #' @references
 #' https://github.com/rgyoung6/MACER
 #' Young, R. G., Gill, R., Gillis, D., Hanner, R. H. (Submitted June 2021). Molecular Acquisition, Cleaning, and Evaluation in R (MACER) - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal.
@@ -38,6 +38,9 @@
 #' align_to_ref()
 #' barcode_clean()
 #'
+#' @import utils
+#'
+
 create_fastas <- function(no_marker = 0, no_taxa = 0, no_seq= 0, name_issue = 0, taxa_digits = 0, taxa_punct = 0, wrong_taxa = 0 ){
 
   n <- substr(readline(prompt="Please select the total tables file.  Hit enter key to continue..."),1,1)
