@@ -19,10 +19,15 @@
 #'     2. A reference sequence file with a sequence or MSA with all sequences having the same length.
 #'     3. The location of the MAFFT executable file (https://mafft.cbrc.jp/alignment/software/)
 #'
+#' Some example formats for the running of the function are...
+#' align_to_ref(pigl=0.75)
+#' align_to_ref(pigl=0.95, op=10)
+#' align_to_ref(pigl=0)
+#'
 #' @param pigl This is the percent internal gap loop argument. This provides a percent that will remove records causing internal gaps if more than the percent value assigned
 #' to this argument is reached. If this value is set to 0 then internal gaps are not removed. The default for this value is 0.95.
 #'
-#' @param op This is the gap opening penalty for the use of MAFFT. The higher the value the larger penalty in the alignment. The default for this value is set to 1.53 which is the 
+#' @param op This is the gap opening penalty for the use of MAFFT. The higher the value the larger penalty in the alignment. The default for this value is set to 1.53 which is the
 #' default value in the MAFFT program. For alignment of highly conserved regions where no gaps are expected this should be set to a much higher number and 10 is recommended for coding regions like the COI-5P.
 #'
 #' @returns Output:
@@ -30,11 +35,6 @@
 #' 2. The sequence output files from this script are placed into two subfolders. These folders are in the submitted file location where the fasta files of interest are located.
 #'    The two folders created are MAFFT and MAFFT_trimmed. In the MAFFT folder there will be files with name of the files in the submitted file folder appended with “_MAFFT”.
 #'    The MAFFT_trimmed file will contain files with the same naming convention as the files in the submitted folder and appended with “MAFFT_trimmed”.
-#'
-#' @examples
-#' align_to_ref(pigl=0.75)
-#' align_to_ref(pigl=0.95, op=10)
-#' align_to_ref(pigl=0)
 #'
 #' @references
 #' https://github.com/rgyoung6/MACER
@@ -45,6 +45,9 @@
 #' create_fastas()
 #' barcode_clean()
 #'
+#' @import utils
+#'
+
 
 # This function aligns a sequence file to a reference sequence and then trims to the beginning and end of the reference sequence
 ##################################### align_to_ref FUNCTION ##############################################################
