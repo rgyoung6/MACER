@@ -13,7 +13,7 @@
 ############################## remove_internal_gaps FUNCTION ############################
 remove_internal_gaps <- function(output_fasta_matrix, pigl){
 
-  #initalizing the variable
+  #initializing the variable
   col_to_remove = NULL
 
   #finding columns with the number sequences with a gap at that position greater than the internal gap percentage, then remove the sequences with
