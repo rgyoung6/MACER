@@ -8,6 +8,8 @@
 #' https://github.com/rgyoung6/MACER
 #' Young, R. G., Gill, R., Gillis, D., Hanner, R. H. (Submitted June 2021). Molecular Acquisition, Cleaning, and Evaluation in R (MACER) - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal.
 #'
+#' @import utils
+#'
 ############################################ BOLD DOWNLOAD FUNCTION ####################################################
 BOLD_download <- function(target_genera, BOLD_folder_str, main_file_folder)
 {
