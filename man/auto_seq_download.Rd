@@ -29,16 +29,15 @@ This function takes a list of genera, as supplied by the user, and searches and 
 }
 \details{
 User Input: A list of genera in a text file in a single column with a new line at the end of the list.
-}
-\note{
-When using a custom search string for NCBI only a single genus at a time can be used.
-}
-\examples{
+
+Some example formats for the running of the function are...
 auto_seq_download()
 auto_seq_download(BOLD_database = 1,NCBI_database = 0)
 auto_seq_download(BOLD_database = 0,NCBI_database = 1)
 auto_seq_download(BOLD_database = 1,NCBI_database = 0,search_str = 'custom search string')
-
+}
+\note{
+When using a custom search string for NCBI only a single genus at a time can be used.
 }
 \references{
 https://github.com/rgyoung6/MACER
