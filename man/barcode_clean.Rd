@@ -32,12 +32,11 @@ Finally, the program calculates the barcode gap for the species in the submitted
 }
 \details{
 Input: A file folder with one or more fasta files of interest
-}
-\examples{
+
+Some example formats for the running of the function are...
 barcode_clean(),
 barcode_clean(AA_code = 2, AGCT_only = 0),
 barcode_clean(AA_code = 1)
-
 }
 \references{
 https://github.com/rgyoung6/MACER
