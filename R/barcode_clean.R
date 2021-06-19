@@ -14,6 +14,11 @@
 #' @details
 #' Input: A file folder with one or more fasta files of interest
 #'
+#' Some example formats for the running of the function are...
+#' barcode_clean(),
+#' barcode_clean(AA_code = 2, AGCT_only = 0),
+#' barcode_clean(AA_code = 1)
+#'
 #' @param AA_code
 #' This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available. The Invertebrate matrix, 5, is the default.
 #' 1 is standard code
@@ -34,11 +39,6 @@
 #' of all submitted records for each data set accompanied with the results from each section of the analysis. This file is named the same as the input fasta with “data_table.dat” appended
 #' to the end, Finally, a fasta file with all outliers and flagged records removed is generated for each input fasta file. This output file is named the same as the input fasta with “no_outlier.fas” appended to the end.
 #'
-#' @examples
-#' barcode_clean(),
-#' barcode_clean(AA_code = 2, AGCT_only = 0),
-#' barcode_clean(AA_code = 1)
-#'
 #' @references
 #' https://github.com/rgyoung6/MACER
 #' Young, R. G., Gill, R., Gillis, D., Hanner, R. H. (Submitted June 2021). Molecular Acquisition, Cleaning, and Evaluation in R (MACER) - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal.
@@ -49,6 +49,9 @@
 #' align_to_ref()
 #'
 #' @import ape
+#' @import stats
+#' @import utils
+#'
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
