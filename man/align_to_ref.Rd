@@ -10,7 +10,7 @@ align_to_ref(pigl = 0.95, op = 1.53)
 \item{pigl}{This is the percent internal gap loop argument. This provides a percent that will remove records causing internal gaps if more than the percent value assigned
 to this argument is reached. If this value is set to 0 then internal gaps are not removed. The default for this value is 0.95.}
 
-\item{op}{This is the gap opening penalty for the use of MAFFT. The higher the value the larger penalty in the alignment. The default for this value is set to 1.53 which is the 
+\item{op}{This is the gap opening penalty for the use of MAFFT. The higher the value the larger penalty in the alignment. The default for this value is set to 1.53 which is the
 default value in the MAFFT program. For alignment of highly conserved regions where no gaps are expected this should be set to a much higher number and 10 is recommended for coding regions like the COI-5P.}
 }
 \value{
@@ -31,12 +31,11 @@ User Input:
     1. A file folder location with the fasta files that need to be aligned and trimmed using the supplied reference sequence. Please note that any and all fasta files (named *.fas) in this folder will be analyzed.
     2. A reference sequence file with a sequence or MSA with all sequences having the same length.
     3. The location of the MAFFT executable file (https://mafft.cbrc.jp/alignment/software/)
-}
-\examples{
+
+Some example formats for the running of the function are...
 align_to_ref(pigl=0.75)
 align_to_ref(pigl=0.95, op=10)
 align_to_ref(pigl=0)
-
 }
 \references{
 https://github.com/rgyoung6/MACER
