@@ -3,7 +3,7 @@ Type: Package
 Title: Molecular Acquisition, Cleaning, and Evaluation in R (MACER) - A Tool to Assemble Molecular Marker Datasets from BOLD and GenBank
 Version: 0.1.0
 Authors@R: 
-    c(person(given = "Robert G.",
+    c(person(given = "Robert G",
              family = "Young",
              role = c("aut", "cre", "cph"),
              email = "rgyoung6@gmail.com",
@@ -16,7 +16,7 @@ Authors@R:
              family = "Gillis",
              role = c("aut"),
              email = "dgillis@uoguelph.ca"),
-      person(given = "Robert H.",
+      person(given = "Robert H",
              family = "Hanner",
              role = c("aut", "cph"),
              email = "rhanner@uoguelph.ca"))
