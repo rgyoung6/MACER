@@ -19,10 +19,12 @@
 #'     2. A reference sequence file with a sequence or MSA with all sequences having the same length.
 #'     3. The location of the MAFFT executable file (https://mafft.cbrc.jp/alignment/software/)
 #'
-#' Some example formats for the running of the function are...
+#' @examples
+#' \dontrun{
 #' align_to_ref(pigl=0.75)
 #' align_to_ref(pigl=0.95, op=10)
 #' align_to_ref(pigl=0)
+#' }
 #'
 #' @param pigl This is the percent internal gap loop argument. This provides a percent that will remove records causing internal gaps if more than the percent value assigned
 #' to this argument is reached. If this value is set to 0 then internal gaps are not removed. The default for this value is 0.95.
