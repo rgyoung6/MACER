@@ -11,11 +11,12 @@
 #' @details
 #' User Input: A list of genera in a text file in a single column with a new line at the end of the list.
 #'
-#' Some example formats for the running of the function are...
+#' @examples
+#' \dontrun{
 #' auto_seq_download()
 #' auto_seq_download(BOLD_database = 1,NCBI_database = 0)
 #' auto_seq_download(BOLD_database = 0,NCBI_database = 1)
-#' auto_seq_download(BOLD_database = 1,NCBI_database = 0,search_str = 'custom search string')
+#' }
 #'
 #' @param BOLD_database 1 is to include, 0 is to exclude; default 1
 #' @param NCBI_database 1 is to include, 0 is to exclude; default 1
