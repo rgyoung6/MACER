@@ -12,10 +12,12 @@
 #' Input: File with list of genera with the molecular markers names below the taxa. The information to create this parameters file can be obtained from A_Summary.txt file from the download script results.
 #' For further details please see the documentation.
 #'
-#' Some example formats for the running of the function are...
+#' @examples
+#' \dontrun{
 #' create_fastas()
 #' create_fastas(no_marker = 1, no_taxa = 1)
 #' create_fastas(no_seq  = 1, name_issue = 1)
+#' }
 #'
 #' @param no_marker If set to 1 then will include records filtered out due to no marker data. Default is 0 to not include records with no marker data.
 #' @param no_taxa If set to 1 then will include records filtered out due to no taxa data. Default is 0 to not include records with no taxa data.
@@ -112,12 +114,12 @@ create_fastas <- function(no_marker = 0, no_taxa = 0, no_seq= 0, name_issue = 0,
   genus_col_names<-genus_marker_data[1,]
 
   #Removing the first row off the genus_col_names table
-  genus_marker_data= genus_marker_data[-1,]
+  genus_marker_data<-as.data.frame(genus_marker_data[-1,])
 
   #Using the genus and marker file create fastas for each column of interest
   for(genus_col in 1:length(genus_col_names)){
 
-   # genus_col=1
+    # genus_col=1
 
     #Get the records with the genus of interest
     genus_data_out<-total_table_data_out[(total_table_data_out$Genus %in% genus_col_names[genus_col]),]
