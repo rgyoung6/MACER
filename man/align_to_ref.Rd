@@ -31,11 +31,14 @@ User Input:
     1. A file folder location with the fasta files that need to be aligned and trimmed using the supplied reference sequence. Please note that any and all fasta files (named *.fas) in this folder will be analyzed.
     2. A reference sequence file with a sequence or MSA with all sequences having the same length.
     3. The location of the MAFFT executable file (https://mafft.cbrc.jp/alignment/software/)
-
-Some example formats for the running of the function are...
+}
+\examples{
+\dontrun{
 align_to_ref(pigl=0.75)
 align_to_ref(pigl=0.95, op=10)
 align_to_ref(pigl=0)
+}
+
 }
 \references{
 https://github.com/rgyoung6/MACER
