@@ -14,10 +14,12 @@
 #' @details
 #' Input: A file folder with one or more fasta files of interest
 #'
-#' Some example formats for the running of the function are...
+#' @examples
+#' \dontrun{
 #' barcode_clean(),
 #' barcode_clean(AA_code = 2, AGCT_only = 0),
 #' barcode_clean(AA_code = 1)
+#' }
 #'
 #' @param AA_code
 #' This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available. The Invertebrate matrix, 5, is the default.
