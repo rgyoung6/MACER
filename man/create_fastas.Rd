@@ -39,11 +39,14 @@ Using the output table from the download script and the user built genus-marker 
 \details{
 Input: File with list of genera with the molecular markers names below the taxa. The information to create this parameters file can be obtained from A_Summary.txt file from the download script results.
 For further details please see the documentation.
-
-Some example formats for the running of the function are...
+}
+\examples{
+\dontrun{
 create_fastas()
 create_fastas(no_marker = 1, no_taxa = 1)
 create_fastas(no_seq  = 1, name_issue = 1)
+}
+
 }
 \references{
 https://github.com/rgyoung6/MACER
