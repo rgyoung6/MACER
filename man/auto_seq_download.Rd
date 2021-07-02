@@ -25,7 +25,7 @@ A_Summary.txt - This file contains information about the downloads.
 A file with a single table containing the accumulated data for all genera searched.
 }
 \description{
-This function takes a list of genera, as supplied by the user, and searches and downloads molecular sequnce data from BOLD and Genbank.
+Takes a list of genera, as supplied by the user, and searches and downloads molecular sequence data from BOLD and Genbank.
 }
 \details{
 User Input: A list of genera in a text file in a single column with a new line at the end of the list.
@@ -42,7 +42,7 @@ auto_seq_download(BOLD_database = 0,NCBI_database = 1)
 
 }
 \references{
-https://github.com/rgyoung6/MACER
+<https://github.com/rgyoung6/MACER>
 Young, R. G., Gill, R., Gillis, D., Hanner, R. H. (Submitted June 2021). Molecular Acquisition, Cleaning, and Evaluation in R (MACER) - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal.
 }
 \seealso{

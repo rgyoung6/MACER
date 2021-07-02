@@ -2,7 +2,7 @@
 % Please edit documentation in R/align_to_ref.R
 \name{align_to_ref}
 \alias{align_to_ref}
-\title{Alignment and trimming of a multiple sequence alignment to a reference sequence}
+\title{Align and Trim MSA Against a Reference}
 \usage{
 align_to_ref(pigl = 0.95, op = 1.53)
 }
@@ -15,13 +15,13 @@ default value in the MAFFT program. For alignment of highly conserved regions wh
 }
 \value{
 Output:
-1. In the submitted file folder location there will be a log file titled “MAFFT_log”.
+1. In the submitted file folder location there will be a log file titled MAFFT_log.
 2. The sequence output files from this script are placed into two subfolders. These folders are in the submitted file location where the fasta files of interest are located.
    The two folders created are MAFFT and MAFFT_trimmed. In the MAFFT folder there will be files with name of the files in the submitted file folder appended with “_MAFFT”.
    The MAFFT_trimmed file will contain files with the same naming convention as the files in the submitted folder and appended with “MAFFT_trimmed”.
 }
 \description{
-This function takes a FASTA file with target sequences and aligns them against a reference sequence submitted to the program.
+Takes a FASTA file with target sequences and aligns them against a reference sequence submitted to the program.
 The output is an aligned fasta file that is trimmed to the length of the reference sequence. Sequences without full coverage (records having sequences with leading or trailing gaps) are removed.
 Records with characters other than IUPAC are also removed. Finally, internal gaps are removed from the sequence based on the submitted multiple sequence alignment percent
 coverage of the character position as provided in the pigl argument supplied by the user.
@@ -30,7 +30,7 @@ coverage of the character position as provided in the pigl argument supplied by 
 User Input:
     1. A file folder location with the fasta files that need to be aligned and trimmed using the supplied reference sequence. Please note that any and all fasta files (named *.fas) in this folder will be analyzed.
     2. A reference sequence file with a sequence or MSA with all sequences having the same length.
-    3. The location of the MAFFT executable file (https://mafft.cbrc.jp/alignment/software/)
+    3. The location of the MAFFT executable file <https://mafft.cbrc.jp/alignment/software/>
 }
 \examples{
 \dontrun{
@@ -41,8 +41,8 @@ align_to_ref(pigl=0)
 
 }
 \references{
-https://github.com/rgyoung6/MACER
-Young, R. G., Gill, R., Gillis, D., Hanner, R. H. (Submitted June 2021). Molecular Acquisition, Cleaning, and Evaluation in R (MACER) - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal.
+<https://github.com/rgyoung6/MACER>
+Young, R. G., Gill, R., Gillis, D., Hanner, R. H. (Submitted June 2021). Molecular Acquisition, Cleaning, and Evaluation in R ('MACER') - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal.
 }
 \seealso{
 auto_seq_download()

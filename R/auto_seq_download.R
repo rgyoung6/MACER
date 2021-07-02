@@ -1,12 +1,13 @@
 #Roxygen2 Documentation:
 
 #' @export
+#'
 #' @title Automatic Sequence Download
 #'
 #' @author Robert G. Young
 #'
 #' @description
-#' This function takes a list of genera, as supplied by the user, and searches and downloads molecular sequnce data from BOLD and Genbank.
+#' Takes a list of genera, as supplied by the user, and searches and downloads molecular sequence data from BOLD and Genbank.
 #'
 #' @details
 #' User Input: A list of genera in a text file in a single column with a new line at the end of the list.
@@ -33,7 +34,7 @@
 #' A file with a single table containing the accumulated data for all genera searched.
 #'
 #' @references
-#' https://github.com/rgyoung6/MACER
+#' <https://github.com/rgyoung6/MACER>
 #' Young, R. G., Gill, R., Gillis, D., Hanner, R. H. (Submitted June 2021). Molecular Acquisition, Cleaning, and Evaluation in R (MACER) - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal.
 #'
 #' @note

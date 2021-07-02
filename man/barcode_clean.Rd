@@ -2,7 +2,7 @@
 % Please edit documentation in R/barcode_clean.R
 \name{barcode_clean}
 \alias{barcode_clean}
-\title{Barcode Clean}
+\title{DNA Barcode Clean}
 \usage{
 barcode_clean(AA_code = 5, AGCT_only = 1)
 }
@@ -13,7 +13,7 @@ barcode_clean(AA_code = 5, AGCT_only = 1)
 5 is invert mitochondrial
 0 skips the AA clean section}
 
-\item{AGCT_only}{This indicates if records with charactrers other than AGCT are kept, the default is 1.
+\item{AGCT_only}{This indicates if records with characters other than AGCT are kept, the default is 1.
 1 removes records with non-AGCT
 0 is accepting all IUPAC characters}
 }
@@ -26,7 +26,7 @@ of all submitted records for each data set accompanied with the results from eac
 to the end, Finally, a fasta file with all outliers and flagged records removed is generated for each input fasta file. This output file is named the same as the input fasta with “no_outlier.fas” appended to the end.
 }
 \description{
-This function takes an input fasta file and identifies genus level outliers and species outliers based on the 1.5 x greater than the interquartile range.
+Takes an input fasta file and identifies genus level outliers and species outliers based on the 1.5 x greater than the interquartile range.
 It also, if selected, checks the sequence using amino acid translation and has the option to eliminate sequences that have non-IUPAC codes.
 Finally, the program calculates the barcode gap for the species in the submitted dataset.
 }
@@ -42,7 +42,7 @@ barcode_clean(AA_code = 1)
 
 }
 \references{
-https://github.com/rgyoung6/MACER
+<https://github.com/rgyoung6/MACER>
 Young, R. G., Gill, R., Gillis, D., Hanner, R. H. (Submitted June 2021). Molecular Acquisition, Cleaning, and Evaluation in R (MACER) - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal.
 }
 \seealso{
