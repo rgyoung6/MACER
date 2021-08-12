@@ -4,19 +4,29 @@
 \alias{auto_seq_download}
 \title{Automatic Sequence Download}
 \usage{
-auto_seq_download(BOLD_database = 1, NCBI_database = 1, search_str = "N")
+auto_seq_download(
+  BOLD_database = T,
+  NCBI_database = T,
+  search_str = F,
+  input_file = F,
+  output_file = F
+)
 }
 \arguments{
-\item{BOLD_database}{1 is to include, 0 is to exclude; default 1}
+\item{BOLD_database}{T is to include, F is to exclude; default T}
 
-\item{NCBI_database}{1 is to include, 0 is to exclude; default 1}
+\item{NCBI_database}{T is to include, F is to exclude; default T}
 
-\item{search_str}{N uses the default string, anything other than N then that string will be used for the GenBank search; default N.
-The Default String is: (genus[ORGN] OR genus[ALL]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])}
+\item{search_str}{F uses the default string, anything other than F then that string will be used for the GenBank search; default F.
+The Default String is: (genus[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])}
+
+\item{input_file}{F prompts the user to indicate the location of the input file through point and click prompts, anything other than F then the string supplied will be used for the location; default F}
+
+\item{output_file}{F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default F}
 }
 \value{
 Outputs: One main folder containing three other folders.
-Main folder - Seq_auto_dl_######_MMM_DD
+Main folder - Seq_auto_dl_TTTTTT_MMM_DD
 Three subfolders:
 1. BOLD - Contains a file for every genus downloaded with the raw data from the BOLD system.
 2. NCBI - Contains a file for every genus downloaded with the raw data from GenBank.
@@ -36,8 +46,8 @@ When using a custom search string for NCBI only a single genus at a time can be 
 \examples{
 \dontrun{
 auto_seq_download()
-auto_seq_download(BOLD_database = 1,NCBI_database = 0)
-auto_seq_download(BOLD_database = 0,NCBI_database = 1)
+auto_seq_download(BOLD_database = T, NCBI_database = F)
+auto_seq_download(BOLD_database = F, NCBI_database = T)
 }
 
 }

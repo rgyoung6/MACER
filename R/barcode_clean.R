@@ -17,29 +17,21 @@
 #' @examples
 #' \dontrun{
 #' barcode_clean(),
-#' barcode_clean(AA_code = 2, AGCT_only = 0),
-#' barcode_clean(AA_code = 1)
+#' barcode_clean(AA_code = "vert", AGCT_only = T),
+#' barcode_clean(AA_code = "vert")
 #' }
 #'
-#' @param AA_code
-#' This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available. The Invertebrate matrix, 5, is the default.
-#' 1 is standard code
-#' 2 is vertebrate mitochondrial
-#' 5 is invert mitochondrial
-#' 0 skips the AA clean section
-#'
-#' @param AGCT_only
-#' This indicates if records with characters other than AGCT are kept, the default is 1.
-#' 1 removes records with non-AGCT
-#' 0 is accepting all IUPAC characters
+#' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
+#' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is T. T removes records with non-AGCT FALSE is accepting all IUPAC characters
+#' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.
 #'
 #' @returns
 #' Output:
-#' A single log file for the running of the function with the name A_Clean_File_########## where the numbers represent the date and time of the run.
+#' A single log file for the running of the function with the name A_Clean_File_YYYY-DD-TTTTTTTT.
 #' The function will also output three files for each fasta file submitted. The first is the distance matrix that was calculated and used to assess the DNA barcode gaps.
-#' This file is named the same as the input file with ‘dist_table.dat' appended to the end of the name. The second file is the total data table file which provides a table
-#' of all submitted records for each data set accompanied with the results from each section of the analysis. This file is named the same as the input fasta with “data_table.dat” appended
-#' to the end, Finally, a fasta file with all outliers and flagged records removed is generated for each input fasta file. This output file is named the same as the input fasta with “no_outlier.fas” appended to the end.
+#' This file is named the same as the input file with dist_table.dat appended to the end of the name. The second file is the total data table file which provides a table
+#' of all submitted records for each data set accompanied with the results from each section of the analysis. This file is named the same as the input fasta with data_table.dat appended
+#' to the end, Finally, a fasta file with all outliers and flagged records removed is generated for each input fasta file. This output file is named the same as the input fasta with no_outlier.fas appended to the end.
 #'
 #' @references
 #' <https://github.com/rgyoung6/MACER>
@@ -57,16 +49,24 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code=5, AGCT_only=1){
+barcode_clean <- function(AA_code="invert", AGCT_only=T, data_folder=F){
 
-# Code 1 is standard code, 2 is vertebrate mitochondrial, 5 is invert mitochondrial, 0 skips the AA clean section
-# AGCT_only - 1 is on and 0 is accepting all IUPAC characters
+# Codes include 'std', 'vert', 'invert', 'NULL' skips the AA clean section
+# AGCT_only TRUE is on and FALSE is accepting all IUPAC characters
 
-# prompting to choose the folder location of the working directory with the input file to run the program
-n <- substr(readline(prompt="Choose the folder location where your input files are located. Hit enter key to continue..."),1,1)
-
-#Get the directory
-Work_loc<-readpath()
+  
+  if (data_folder== F){
+    
+    # prompting to choose the folder location of the working directory with the input file to run the program
+    n <- substr(readline(prompt="Choose the folder location where your input files are located. Hit enter key to continue..."),1,1)
+    #Get the directory
+    Work_loc<-readpath()
+    
+  }else{
+    
+    Work_loc = data_folder
+    
+  }
 
 #set the format for the date for all operating systems
 Sys.setlocale("LC_TIME", "C")
@@ -80,6 +80,18 @@ current_time<-gsub(" ","",current_time)
 current_time<-gsub(":","",current_time)
 log_file_name<- paste0("A_Clean_File_",current_time)
 log_header<- paste0("DNA_Clean_Log_File - File name = ", log_file_name, " - AA code = ", AA_code, " - AGCT only = ", AGCT_only)
+
+
+#Making the amino acid translation codes into numbers for the ape package.
+if (AA_code == "vert"){
+  AA_code = 2
+}else if (AA_code == "invert"){
+  AA_code = 5
+}else if (AA_code == "std"){
+  AA_code = 1
+}else {
+  (AA_code == 0)
+}
 
 #outputing the header to the log file
 write.table(log_header, file=paste0(Work_loc,"/",log_file_name,".dat"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\n")
@@ -162,7 +174,7 @@ for(h in 1:length(file_name)){
 
   #**************************** Removing sequences with non AGCT characters *********************************
 
-  if(AGCT_only==1 && nrow(Seq_file_data_frame)>2){
+  if(AGCT_only==T && nrow(Seq_file_data_frame)>2){
 
     #Getting rid of sequences with non AGCT characters
     no_AGCT_seq<-subset(Seq_file_data_frame,grepl("[^AGCTagct-]",Seq_file_data_frame$Sequence))

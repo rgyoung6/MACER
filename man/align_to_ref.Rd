@@ -4,9 +4,24 @@
 \alias{align_to_ref}
 \title{Align and Trim MSA Against a Reference}
 \usage{
-align_to_ref(pigl = 0.95, op = 1.53)
+align_to_ref(
+  data_folder = FALSE,
+  ref_seq_file = FALSE,
+  MAFFT_loc = FALSE,
+  output_file = FALSE,
+  pigl = 0.95,
+  op = 1.53
+)
 }
 \arguments{
+\item{data_folder}{This variable can be used to provide a location for the file containing all of the fasta files wanting to be aligned. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.}
+
+\item{ref_seq_file}{This variable can be used to provide a location for the reference sequence file. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.}
+
+\item{MAFFT_loc}{This variable can be used to provide a location for the MAFFT program. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.}
+
+\item{output_file}{This variable can be used to set the location of the output files from the program. The default value is set to FALSE where the program will place the output files in the same location as the target files.}
+
 \item{pigl}{This is the percent internal gap loop argument. This provides a percent that will remove records causing internal gaps if more than the percent value assigned
 to this argument is reached. If this value is set to 0 then internal gaps are not removed. The default for this value is 0.95.}
 
@@ -17,8 +32,8 @@ default value in the MAFFT program. For alignment of highly conserved regions wh
 Output:
 1. In the submitted file folder location there will be a log file titled MAFFT_log.
 2. The sequence output files from this script are placed into two subfolders. These folders are in the submitted file location where the fasta files of interest are located.
-   The two folders created are MAFFT and MAFFT_trimmed. In the MAFFT folder there will be files with name of the files in the submitted file folder appended with “_MAFFT”.
-   The MAFFT_trimmed file will contain files with the same naming convention as the files in the submitted folder and appended with “MAFFT_trimmed”.
+   The two folders created are MAFFT and MAFFT_trimmed. In the MAFFT folder there will be files with name of the files in the submitted file folder appended with â_MAFFTâ.
+   The MAFFT_trimmed file will contain files with the same naming convention as the files in the submitted folder and appended with âMAFFT_trimmedâ.
 }
 \description{
 Takes a FASTA file with target sequences and aligns them against a reference sequence submitted to the program.
@@ -38,7 +53,7 @@ align_to_ref(pigl=0.75)
 align_to_ref(pigl=0.95, op=10)
 align_to_ref(pigl=0)
 }
-
+  
 }
 \references{
 <https://github.com/rgyoung6/MACER>

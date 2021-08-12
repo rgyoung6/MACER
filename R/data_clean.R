@@ -118,7 +118,7 @@ data_clean <- function(clean_data_table, target_genus)
   if(nrow(flag_subset>0)){
 
     #Here I flag entries which have different target taxa
-    flag_subset<-subset(flag_subset$uniqueID, clean_data_table$Genus != target_genus)
+    flag_subset<-subset(flag_subset$uniqueID, flag_subset$Genus == target_genus)
 
     #Adding the results of the above check to the clean_data_table Flags column
     clean_data_table$Flags[clean_data_table$uniqueID %in% c(flag_subset)]<- "Wrong_Taxa"

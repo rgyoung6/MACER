@@ -5,29 +5,38 @@
 \title{Table To FASTA}
 \usage{
 create_fastas(
-  no_marker = 0,
-  no_taxa = 0,
-  no_seq = 0,
-  name_issue = 0,
-  taxa_digits = 0,
-  taxa_punct = 0,
-  wrong_taxa = 0
+  data_file = F,
+  input_file = F,
+  output_folder = F,
+  no_marker = F,
+  no_taxa = F,
+  no_seq = F,
+  name_issue = F,
+  taxa_digits = F,
+  taxa_punct = F,
+  wrong_taxa = F
 )
 }
 \arguments{
-\item{no_marker}{If set to 1 then will include records filtered out due to no marker data. Default is 0 to not include records with no marker data.}
+\item{data_file}{F prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than F then the string supplied will be used for the location; default F}
 
-\item{no_taxa}{If set to 1 then will include records filtered out due to no taxa data. Default is 0 to not include records with no taxa data.}
+\item{input_file}{F prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than F then the string supplied will be used for the location; default F}
 
-\item{no_seq}{If set to 1 then will include records filtered out due to no sequence data. Default is 0 to not include records with no sequence data.}
+\item{output_folder}{F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default FAL}
 
-\item{name_issue}{If set to 1 then will include records filtered out due to genus and species names with more than two terms. Default is 0 to not include records with taxonomic naming issues.}
+\item{no_marker}{If set to T then will include records filtered out due to no marker data. Default is F to not include records with no marker data.}
 
-\item{taxa_digits}{If set to 1 then will include records filtered out due to genus or species names containing digits. Default is 0 to not include records with digits in the taxonomic naming.}
+\item{no_taxa}{If set to T then will include records filtered out due to no taxa data. Default is F to not include records with no taxa data.}
 
-\item{taxa_punct}{If set to 1 then will include records filtered out due to the presence of punctuation in the genus or species names. Default is 0 to not include records with punctuation in the taxonomic naming.}
+\item{no_seq}{If set to T then will include records filtered out due to no sequence data. Default is F to not include records with no sequence data.}
 
-\item{wrong_taxa}{If set to 1 then will include records filtered out due to the incorrect genera based on the list of taxa initially submitted to the download program. Default is 0 to not include records of non-target taxa.}
+\item{name_issue}{If set to T then will include records filtered out due to genus and species names with more than two terms. Default is F to not include records with taxonomic naming issues.}
+
+\item{taxa_digits}{If set to T then will include records filtered out due to genus or species names containing digits. Default is F to not include records with digits in the taxonomic naming.}
+
+\item{taxa_punct}{If set to T then will include records filtered out due to the presence of punctuation in the genus or species names. Default is F to not include records with punctuation in the taxonomic naming.}
+
+\item{wrong_taxa}{If set to T then will include records filtered out due to the incorrect genera based on the list of taxa initially submitted to the download program. Default is F to not include records of non-target taxa.}
 }
 \value{
 This script outputs a fasta file of sequences for each column in the submitted parameters file. These files are named with the genera of interest and the first marker name in the column of the parameters file.
@@ -43,8 +52,8 @@ For further details please see the documentation.
 \examples{
 \dontrun{
 create_fastas()
-create_fastas(no_marker = 1, no_taxa = 1)
-create_fastas(no_seq  = 1, name_issue = 1)
+create_fastas(no_marker = T, no_taxa = T)
+create_fastas(no_seq  = T, name_issue = T)
 }
 
 }

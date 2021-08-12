@@ -26,10 +26,9 @@ License: GPL-2 | GPL-3
 Encoding: UTF-8
 URL: <https://github.com/rgyoung6/MACER>
 Depends: 
-    R (>= 4.1.0)
 Imports:
-	rentrez (>= 1.2.2),
-  ape (>= 5.5),
+	rentrez,
+  ape,
 	httr,
 	stats, 
 	utils

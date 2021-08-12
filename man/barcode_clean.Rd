@@ -4,26 +4,22 @@
 \alias{barcode_clean}
 \title{DNA Barcode Clean}
 \usage{
-barcode_clean(AA_code = 5, AGCT_only = 1)
+barcode_clean(AA_code = "invert", AGCT_only = T, data_folder = F)
 }
 \arguments{
-\item{AA_code}{This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available. The Invertebrate matrix, 5, is the default.
-1 is standard code
-2 is vertebrate mitochondrial
-5 is invert mitochondrial
-0 skips the AA clean section}
+\item{AA_code}{This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.}
 
-\item{AGCT_only}{This indicates if records with characters other than AGCT are kept, the default is 1.
-1 removes records with non-AGCT
-0 is accepting all IUPAC characters}
+\item{AGCT_only}{This indicates if records with characters other than AGCT are kept, the default is T. T removes records with non-AGCT FALSE is accepting all IUPAC characters}
+
+\item{data_folder}{This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.}
 }
 \value{
 Output:
-A single log file for the running of the function with the name A_Clean_File_########## where the numbers represent the date and time of the run.
+A single log file for the running of the function with the name A_Clean_File_YYYY-DD-TTTTTTTT.
 The function will also output three files for each fasta file submitted. The first is the distance matrix that was calculated and used to assess the DNA barcode gaps.
-This file is named the same as the input file with ‘dist_table.dat' appended to the end of the name. The second file is the total data table file which provides a table
-of all submitted records for each data set accompanied with the results from each section of the analysis. This file is named the same as the input fasta with “data_table.dat” appended
-to the end, Finally, a fasta file with all outliers and flagged records removed is generated for each input fasta file. This output file is named the same as the input fasta with “no_outlier.fas” appended to the end.
+This file is named the same as the input file with dist_table.dat appended to the end of the name. The second file is the total data table file which provides a table
+of all submitted records for each data set accompanied with the results from each section of the analysis. This file is named the same as the input fasta with data_table.dat appended
+to the end, Finally, a fasta file with all outliers and flagged records removed is generated for each input fasta file. This output file is named the same as the input fasta with no_outlier.fas appended to the end.
 }
 \description{
 Takes an input fasta file and identifies genus level outliers and species outliers based on the 1.5 x greater than the interquartile range.
@@ -36,8 +32,8 @@ Input: A file folder with one or more fasta files of interest
 \examples{
 \dontrun{
 barcode_clean(),
-barcode_clean(AA_code = 2, AGCT_only = 0),
-barcode_clean(AA_code = 1)
+barcode_clean(AA_code = "vert", AGCT_only = T),
+barcode_clean(AA_code = "vert")
 }
 
 }
