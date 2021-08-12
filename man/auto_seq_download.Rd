@@ -32,7 +32,7 @@ Three subfolders:
 2. NCBI - Contains a file for every genus downloaded with the raw data from GenBank.
 3. Total_tables - Contains files for the running of the function which include...
 A_Summary.txt - This file contains information about the downloads.
-A file with a single table containing the accumulated data for all genera searched.
+A_Total_Table.tsv – A file with a single table containing the accumulated data for all genera searched.
 }
 \description{
 Takes a list of genera, as supplied by the user, and searches and downloads molecular sequence data from BOLD and Genbank.
