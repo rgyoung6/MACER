@@ -21,7 +21,7 @@
 #'
 #' @param data_file F prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than F then the string supplied will be used for the location; default F
 #' @param input_file F prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than F then the string supplied will be used for the location; default F
-#' @param output_folder F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default FAL
+#' @param output_folder F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default F
 #'
 #' @param no_marker If set to T then will include records filtered out due to no marker data. Default is F to not include records with no marker data.
 #' @param no_taxa If set to T then will include records filtered out due to no taxa data. Default is F to not include records with no taxa data.
@@ -52,42 +52,42 @@
 ##################################### Main FUNCTION ##############################################################
 create_fastas <- function(data_file = F, input_file = F, output_folder = F, no_marker = F, no_taxa = F, no_seq= F, name_issue = F, taxa_digits = F, taxa_punct = F, wrong_taxa = F ){
 
-  
+
   #Check to see if a path to the data_file of interest was submitted in the function call
   if (data_file == F){
-    
+
     n <- substr(readline(prompt="Please select the total tables file.  Hit enter key to continue..."),1,1)
     #prompting the user for the file through file.choose
     total_tables_file<-file.choose()
 
   }else {
-    
+
     total_tables_file=data_file
-    
+
   }
 
   if (input_file == F){
-    
+
     n <- substr(readline(prompt="Please select the file with genus and the list of molecular markers of interest. Hit enter key to continue..."),1,1)
     #prompting the user for the file through file.choose
     genus_marker_file<-file.choose()
 
   }else{
-    
+
     genus_marker_file=input_file
-    
+
   }
-  
+
   if (output_folder == F){
-    
+
     current_path <- dirname(total_tables_file)
-    
+
   }else{
-    
+
     current_path=output_folder
-    
+
   }
-  
+
   #read in the data from the total tables file
   total_table_data<-as.data.frame(read.table(total_tables_file,header=TRUE,sep="\t",na.strings="" ))
 

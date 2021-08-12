@@ -33,7 +33,7 @@
 #' 2. NCBI - Contains a file for every genus downloaded with the raw data from GenBank.
 #' 3. Total_tables - Contains files for the running of the function which include...
 #' A_Summary.txt - This file contains information about the downloads.
-#' A file with a single table containing the accumulated data for all genera searched.
+#' A_Total_Table.tsv – A file with a single table containing the accumulated data for all genera searched.
 #'
 #' @references
 #' <https://github.com/rgyoung6/MACER>
@@ -57,27 +57,27 @@ auto_seq_download <- function(BOLD_database=T, NCBI_database=T, search_str= F, i
 
   #The following if checks to see if the user inputted a file location when calling the program if not then prompts the user to select
   if (input_file== F){
-  
+
   # prompting to choose the file of interest with the tab delimited info
   n <- substr(readline(prompt="Choose the file with the genera of interest to download. Hit enter key to continue..."),1,1)
   genera_list<-file.choose()
-  
+
   } else{
-    
+
     genera_list=input_file
-    
+
   }
-  
+
   #assign the output if the user didn't supply an output location
   if (output_file==F){
-    
+
     Work_loc <- dirname(genera_list)
     print(genera_list)
-    
+
   }else{
-    
+
     Work_loc=output_file
-    
+
   }
   # load in the data file in to the data for the lines
   genera_list<-read.table(genera_list,header=F,sep="\t",dec=".", fill = TRUE )
@@ -103,7 +103,7 @@ auto_seq_download <- function(BOLD_database=T, NCBI_database=T, search_str= F, i
   total_data_table<- data.frame(uniqueID=character(), DB=character(), ID=character(), Accession=character(),Genus_Species=character(), Genus=character(),Species=character(),BIN_OTU=character(),Gene=character(),Sequence=character(),Flags=character(), stringsAsFactors=FALSE)
 
   #Initialize the output file for all of the molecular markers
-  write.table(total_data_table ,file=paste0(table_folder,"/A_Total_Table.dat"), na="", row.names=FALSE, col.names=TRUE, quote = FALSE,sep="\t", append=FALSE)
+  write.table(total_data_table ,file=paste0(table_folder,"/A_Total_Table.tsv"), na="", row.names=FALSE, col.names=TRUE, quote = FALSE,sep="\t", append=FALSE)
 
   #Initializing the file for output to the summary log file
   summary_log<-NULL
@@ -206,7 +206,7 @@ auto_seq_download <- function(BOLD_database=T, NCBI_database=T, search_str= F, i
 
         #This line builds the search string if no alternative was entered in as an attribute
         ncbi_search_str<-paste0("(", genera_list[genera_list_loop_counter],"[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])")
-        
+
       }else{
 
         ncbi_search_str<-search_str
@@ -313,7 +313,7 @@ auto_seq_download <- function(BOLD_database=T, NCBI_database=T, search_str= F, i
       total_data_table= total_data_table[-1,]
 
       #Initialize the output file for all of the molecular markers
-      write.table(total_data_table ,file=paste0(table_folder,"/A_Total_Table.dat"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\t", append=TRUE)
+      write.table(total_data_table ,file=paste0(table_folder,"/A_Total_Table.tsv"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\t", append=TRUE)
 
     }#Closing off the if statement checking to see if there was data for this taxa
 
