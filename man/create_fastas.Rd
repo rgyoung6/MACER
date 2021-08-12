@@ -22,7 +22,7 @@ create_fastas(
 
 \item{input_file}{F prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than F then the string supplied will be used for the location; default F}
 
-\item{output_folder}{F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default FAL}
+\item{output_folder}{F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default F}
 
 \item{no_marker}{If set to T then will include records filtered out due to no marker data. Default is F to not include records with no marker data.}
 
