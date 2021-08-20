@@ -29,8 +29,6 @@
 #' @param name_issue If set to T then will include records filtered out due to genus and species names with more than two terms. Default is F to not include records with taxonomic naming issues.
 #' @param taxa_digits If set to T then will include records filtered out due to genus or species names containing digits. Default is F to not include records with digits in the taxonomic naming.
 #' @param taxa_punct If set to T then will include records filtered out due to the presence of punctuation in the genus or species names. Default is F to not include records with punctuation in the taxonomic naming.
-#' @param wrong_taxa If set to T then will include records filtered out due to the incorrect genera based on the list of taxa initially submitted to the download program. Default is F to not include records of non-target taxa.
-#'
 #' @returns
 #' This script outputs a fasta file of sequences for each column in the submitted parameters file. These files are named with the genera of interest and the first marker name in the column of the parameters file.
 #' These files are located in the folder where the Total_tables.txt file is located.
@@ -50,7 +48,7 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-create_fastas <- function(data_file = F, input_file = F, output_folder = F, no_marker = F, no_taxa = F, no_seq= F, name_issue = F, taxa_digits = F, taxa_punct = F, wrong_taxa = F ){
+create_fastas <- function(data_file = F, input_file = F, output_folder = F, no_marker = F, no_taxa = F, no_seq= F, name_issue = F, taxa_digits = F, taxa_punct = F ){
 
 
   #Check to see if a path to the data_file of interest was submitted in the function call

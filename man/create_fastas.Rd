@@ -13,8 +13,7 @@ create_fastas(
   no_seq = F,
   name_issue = F,
   taxa_digits = F,
-  taxa_punct = F,
-  wrong_taxa = F
+  taxa_punct = F
 )
 }
 \arguments{
@@ -35,8 +34,6 @@ create_fastas(
 \item{taxa_digits}{If set to T then will include records filtered out due to genus or species names containing digits. Default is F to not include records with digits in the taxonomic naming.}
 
 \item{taxa_punct}{If set to T then will include records filtered out due to the presence of punctuation in the genus or species names. Default is F to not include records with punctuation in the taxonomic naming.}
-
-\item{wrong_taxa}{If set to T then will include records filtered out due to the incorrect genera based on the list of taxa initially submitted to the download program. Default is F to not include records of non-target taxa.}
 }
 \value{
 This script outputs a fasta file of sequences for each column in the submitted parameters file. These files are named with the genera of interest and the first marker name in the column of the parameters file.
