@@ -132,7 +132,6 @@ create_fastas <- function(data_file = F, input_file = F, output_folder = F, no_m
   if(name_issue == T) params_list <- append(params_list,'Taxa_name_issue')
   if(taxa_digits == T)params_list <- append(params_list,'Taxa_w_digits')
   if(taxa_punct == T) params_list <- append(params_list,'Taxa_w_punct')
-  if(wrong_taxa == T) params_list <- append(params_list,'Wrong_Taxa')
 
   #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
   total_table_data_out<-total_table_data[(total_table_data$Flags %in% params_list),]

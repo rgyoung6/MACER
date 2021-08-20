@@ -112,19 +112,6 @@ data_clean <- function(clean_data_table, target_genus)
   #Reorder the data frame and drop the genus_species column
   clean_data_table<-as.data.frame(cbind(clean_data_table["uniqueID"], clean_data_table["DB"], clean_data_table["ID"], clean_data_table["Accession"], clean_data_table["Genus_Species"], clean_data_table["Genus"], clean_data_table["Species"], clean_data_table["BIN_OTU"], clean_data_table["Gene"], clean_data_table["Sequence"], clean_data_table["Flags"]))
 
-  #Here I get the data table with out - in the genus
-  flag_subset<-subset(clean_data_table,clean_data_table$Genus != "-")
-
-  if(nrow(flag_subset>0)){
-
-    #Here I flag entries which have different target taxa
-    flag_subset<-subset(flag_subset$uniqueID, flag_subset$Genus == target_genus)
-
-    #Adding the results of the above check to the clean_data_table Flags column
-    clean_data_table$Flags[clean_data_table$uniqueID %in% c(flag_subset)]<- "Wrong_Taxa"
-
-  }
-
   #Here I get entries which don't have a flag
   flag_subset<-subset(clean_data_table,clean_data_table$Flags == "-")
 
