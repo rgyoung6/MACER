@@ -146,7 +146,7 @@ AA_code – This is the amino acid translation matrix used to check the sequence
   - std (1 in ape) is standard code
   - vert (2 in ape) is vertebrate mitochondrial
   - invert (5 in ape) is invertebrate mitochondrial
-  - F skips the AA clean section
+  - FALSE skips the AA clean section
 AGCT_only – This only keeps sequences with AGCT exclusively, not IUPAC characters.
   - TRUE is on 
   - FALSE is accepting all IUPAC characters
