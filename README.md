@@ -60,14 +60,14 @@ An example walk through of the MACER functions is available in the associated Gi
 File with list of genera you want to download. Place these genera in a file in a single column.
 
 ### Arguments
-BOLD_database – T is to include, F is to exclude; default T
-NCBI_database – T is to include, F is to exclude; default T
-search_str – F uses the default string, anything other than F then that string will be used for the GenBank search; default F
+BOLD_database – TRUE is to include, FALSE is to exclude; default TRUE
+NCBI_database – TRUE is to include, FALSE is to exclude; default TRUE
+search_str – NULL uses the default string, anything other than NULL then that string will be used for the GenBank search; default NULL
 Default string…
 (genus[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])
 Note: When using a custom search string for NCBI only a single genus at a time can be used.
-input_file –  F prompts the user to indicate the location of the input file through point and click prompts, anything other than F then the string supplied will be used for the location; default F
-output_file –  F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default F
+input_file –  FALSE prompts the user to indicate the location of the input file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
+output_file –  FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
 
 ### Output
 One main folder containing three other folders.
@@ -94,17 +94,17 @@ CYTOCHROMEB<t/>	CYTOCHROMECOXIDASESUBUNIT1
 CYTOCHROME-B<t/>	CYTOCHROMECOXIDASESUBUNITI
 
 ### Arguments
-data_file – F prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than F then the string supplied will be used for the location; default F
-input_file – F prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than F then the string supplied will be used for the location; default F
-output_folder – F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default F
+data_file – FALSE prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than FALSE then the string supplied will be used for the location; default FASLE
+input_file – FALSE prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
+output_folder – FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
 
-no_marker – If set to T then will include records filtered out due to no marker data. Default is F to not include records with no marker data.
-no_taxa – If set to T then will include records filtered out due to no taxa data. Default is F to not include records with no taxa data.
-no_seq – If set to T then will include records filtered out due to no sequence data. Default is F to not include records with no sequence data.
-name_issue – If set to T then will include records filtered out due to genus and species names with more than two terms. Default is F to not include records with taxonomic naming issues.
-taxa_digits – If set to T then will include records filtered out due to genus or species names containing digits. Default is F to not include records with digits in the taxonomic naming.
-taxa_punct – If set to T then will include records filtered out due to the presence of punctuation in the genus or species names. Default is F to not include records with punctuation in the taxonomic naming.
-wrong_taxa – If set to T then will include records filtered out due to the incorrect genera based on the list of taxa initially submitted to the download program. Default is F to not include records of non-target taxa.
+no_marker – If set to TRUE then will include records filtered out due to no marker data. Default is FALSE to not include records with no marker data.
+no_taxa – If set to TRUE then will include records filtered out due to no taxa data. Default is FALSE to not include records with no taxa data.
+no_seq – If set to TRUE then will include records filtered out due to no sequence data. Default is FALSE to not include records with no sequence data.
+name_issue – If set to TRUE then will include records filtered out due to genus and species names with more than two terms. Default is FALSE to not include records with taxonomic naming issues.
+taxa_digits – If set to TRUE then will include records filtered out due to genus or species names containing digits. Default is FALSE to not include records with digits in the taxonomic naming.
+taxa_punct – If set to TRUE then will include records filtered out due to the presence of punctuation in the genus or species names. Default is FALSE to not include records with punctuation in the taxonomic naming.
+wrong_taxa – If set to TRUE then will include records filtered out due to the incorrect genera based on the list of taxa initially submitted to the download program. Default is FALSE to not include records of non-target taxa.
 
 ### Output
 This script outputs a fasta file of sequences for each column in the submitted parameters file. These files are named with the genera of interest and the first marker name in the column of the parameters file. These files are located in the folder where the Total_tables.tsv file is located.
@@ -148,8 +148,8 @@ AA_code – This is the amino acid translation matrix used to check the sequence
   - invert (5 in ape) is invertebrate mitochondrial
   - F skips the AA clean section
 AGCT_only – This only keeps sequences with AGCT exclusively, not IUPAC characters.
-  - T is on 
-  - F is accepting all IUPAC characters
+  - TRUE is on 
+  - FALSE is accepting all IUPAC characters
 
 ### Output
 A single log file for the running of the function with the name A_Clean_File_YYYY-DD-TTTTTTTT. The function will also output three files for each fasta file submitted. The first is the distance matrix that was calculated and used to assess the DNA barcode gaps. This file is named the same as the input file with ‘_dist_table.dat” appended to the end of the name. The second file is the total data table file which provides a table of all submitted records for each data set accompanied with the results from each section of the analysis. This file is named the same as the input fasta with “_data_table.dat” appended to the end, Finally, a fasta file with all outliers and flagged records removed is generated for each input fasta file. This output file is named the same as the input fasta with “_no_outlier.fas” appended to the end. The flags that are possible are non_AGCT, Stop_Codon, Genus_Outlier, Species_Outlier, and '-'.
