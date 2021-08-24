@@ -15,20 +15,20 @@
 #' @examples
 #' \dontrun{
 #' create_fastas()
-#' create_fastas(no_marker = T, no_taxa = T)
-#' create_fastas(no_seq  = T, name_issue = T)
+#' create_fastas(no_marker = TRUE, no_taxa = TRUE)
+#' create_fastas(no_seq  = TRUE, name_issue = TRUE)
 #' }
 #'
-#' @param data_file F prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than F then the string supplied will be used for the location; default F
-#' @param input_file F prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than F then the string supplied will be used for the location; default F
-#' @param output_folder F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default F
+#' @param data_file FALSE prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than FALSE then the string supplied will be used for the location; default FALSE
+#' @param input_file FALSE prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
+#' @param output_folder FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
 #'
-#' @param no_marker If set to T then will include records filtered out due to no marker data. Default is F to not include records with no marker data.
-#' @param no_taxa If set to T then will include records filtered out due to no taxa data. Default is F to not include records with no taxa data.
-#' @param no_seq If set to T then will include records filtered out due to no sequence data. Default is F to not include records with no sequence data.
-#' @param name_issue If set to T then will include records filtered out due to genus and species names with more than two terms. Default is F to not include records with taxonomic naming issues.
-#' @param taxa_digits If set to T then will include records filtered out due to genus or species names containing digits. Default is F to not include records with digits in the taxonomic naming.
-#' @param taxa_punct If set to T then will include records filtered out due to the presence of punctuation in the genus or species names. Default is F to not include records with punctuation in the taxonomic naming.
+#' @param no_marker If set to TRUE then will include records filtered out due to no marker data. Default is FALSE to not include records with no marker data.
+#' @param no_taxa If set to TRUE then will include records filtered out due to no taxa data. Default is FALSE to not include records with no taxa data.
+#' @param no_seq If set to TRUE then will include records filtered out due to no sequence data. Default is FALSE to not include records with no sequence data.
+#' @param name_issue If set to TRUE then will include records filtered out due to genus and species names with more than two terms. Default is FALSE to not include records with taxonomic naming issues.
+#' @param taxa_digits If set to TRUE then will include records filtered out due to genus or species names containing digits. Default is FALSE to not include records with digits in the taxonomic naming.
+#' @param taxa_punct If set to TRUE then will include records filtered out due to the presence of punctuation in the genus or species names. Default is FALSE to not include records with punctuation in the taxonomic naming.
 #' @returns
 #' This script outputs a fasta file of sequences for each column in the submitted parameters file. These files are named with the genera of interest and the first marker name in the column of the parameters file.
 #' These files are located in the folder where the Total_tables.txt file is located.
@@ -48,11 +48,11 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-create_fastas <- function(data_file = F, input_file = F, output_folder = F, no_marker = F, no_taxa = F, no_seq= F, name_issue = F, taxa_digits = F, taxa_punct = F ){
+create_fastas <- function(data_file = FALSE, input_file = FALSE, output_folder = FALSE, no_marker = FALSE, no_taxa = FALSE, no_seq= FALSE, name_issue = FALSE, taxa_digits = FALSE, taxa_punct = FALSE ){
 
 
   #Check to see if a path to the data_file of interest was submitted in the function call
-  if (data_file == F){
+  if (data_file == FALSE){
 
     n <- substr(readline(prompt="Please select the total tables file.  Hit enter key to continue..."),1,1)
     #prompting the user for the file through file.choose
@@ -64,7 +64,7 @@ create_fastas <- function(data_file = F, input_file = F, output_folder = F, no_m
 
   }
 
-  if (input_file == F){
+  if (input_file == FALSE){
 
     n <- substr(readline(prompt="Please select the file with genus and the list of molecular markers of interest. Hit enter key to continue..."),1,1)
     #prompting the user for the file through file.choose
@@ -76,7 +76,7 @@ create_fastas <- function(data_file = F, input_file = F, output_folder = F, no_m
 
   }
 
-  if (output_folder == F){
+  if (output_folder == FALSE){
 
     current_path <- dirname(total_tables_file)
 
@@ -124,12 +124,12 @@ create_fastas <- function(data_file = F, input_file = F, output_folder = F, no_m
 
   #see what parameters are set by the user and add them to the parameter list
   params_list <- list('-')
-  if(no_marker == T) params_list <- append(params_list,'No_Marker')
-  if(no_taxa == T) params_list <- append(params_list,'No_Taxa')
-  if(no_seq == T) params_list <- append(params_list,'No_Seq')
-  if(name_issue == T) params_list <- append(params_list,'Taxa_name_issue')
-  if(taxa_digits == T)params_list <- append(params_list,'Taxa_w_digits')
-  if(taxa_punct == T) params_list <- append(params_list,'Taxa_w_punct')
+  if(no_marker == TRUE) params_list <- append(params_list,'No_Marker')
+  if(no_taxa == TRUE) params_list <- append(params_list,'No_Taxa')
+  if(no_seq == TRUE) params_list <- append(params_list,'No_Seq')
+  if(name_issue == TRUE) params_list <- append(params_list,'Taxa_name_issue')
+  if(taxa_digits == TRUE)params_list <- append(params_list,'Taxa_w_digits')
+  if(taxa_punct == TRUE) params_list <- append(params_list,'Taxa_w_punct')
 
   #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
   total_table_data_out<-total_table_data[(total_table_data$Flags %in% params_list),]

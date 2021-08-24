@@ -5,35 +5,35 @@
 \title{Table To FASTA}
 \usage{
 create_fastas(
-  data_file = F,
-  input_file = F,
-  output_folder = F,
-  no_marker = F,
-  no_taxa = F,
-  no_seq = F,
-  name_issue = F,
-  taxa_digits = F,
-  taxa_punct = F
+  data_file = FALSE,
+  input_file = FALSE,
+  output_folder = FALSE,
+  no_marker = FALSE,
+  no_taxa = FALSE,
+  no_seq = FALSE,
+  name_issue = FALSE,
+  taxa_digits = FALSE,
+  taxa_punct = FALSE
 )
 }
 \arguments{
-\item{data_file}{F prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than F then the string supplied will be used for the location; default F}
+\item{data_file}{FALSE prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than FALSE then the string supplied will be used for the location; default FALSE}
 
-\item{input_file}{F prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than F then the string supplied will be used for the location; default F}
+\item{input_file}{FALSE prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE}
 
-\item{output_folder}{F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default F}
+\item{output_folder}{FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE}
 
-\item{no_marker}{If set to T then will include records filtered out due to no marker data. Default is F to not include records with no marker data.}
+\item{no_marker}{If set to TRUE then will include records filtered out due to no marker data. Default is FALSE to not include records with no marker data.}
 
-\item{no_taxa}{If set to T then will include records filtered out due to no taxa data. Default is F to not include records with no taxa data.}
+\item{no_taxa}{If set to TRUE then will include records filtered out due to no taxa data. Default is FALSE to not include records with no taxa data.}
 
-\item{no_seq}{If set to T then will include records filtered out due to no sequence data. Default is F to not include records with no sequence data.}
+\item{no_seq}{If set to TRUE then will include records filtered out due to no sequence data. Default is FALSE to not include records with no sequence data.}
 
-\item{name_issue}{If set to T then will include records filtered out due to genus and species names with more than two terms. Default is F to not include records with taxonomic naming issues.}
+\item{name_issue}{If set to TRUE then will include records filtered out due to genus and species names with more than two terms. Default is FALSE to not include records with taxonomic naming issues.}
 
-\item{taxa_digits}{If set to T then will include records filtered out due to genus or species names containing digits. Default is F to not include records with digits in the taxonomic naming.}
+\item{taxa_digits}{If set to TRUE then will include records filtered out due to genus or species names containing digits. Default is FALSE to not include records with digits in the taxonomic naming.}
 
-\item{taxa_punct}{If set to T then will include records filtered out due to the presence of punctuation in the genus or species names. Default is F to not include records with punctuation in the taxonomic naming.}
+\item{taxa_punct}{If set to TRUE then will include records filtered out due to the presence of punctuation in the genus or species names. Default is FALSE to not include records with punctuation in the taxonomic naming.}
 }
 \value{
 This script outputs a fasta file of sequences for each column in the submitted parameters file. These files are named with the genera of interest and the first marker name in the column of the parameters file.
@@ -49,8 +49,8 @@ For further details please see the documentation.
 \examples{
 \dontrun{
 create_fastas()
-create_fastas(no_marker = T, no_taxa = T)
-create_fastas(no_seq  = T, name_issue = T)
+create_fastas(no_marker = TRUE, no_taxa = TRUE)
+create_fastas(no_seq  = TRUE, name_issue = TRUE)
 }
 
 }

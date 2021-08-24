@@ -17,12 +17,12 @@
 #' @examples
 #' \dontrun{
 #' barcode_clean(),
-#' barcode_clean(AA_code = "vert", AGCT_only = T),
+#' barcode_clean(AA_code = "vert", AGCT_only = TRUE),
 #' barcode_clean(AA_code = "vert")
 #' }
 #'
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
-#' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is T. T removes records with non-AGCT FALSE is accepting all IUPAC characters
+#' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.
 #'
 #' @returns
@@ -49,23 +49,23 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code="invert", AGCT_only=T, data_folder=F){
+barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = FALSE){
 
 # Codes include 'std', 'vert', 'invert', 'NULL' skips the AA clean section
 # AGCT_only TRUE is on and FALSE is accepting all IUPAC characters
 
-  
-  if (data_folder== F){
-    
+
+  if (data_folder== FALSE){
+
     # prompting to choose the folder location of the working directory with the input file to run the program
     n <- substr(readline(prompt="Choose the folder location where your input files are located. Hit enter key to continue..."),1,1)
     #Get the directory
     Work_loc<-readpath()
-    
+
   }else{
-    
+
     Work_loc = data_folder
-    
+
   }
 
 #set the format for the date for all operating systems
@@ -174,7 +174,7 @@ for(h in 1:length(file_name)){
 
   #**************************** Removing sequences with non AGCT characters *********************************
 
-  if(AGCT_only==T && nrow(Seq_file_data_frame)>2){
+  if(AGCT_only==TRUE && nrow(Seq_file_data_frame)>2){
 
     #Getting rid of sequences with non AGCT characters
     no_AGCT_seq<-subset(Seq_file_data_frame,grepl("[^AGCTagct-]",Seq_file_data_frame$Sequence))

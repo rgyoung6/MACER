@@ -4,12 +4,12 @@
 \alias{barcode_clean}
 \title{DNA Barcode Clean}
 \usage{
-barcode_clean(AA_code = "invert", AGCT_only = T, data_folder = F)
+barcode_clean(AA_code = "invert", AGCT_only = TRUE, data_folder = FALSE)
 }
 \arguments{
 \item{AA_code}{This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.}
 
-\item{AGCT_only}{This indicates if records with characters other than AGCT are kept, the default is T. T removes records with non-AGCT FALSE is accepting all IUPAC characters}
+\item{AGCT_only}{This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters}
 
 \item{data_folder}{This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.}
 }
@@ -32,7 +32,7 @@ Input: A file folder with one or more fasta files of interest
 \examples{
 \dontrun{
 barcode_clean(),
-barcode_clean(AA_code = "vert", AGCT_only = T),
+barcode_clean(AA_code = "vert", AGCT_only = TRUE),
 barcode_clean(AA_code = "vert")
 }
 

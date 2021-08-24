@@ -15,16 +15,16 @@
 #' @examples
 #' \dontrun{
 #' auto_seq_download()
-#' auto_seq_download(BOLD_database = T, NCBI_database = F)
-#' auto_seq_download(BOLD_database = F, NCBI_database = T)
+#' auto_seq_download(BOLD_database = TRUE, NCBI_database = FALSE)
+#' auto_seq_download(BOLD_database = FALSE, NCBI_database = TRUE)
 #' }
 #'
-#' @param BOLD_database T is to include, F is to exclude; default T
-#' @param NCBI_database T is to include, F is to exclude; default T
-#' @param search_str F uses the default string, anything other than F then that string will be used for the GenBank search; default F.
+#' @param BOLD_database TRUE is to include, FALSE is to exclude; default TRUE
+#' @param NCBI_database TRUE is to include, FALSE is to exclude; default TRUE
+#' @param search_str NULL uses the default string, anything other than F then that string will be used for the GenBank search; default NULL.
 #' The Default String is: (genus[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])
-#' @param input_file F prompts the user to indicate the location of the input file through point and click prompts, anything other than F then the string supplied will be used for the location; default F
-#' @param output_file F prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default F
+#' @param input_file FALSE prompts the user to indicate the location of the input file through point and click prompts, anything other than F then the string supplied will be used for the location; default FALSE
+#' @param output_file FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default FALSE
 #'
 #' @returns Outputs: One main folder containing three other folders.
 #' Main folder - Seq_auto_dl_TTTTTT_MMM_DD
@@ -52,11 +52,11 @@
 #'
 
 ############################################ MAIN FOR FOR BOLD/NCBI DOWNLOAD ###################################################################################
-auto_seq_download <- function(BOLD_database=T, NCBI_database=T, search_str= F, input_file= F, output_file=F)
+auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str= NULL, input_file= FALSE, output_file=FALSE)
 {
 
   #The following if checks to see if the user inputted a file location when calling the program if not then prompts the user to select
-  if (input_file== F){
+  if (input_file== FALSE){
 
   # prompting to choose the file of interest with the tab delimited info
   n <- substr(readline(prompt="Choose the file with the genera of interest to download. Hit enter key to continue..."),1,1)
@@ -69,7 +69,7 @@ auto_seq_download <- function(BOLD_database=T, NCBI_database=T, search_str= F, i
   }
 
   #assign the output if the user didn't supply an output location
-  if (output_file==F){
+  if (output_file==FALSE){
 
     Work_loc <- dirname(genera_list)
     print(genera_list)
@@ -130,7 +130,7 @@ auto_seq_download <- function(BOLD_database=T, NCBI_database=T, search_str= F, i
 
     #*****************************downloading from BOLD, attempt at least 3 times*******************************************************************************#
 
-    if (BOLD_database==T){
+    if (BOLD_database==TRUE){
       #initialize the attempt variables, set the error occurrence flag to false and initialize an empty data frame
       attempt<- 1
       BOLD_data_table <- data.frame(matrix(nrow=0, ncol=2))
@@ -200,9 +200,9 @@ auto_seq_download <- function(BOLD_database=T, NCBI_database=T, search_str= F, i
     #*****************************downloading from NCBI, attempt at least 3 times************************************************************************************************#
 
 
-    if (NCBI_database==T){
+    if (NCBI_database==TRUE){
       #This is the section where I will build the search string for NCBI. If it is equal to the preset value then build it with the if, if it isn't then use it as the user inputted value
-      if(search_str==F){
+      if(is.null(search_str)){
 
         #This line builds the search string if no alternative was entered in as an attribute
         ncbi_search_str<-paste0("(", genera_list[genera_list_loop_counter],"[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])")
