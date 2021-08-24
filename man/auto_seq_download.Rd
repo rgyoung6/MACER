@@ -17,7 +17,7 @@ auto_seq_download(
 
 \item{NCBI_database}{TRUE is to include, FALSE is to exclude; default TRUE}
 
-\item{search_str}{NULL uses the default string, anything other than F then that string will be used for the GenBank search; default NULL.
+\item{search_str}{NULL uses the default string, anything other than NULL then that string will be used for the GenBank search; default NULL.
 The Default String is: (genus[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])}
 
 \item{input_file}{FALSE prompts the user to indicate the location of the input file through point and click prompts, anything other than F then the string supplied will be used for the location; default FALSE}
