@@ -23,8 +23,8 @@
 #' @param NCBI_database TRUE is to include, FALSE is to exclude; default TRUE
 #' @param search_str NULL uses the default string, anything other than NULL then that string will be used for the GenBank search; default NULL.
 #' The Default String is: (genus[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])
-#' @param input_file FALSE prompts the user to indicate the location of the input file through point and click prompts, anything other than F then the string supplied will be used for the location; default FALSE
-#' @param output_file FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default FALSE
+#' @param input_file NULL prompts the user to indicate the location of the input file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
+#' @param output_file NULL prompts the user to indicate the location of the output file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
 #'
 #' @returns Outputs: One main folder containing three other folders.
 #' Main folder - Seq_auto_dl_TTTTTT_MMM_DD
@@ -52,11 +52,11 @@
 #'
 
 ############################################ MAIN FOR FOR BOLD/NCBI DOWNLOAD ###################################################################################
-auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str= NULL, input_file= FALSE, output_file=FALSE)
+auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str= NULL, input_file= NULL, output_file=NULL)
 {
 
   #The following if checks to see if the user inputted a file location when calling the program if not then prompts the user to select
-  if (input_file== FALSE){
+  if (is.null(input_file)){
 
   # prompting to choose the file of interest with the tab delimited info
   n <- substr(readline(prompt="Choose the file with the genera of interest to download. Hit enter key to continue..."),1,1)
@@ -69,7 +69,7 @@ auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str
   }
 
   #assign the output if the user didn't supply an output location
-  if (output_file==FALSE){
+  if (is.null(output_file)){
 
     Work_loc <- dirname(genera_list)
     print(genera_list)

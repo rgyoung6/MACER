@@ -25,11 +25,12 @@
 #' align_to_ref(pigl=0.95, op=10)
 #' align_to_ref(pigl=0)
 #' }
-#'   
-#' @param data_folder This variable can be used to provide a location for the file containing all of the fasta files wanting to be aligned. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.
-#' @param ref_seq_file This variable can be used to provide a location for the reference sequence file. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.
-#' @param MAFFT_loc This variable can be used to provide a location for the MAFFT program. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.
-#' @param output_file This variable can be used to set the location of the output files from the program. The default value is set to FALSE where the program will place the output files in the same location as the target files.
+#'
+#' @param data_folder This variable can be used to provide a location for the file containing all of the fasta files wanting to be aligned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
+#' @param ref_seq_file This variable can be used to provide a location for the reference sequence file. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
+#' @param MAFFT_loc This variable can be used to provide a location for the MAFFT program. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
+#' @param output_file This variable can be used to set the location of the output files from the program. The default value is set to NULL where the program will place the output files in the same location as the target files.
+#'
 #' @param pigl This is the percent internal gap loop argument. This provides a percent that will remove records causing internal gaps if more than the percent value assigned
 #' to this argument is reached. If this value is set to 0 then internal gaps are not removed. The default for this value is 0.95.
 #' @param op This is the gap opening penalty for the use of MAFFT. The higher the value the larger penalty in the alignment. The default for this value is set to 1.53 which is the
@@ -38,8 +39,8 @@
 #' @returns Output:
 #' 1. In the submitted file folder location there will be a log file titled MAFFT_log.
 #' 2. The sequence output files from this script are placed into two subfolders. These folders are in the submitted file location where the fasta files of interest are located.
-#'    The two folders created are MAFFT and MAFFT_trimmed. In the MAFFT folder there will be files with name of the files in the submitted file folder appended with â_MAFFTâ.
-#'    The MAFFT_trimmed file will contain files with the same naming convention as the files in the submitted folder and appended with âMAFFT_trimmedâ.
+#'    The two folders created are MAFFT and MAFFT_trimmed. In the MAFFT folder there will be files with name of the files in the submitted file folder appended with "_MAFFT".
+#'    The MAFFT_trimmed file will contain files with the same naming convention as the files in the submitted folder and appended with "_MAFFT_trimmed".
 #'
 #' @references
 #' <https://github.com/rgyoung6/MACER>
@@ -56,44 +57,44 @@
 
 # This function aligns a sequence file to a reference sequence and then trims to the beginning and end of the reference sequence
 ##################################### align_to_ref FUNCTION ##############################################################
-align_to_ref <- function(data_folder = FALSE, ref_seq_file = FALSE, MAFFT_loc = FALSE, output_file = FALSE, pigl=0.95, op=1.53){
+align_to_ref <- function(data_folder = NULL, ref_seq_file = NULL, MAFFT_loc = NULL, output_file = NULL, pigl=0.95, op=1.53){
 
   #pigl (per internal gap in loop) is the fractional value of the percent of the sequence that needs to have gap characters at a particular position before that gap is removed.
 
   start_wd<-getwd()
   on.exit(setwd(start_wd))
 
-  if (data_folder== FALSE){
-    
+  if (is.null(data_folder)){
+
     # prompting to choose the file folder
     n <- substr(readline(prompt="Choose the folder location where your fasta files to be aligned are located. Hit enter key to continue..."),1,1)
     #This line is requesting the file folder location for the fasta files of interest
     Work_loc<-readpath()
 
   }else{
-    
+
     Work_loc = data_folder
-    
+
   }
-    
-  if (ref_seq_file == FALSE){
-    
+
+  if (is.null(ref_seq_file)){
+
     # Choose the fasta file with the reference sequence to align the new sequence
     n <- substr(readline(prompt="Choose your fasta reference file (note this must be a trimmed file with all sequences of the same length and no leading or trailing gap characters). Hit enter key to continue..."),1,1)
     reference_MSA<-file.choose()
-  
+
   }else {
-    
+
     reference_MSA = ref_seq_file
-    
+
   }
-    
-  if (output_file != FALSE){
-    
+
+  if (!is.null(output_file)){
+
     Work_loc=output_file
-    
+
   }
-  
+
   #Make a file folder to contain all results from the program
   main_file_folder<-paste0(Work_loc, "/MAFFT")
   dir.create(main_file_folder)
@@ -109,17 +110,17 @@ align_to_ref <- function(data_folder = FALSE, ref_seq_file = FALSE, MAFFT_loc = 
   file_list <- list.files(path=Work_loc, pattern = "*[.][Ff][Aa][Ss]$")
   file_names <- sub("\\..*","",as.vector(file_list))
 
-  if(MAFFT_loc == FALSE){
-  
+  if(is.null(MAFFT_loc)){
+
     # prompting to choose the folder location for the MAFFT .bat program
     n <- substr(readline(prompt="Choose the folder location where the MAFFT (.bat file) is located. Hit enter key to continue..."),1,1)
     MAFFT_location<-readpath()
     setwd(MAFFT_location)
-  
+
   }else{
-    
+
     MAFFT_location= MAFFT_loc
-    
+
   }
 
   #initializing the final total fasta output variable

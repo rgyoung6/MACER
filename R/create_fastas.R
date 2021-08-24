@@ -19,9 +19,9 @@
 #' create_fastas(no_seq  = TRUE, name_issue = TRUE)
 #' }
 #'
-#' @param data_file FALSE prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than FALSE then the string supplied will be used for the location; default FALSE
-#' @param input_file FALSE prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
-#' @param output_folder FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
+#' @param data_file NULL prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than NULL then the string supplied will be used for the location; default NULL
+#' @param input_file NULL prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
+#' @param output_folder NULL prompts the user to indicate the location of the output file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
 #'
 #' @param no_marker If set to TRUE then will include records filtered out due to no marker data. Default is FALSE to not include records with no marker data.
 #' @param no_taxa If set to TRUE then will include records filtered out due to no taxa data. Default is FALSE to not include records with no taxa data.
@@ -48,11 +48,11 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-create_fastas <- function(data_file = FALSE, input_file = FALSE, output_folder = FALSE, no_marker = FALSE, no_taxa = FALSE, no_seq= FALSE, name_issue = FALSE, taxa_digits = FALSE, taxa_punct = FALSE ){
+create_fastas <- function(data_file = NULL, input_file = NULL, output_folder = NULL, no_marker = FALSE, no_taxa = FALSE, no_seq= FALSE, name_issue = FALSE, taxa_digits = FALSE, taxa_punct = FALSE ){
 
 
   #Check to see if a path to the data_file of interest was submitted in the function call
-  if (data_file == FALSE){
+  if (is.null(data_file)){
 
     n <- substr(readline(prompt="Please select the total tables file.  Hit enter key to continue..."),1,1)
     #prompting the user for the file through file.choose
@@ -64,7 +64,7 @@ create_fastas <- function(data_file = FALSE, input_file = FALSE, output_folder =
 
   }
 
-  if (input_file == FALSE){
+  if (is.null(input_file)){
 
     n <- substr(readline(prompt="Please select the file with genus and the list of molecular markers of interest. Hit enter key to continue..."),1,1)
     #prompting the user for the file through file.choose
@@ -76,7 +76,7 @@ create_fastas <- function(data_file = FALSE, input_file = FALSE, output_folder =
 
   }
 
-  if (output_folder == FALSE){
+  if (is.null(output_folder)){
 
     current_path <- dirname(total_tables_file)
 

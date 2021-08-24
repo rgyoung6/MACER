@@ -23,7 +23,7 @@
 #'
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
-#' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.
+#' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
 #'
 #' @returns
 #' Output:
@@ -49,13 +49,13 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = FALSE){
+barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL){
 
 # Codes include 'std', 'vert', 'invert', 'NULL' skips the AA clean section
 # AGCT_only TRUE is on and FALSE is accepting all IUPAC characters
 
 
-  if (data_folder== FALSE){
+  if (is.null(data_folder)){
 
     # prompting to choose the folder location of the working directory with the input file to run the program
     n <- substr(readline(prompt="Choose the folder location where your input files are located. Hit enter key to continue..."),1,1)

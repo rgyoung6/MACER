@@ -66,8 +66,8 @@ search_str – NULL uses the default string, anything other than NULL then that 
 Default string…
 (genus[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])
 Note: When using a custom search string for NCBI only a single genus at a time can be used.
-input_file –  FALSE prompts the user to indicate the location of the input file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
-output_file –  FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
+input_file –  NULL prompts the user to indicate the location of the input file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
+output_file –  NULL prompts the user to indicate the location of the output file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
 
 ### Output
 One main folder containing three other folders.
@@ -94,9 +94,9 @@ CYTOCHROMEB<t/>	CYTOCHROMECOXIDASESUBUNIT1
 CYTOCHROME-B<t/>	CYTOCHROMECOXIDASESUBUNITI
 
 ### Arguments
-data_file – FALSE prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than FALSE then the string supplied will be used for the location; default FASLE
-input_file – FALSE prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
-output_folder – FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE
+data_file – NULL prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than NULL then the string supplied will be used for the location; default NULL
+input_file – NULL prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
+output_folder – NULL prompts the user to indicate the location of the output file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
 
 no_marker – If set to TRUE then will include records filtered out due to no marker data. Default is FALSE to not include records with no marker data.
 no_taxa – If set to TRUE then will include records filtered out due to no taxa data. Default is FALSE to not include records with no taxa data.
@@ -120,10 +120,10 @@ A reference sequence file with a sequence or MSA with all sequences having the s
 The location of the MAFFT executable file (https://mafft.cbrc.jp/alignment/software/)
 
 ### Arguments
-data_folder – This variable can be used to provide a location for the file containing all of the fasta files wanting to be aligned. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.
+data_folder – This variable can be used to provide a location for the file containing all of the fasta files wanting to be aligned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
 ref_seq_file – This variable can be used to provide a location for the reference sequence file. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.
-MAFFT_loc – This variable can be used to provide a location for the MAFFT program. The default value is set to FALSE where the program will prompt the user to select the folder through point-and-click.
-output_file – This variable can be used to set the location of the output files from the program. The default value is set to FALSE where the program will place the output files in the same location as the target files.
+MAFFT_loc – This variable can be used to provide a location for the MAFFT program. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
+output_file – This variable can be used to set the location of the output files from the program. The default value is set to NULL where the program will place the output files in the same location as the target files.
 
 pigl – This is the percent internal gap loop argument. This provides a percent that will remove records causing internal gaps is more than the percent value assigned to this argument is reached. If this value is set to 0 then internal gaps are not removed. The default for this value is 0.95.
 op – This is the gap opening penalty for the use of MAFFT. The higher the value the larger penalty in the alignment. The default for this value is set to 10. The default value in the MAFFT program is 1.53. For alignment of highly conserved regions where no gaps are expected this should be set to a much higher number and 10 is recommended for barcode regions like the COI-5P.
@@ -150,6 +150,7 @@ AA_code – This is the amino acid translation matrix used to check the sequence
 AGCT_only – This only keeps sequences with AGCT exclusively, not IUPAC characters.
   - TRUE is on 
   - FALSE is accepting all IUPAC characters
+data_folder This variable can be used to provide a location for the file containing all of the fasta files wanting to be aligned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
 
 ### Output
 A single log file for the running of the function with the name A_Clean_File_YYYY-DD-TTTTTTTT. The function will also output three files for each fasta file submitted. The first is the distance matrix that was calculated and used to assess the DNA barcode gaps. This file is named the same as the input file with ‘_dist_table.dat” appended to the end of the name. The second file is the total data table file which provides a table of all submitted records for each data set accompanied with the results from each section of the analysis. This file is named the same as the input fasta with “_data_table.dat” appended to the end, Finally, a fasta file with all outliers and flagged records removed is generated for each input fasta file. This output file is named the same as the input fasta with “_no_outlier.fas” appended to the end. The flags that are possible are non_AGCT, Stop_Codon, Genus_Outlier, Species_Outlier, and '-'.
