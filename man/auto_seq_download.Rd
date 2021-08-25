@@ -8,8 +8,8 @@ auto_seq_download(
   BOLD_database = TRUE,
   NCBI_database = TRUE,
   search_str = NULL,
-  input_file = FALSE,
-  output_file = FALSE
+  input_file = NULL,
+  output_file = NULL
 )
 }
 \arguments{
@@ -20,9 +20,9 @@ auto_seq_download(
 \item{search_str}{NULL uses the default string, anything other than NULL then that string will be used for the GenBank search; default NULL.
 The Default String is: (genus[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])}
 
-\item{input_file}{FALSE prompts the user to indicate the location of the input file through point and click prompts, anything other than F then the string supplied will be used for the location; default FALSE}
+\item{input_file}{NULL prompts the user to indicate the location of the input file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL}
 
-\item{output_file}{FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than F then the string supplied will be used for the location; default FALSE}
+\item{output_file}{NULL prompts the user to indicate the location of the output file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL}
 }
 \value{
 Outputs: One main folder containing three other folders.

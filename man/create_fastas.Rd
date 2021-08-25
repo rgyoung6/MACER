@@ -5,9 +5,9 @@
 \title{Table To FASTA}
 \usage{
 create_fastas(
-  data_file = FALSE,
-  input_file = FALSE,
-  output_folder = FALSE,
+  data_file = NULL,
+  input_file = NULL,
+  output_folder = NULL,
   no_marker = FALSE,
   no_taxa = FALSE,
   no_seq = FALSE,
@@ -17,11 +17,11 @@ create_fastas(
 )
 }
 \arguments{
-\item{data_file}{FALSE prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than FALSE then the string supplied will be used for the location; default FALSE}
+\item{data_file}{NULL prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than NULL then the string supplied will be used for the location; default NULL}
 
-\item{input_file}{FALSE prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE}
+\item{input_file}{NULL prompts the user to indicate the location of the input file used to select through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL}
 
-\item{output_folder}{FALSE prompts the user to indicate the location of the output file through point and click prompts, anything other than FALSE then the string supplied will be used for the location; default FALSE}
+\item{output_folder}{NULL prompts the user to indicate the location of the output file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL}
 
 \item{no_marker}{If set to TRUE then will include records filtered out due to no marker data. Default is FALSE to not include records with no marker data.}
 
