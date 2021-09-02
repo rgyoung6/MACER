@@ -51,6 +51,10 @@
 ##################################### Main FUNCTION ##############################################################
 barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL){
 
+  #AA_code="invert"
+  #AGCT_only = TRUE
+  #data_folder = NULL
+
 # Codes include 'std', 'vert', 'invert', 'NULL' skips the AA clean section
 # AGCT_only TRUE is on and FALSE is accepting all IUPAC characters
 
@@ -104,6 +108,10 @@ print(paste("Start time... ",start_time))
 path_list <- list.files(path=Work_loc, pattern = "*[.][Ff][Aa][Ss]$", full.names = TRUE)
 file_list <- list.files(path=Work_loc, pattern = "*[.][Ff][Aa][Ss]$")
 file_name <- sub("\\..*","",as.vector(file_list))
+
+#Initialize the no_outliers_dist_matrix
+no_outliers_dist_matrix=""
+no_outliers_dataset=""
 
 #************************** LOOPING THROUGH EACH OF THE FILES IN THE TARGET DIRECTORY *******************************************************************
 
@@ -332,181 +340,189 @@ for(h in 1:length(file_name)){
 
     }
 
-  }#Closing the if to check if there are more than three records to evaluate so the outlier calcs can work
+  }#Closing the if to check if there are more than two records to evaluate so the outlier calcs can work
 
   #**************************** Species outlier to report in the records output only - NOT REDUCING THE DATASET JUST REPORTING *********************************
 
-  # Get a list of the species in the genus
-  Species<-unique(no_outliers_dataset$Species)
+  if(nrow(Seq_file_data_frame)>2){
 
-  #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
-  no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),]
-  no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
+    # Get a list of the species in the genus
+    Species<-unique(no_outliers_dataset$Species)
 
-  #loop through the species
-  for (species_outlier_list_counter in 1:length(Species)){
+    #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
+    no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),]
+    no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
 
-    #Get the records for the outlier loop species - I can use the no_outliers_dataset
-    #because I still have it from the Genus outlier check
-    outlier_loop_species_records<-no_outliers_dataset[no_outliers_dataset$Species==Species[species_outlier_list_counter],]
+    #loop through the species
+    for (species_outlier_list_counter in 1:length(Species)){
 
-    if(nrow(outlier_loop_species_records)>2) {
+      #Get the records for the outlier loop species - I can use the no_outliers_dataset
+      #because I still have it from the Genus outlier check
+      outlier_loop_species_records<-no_outliers_dataset[no_outliers_dataset$Species==Species[species_outlier_list_counter],]
 
-      #Get the rows of the no outgroup distance matrix for the species of interest
-      outlier_loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% outlier_loop_species_records$Header),]
+      if(nrow(outlier_loop_species_records)>2) {
 
-      #Get the columns with the species of interest from the rows of the species of interest.
-      outlier_loop_species_dist_matrix_within <- outlier_loop_species_dist_matrix[,(colnames(outlier_loop_species_dist_matrix) %in% outlier_loop_species_records$Header)]
+        #Get the rows of the no outgroup distance matrix for the species of interest
+        outlier_loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% outlier_loop_species_records$Header),]
 
-      #Getting the inter quartiles for only the species to species comparisons
-      dist_matrix_quant <- quantile( outlier_loop_species_dist_matrix_within , na.rm=TRUE)
+        #Get the columns with the species of interest from the rows of the species of interest.
+        outlier_loop_species_dist_matrix_within <- outlier_loop_species_dist_matrix[,(colnames(outlier_loop_species_dist_matrix) %in% outlier_loop_species_records$Header)]
 
-      #Get the inter quartile range which can be used to multiple 1.5 times. This added to the upper quartile will give the outlier bounds
-      dist_matrix_inter_quant = as.numeric((dist_matrix_quant[4])+(1.5*((as.numeric(dist_matrix_quant[4])-as.numeric(dist_matrix_quant[2])))))
+        #Getting the inter quartiles for only the species to species comparisons
+        dist_matrix_quant <- quantile( outlier_loop_species_dist_matrix_within , na.rm=TRUE)
 
-      #initiate the seq_to_remove_outlier variable
-      seq_to_remove_outlier<-NULL
+        #Get the inter quartile range which can be used to multiple 1.5 times. This added to the upper quartile will give the outlier bounds
+        dist_matrix_inter_quant = as.numeric((dist_matrix_quant[4])+(1.5*((as.numeric(dist_matrix_quant[4])-as.numeric(dist_matrix_quant[2])))))
 
-      #getting the records with the genetic distance greater than the calculated
-      for (p in 1:nrow(outlier_loop_species_dist_matrix_within)){
-        if (length(na.omit(outlier_loop_species_dist_matrix_within[,p]))>1){
+        #initiate the seq_to_remove_outlier variable
+        seq_to_remove_outlier<-NULL
 
-          if((mean(as.numeric(na.omit(outlier_loop_species_dist_matrix_within[,p])))>=dist_matrix_inter_quant) && (dist_matrix_inter_quant!=0)){
-            seq_to_remove_outlier<-c(seq_to_remove_outlier,rownames(outlier_loop_species_dist_matrix_within)[p])
+        #getting the records with the genetic distance greater than the calculated
+        for (p in 1:nrow(outlier_loop_species_dist_matrix_within)){
+          if (length(na.omit(outlier_loop_species_dist_matrix_within[,p]))>1){
+
+            if((mean(as.numeric(na.omit(outlier_loop_species_dist_matrix_within[,p])))>=dist_matrix_inter_quant) && (dist_matrix_inter_quant!=0)){
+              seq_to_remove_outlier<-c(seq_to_remove_outlier,rownames(outlier_loop_species_dist_matrix_within)[p])
+            }
           }
         }
-      }
 
-      #Here I get entries which don't have a flag
-      flag_subset<-subset(Seq_file_data_frame,Seq_file_data_frame$Flags == "-")
+        #Here I get entries which don't have a flag
+        flag_subset<-subset(Seq_file_data_frame,Seq_file_data_frame$Flags == "-")
 
-      #checking to see if there are records without a flag
-      if((as.numeric(nrow(flag_subset))>0) && (as.numeric(length(seq_to_remove_outlier))>0) ){
+        #checking to see if there are records without a flag
+        if((as.numeric(nrow(flag_subset))>0) && (as.numeric(length(seq_to_remove_outlier))>0) ){
 
-        #Getting the records with - in Flag and are statistical outliers by genetic distance
-        flag_subset<-flag_subset[flag_subset$Header %in% seq_to_remove_outlier,]
+          #Getting the records with - in Flag and are statistical outliers by genetic distance
+          flag_subset<-flag_subset[flag_subset$Header %in% seq_to_remove_outlier,]
 
-        #Adding the results of check to the Seq_file_data_frame Flags column
-        Seq_file_data_frame$Flags[Seq_file_data_frame$Header %in% c(flag_subset$Header)]<- "Species_Outlier"
+          #Adding the results of check to the Seq_file_data_frame Flags column
+          Seq_file_data_frame$Flags[Seq_file_data_frame$Header %in% c(flag_subset$Header)]<- "Species_Outlier"
 
-      }
+        }
 
-      #Add the seq_to_remove_outlier to the total seq_to_remove list
-      seq_to_remove<-c(seq_to_remove,seq_to_remove_outlier)
+        #Add the seq_to_remove_outlier to the total seq_to_remove list
+        seq_to_remove<-c(seq_to_remove,seq_to_remove_outlier)
 
-    }# End of the loop to check to see if there are records for the species in question
+      }# End of the loop to check to see if there are records for the species in question
 
-  }# end of loop going through species in the genus
+    }# end of loop going through species in the genus
 
-    #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-    no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
+      #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
+      no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
 
-  if(nrow(no_outliers_dataset)>0){
+    if(nrow(no_outliers_dataset)>0){
 
-    #Then determine the number of each taxa present in the data set by using a freq table
-    ft_sp<-as.data.frame(table(no_outliers_dataset$Species))
+      #Then determine the number of each taxa present in the data set by using a freq table
+      ft_sp<-as.data.frame(table(no_outliers_dataset$Species))
 
-    #Rename the last column to Outlier
-    colnames(ft_sp)<-c("Species","Species_Outlier")
+      #Rename the last column to Outlier
+      colnames(ft_sp)<-c("Species","Species_Outlier")
 
-    #Here I am merging the log_df with the results after the Outlier clean
-    log_df<-merge(log_df,ft_sp,by=1, all.x=TRUE)
+      #Here I am merging the log_df with the results after the Outlier clean
+      log_df<-merge(log_df,ft_sp,by=1, all.x=TRUE)
 
-  }
+    }
+
+  }#end of the species more than 2 records check
 
   #**************************** Barcode Gap analysis section *********************************
 
-  #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
-  no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),]
-  no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
+  if(nrow(Seq_file_data_frame)>2){
 
-  #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-  barcode_gap_data_frame<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
+    #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
+    no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),]
+    no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
 
-  #Establishing a list of the genera present in the data set, this should only be one
-  Genera<-unique(barcode_gap_data_frame$Genus)
+    #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
+    barcode_gap_data_frame<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
 
-  #Add barcode gap reporting columns to the species output reporting table log_df
-  barcode_gap_columns<-c("Intraspecific", "Interspecific", "Barcode_Gap")
-  log_df[,barcode_gap_columns]<-"-"
+    #Establishing a list of the genera present in the data set, this should only be one
+    Genera<-unique(barcode_gap_data_frame$Genus)
 
-  #Initializing the storage data frame for the barcode gap results
-  barcode_gap_results<-NULL
+    #Add barcode gap reporting columns to the species output reporting table log_df
+    barcode_gap_columns<-c("Intraspecific", "Interspecific", "Barcode_Gap")
+    log_df[,barcode_gap_columns]<-"-"
 
-  #Initializing the plotting data frame
-  plot_out<-data.frame()
+    #Initializing the storage data frame for the barcode gap results
+    barcode_gap_results<-NULL
 
-  #Initializing the plotting flag so that the first loop is equal to the first colum of records
-  plot_flag=0
+    #Initializing the plotting data frame
+    plot_out<-data.frame()
 
-  #This section will subset the data in the loop into each of the Genera present in the data set one at a time
-  for (genera_list_counter in 1:length(Genera)){
+    #Initializing the plotting flag so that the first loop is equal to the first colum of records
+    plot_flag=0
 
-    #Get the subset of the data with the Genera for this loop
-    loop_genus_records<-barcode_gap_data_frame[barcode_gap_data_frame$Genus==Genera[genera_list_counter],]
+    #This section will subset the data in the loop into each of the Genera present in the data set one at a time
+    for (genera_list_counter in 1:length(Genera)){
 
-    if(nrow(loop_genus_records)>1){
+      #Get the subset of the data with the Genera for this loop
+      loop_genus_records<-barcode_gap_data_frame[barcode_gap_data_frame$Genus==Genera[genera_list_counter],]
 
-      #Sort the data frame by Species
-      loop_genus_records<- loop_genus_records[order(loop_genus_records$Species),]
+      if(nrow(loop_genus_records)>1){
 
-      #Get a unique species list
-      Species<-unique(loop_genus_records$Species)
+        #Sort the data frame by Species
+        loop_genus_records<- loop_genus_records[order(loop_genus_records$Species),]
 
-        for (species_list_counter in 1:length(Species)){
+        #Get a unique species list
+        Species<-unique(loop_genus_records$Species)
 
-          #Get the records for the loop species
-          loop_species_records<-loop_genus_records[loop_genus_records$Species==Species[species_list_counter],]
+          for (species_list_counter in 1:length(Species)){
 
-          #for species with more than one records so that the within is able to be calculated
+            #Get the records for the loop species
+            loop_species_records<-loop_genus_records[loop_genus_records$Species==Species[species_list_counter],]
 
-          if (nrow(loop_species_records)>1 && length(Species)>1){
+            #for species with more than one records so that the within is able to be calculated
 
-            #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
-            loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-            loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+            if (nrow(loop_species_records)>1 && length(Species)>1){
 
-            #Now get comparisons between the loop species and all other records
-            loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-            loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
+              loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
+              loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
-            #Getting the maximum within species distance
-            loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
+              #Now get comparisons between the loop species and all other records
+              loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
+              loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
-            #Getting the minimum between distance
-            loop_species_dist_matrix_between<-min(loop_species_dist_matrix_between)
+              #Getting the maximum within species distance
+              loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
 
-            #calculating the gap
-            if(loop_species_dist_matrix_within<loop_species_dist_matrix_between){
+              #Getting the minimum between distance
+              loop_species_dist_matrix_between<-min(loop_species_dist_matrix_between)
 
-              loop_species_barcode_gap<-"YES"
+              #calculating the gap
+              if(loop_species_dist_matrix_within<loop_species_dist_matrix_between){
 
-            }else{
+                loop_species_barcode_gap<-"YES"
 
-              loop_species_barcode_gap<-"NO"
+              }else{
 
-            }
+                loop_species_barcode_gap<-"NO"
 
-          } else{
+              }
 
-            loop_species_dist_matrix_within<-"NA"
-            loop_species_dist_matrix_between<-"NA"
-            loop_species_barcode_gap<-"NA"
+            } else{
 
-          }#closing the if else checking if there is more than one species record
+              loop_species_dist_matrix_within<-"NA"
+              loop_species_dist_matrix_between<-"NA"
+              loop_species_barcode_gap<-"NA"
 
-        #add the results of the species barcode gap within or intraspecific to the log_df
-        log_df$Intraspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_within
+            }#closing the if else checking if there is more than one species record
 
-        #add the results of the species barcode gap between or interspecific to the log_df
-        log_df$Interspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_between
+          #add the results of the species barcode gap within or intraspecific to the log_df
+          log_df$Intraspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_within
 
-        #add the results of the species barcode gap check to the log_df
-        log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap
+          #add the results of the species barcode gap between or interspecific to the log_df
+          log_df$Interspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_between
 
-      }#closing the loop through the unique species in the genus
+          #add the results of the species barcode gap check to the log_df
+          log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap
 
-    }#closing if checking if there is more than one record in the genus
+        }#closing the loop through the unique species in the genus
+
+      }#closing if checking if there is more than one record in the genus
+
+    }#end of the more than 2 records check
 
   }#closing loop through unique genera
 
@@ -520,18 +536,22 @@ for(h in 1:length(file_name)){
   #Writing the data to the data table
   write.table(Seq_file_data_frame,file=paste0(Work_loc,"/",file_name[h],"_data_table.dat"),append=FALSE,na="",row.names = FALSE, col.names=TRUE, quote = FALSE,sep="\t")
 
-  #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-  no_outliers_dataset<-no_outliers_dataset[!(no_outliers_dataset$Header %in% seq_to_remove),]
+  if(!is.null(seq_to_remove)){
 
-  #removing the columns with data other than the header and the sequence data to construct the fasta file.
-  no_outliers_dataset<-cbind(no_outliers_dataset$Header, no_outliers_dataset$Sequence)
+    #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
+    no_outliers_dataset<-no_outliers_dataset[!(no_outliers_dataset$Header %in% seq_to_remove),]
 
-  #outputting the fasta reduced file
-  write.table(no_outliers_dataset,file=paste0(Work_loc,"/",file_name[h],"_no_outliers.fas"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\n")
+    #removing the columns with data other than the header and the sequence data to construct the fasta file.
+    no_outliers_dataset<-cbind(no_outliers_dataset$Header, no_outliers_dataset$Sequence)
 
-  #Adding the results to the log file
-  #outputting the file separator to the log file
-  suppressWarnings(write.table(log_df,file=paste0(Work_loc,"/",log_file_name,".dat"),append=TRUE,row.names = FALSE, col.names=TRUE, quote = FALSE,sep="\t"))
+    #outputting the fasta reduced file
+    write.table(no_outliers_dataset,file=paste0(Work_loc,"/",file_name[h],"_no_outliers.fas"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\n")
+
+    #Adding the results to the log file
+    #outputting the file separator to the log file
+    suppressWarnings(write.table(log_df,file=paste0(Work_loc,"/",log_file_name,".dat"),append=TRUE,row.names = FALSE, col.names=TRUE, quote = FALSE,sep="\t"))
+
+  }
 
   print(log_df)
 
