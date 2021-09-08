@@ -4,6 +4,10 @@
 
 This repository contains the MACER package located at rgyoung6/MACER. The Molecular Acquisition, Cleaning, and Evaluation in R (MACER) is a tool to assemble, align, trim, and evaluate molecular sequence datasets from BOLD and GenBank.
 
+# Citation
+
+Young RG, Gill R, Gillis D, Hanner RH (2021) Molecular Acquisition, Cleaning and Evaluation in R (MACER) - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal 9: e71378. <https://doi.org/10.3897/BDJ.9.e71378>
+
 # Functions:
 **auto_seq_download()**<br/>
 **create_fastas()**<br/>
