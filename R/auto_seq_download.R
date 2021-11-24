@@ -136,7 +136,7 @@ auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str
   #Starting the initial loop to go through each of the items to search one at a time
   for (genera_list_loop_counter in 1:length(genera_list)) {
 
-    summary_log<-paste0("Starting time - ", Sys.time(), " - ",genera_list[genera_list_loop_counter])
+    summary_log<-paste0("Starting time - ", Sys.time(), " - ",genera_list[genera_list_loop_counter], " search ", genera_list_loop_counter, " of ",length(genera_list) )
     (print(summary_log))
     #Adding to the summary log for the running of the program and the results
     write.table(summary_log ,file=paste0(table_folder,"/A_Summary.txt"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\n", append=TRUE)
