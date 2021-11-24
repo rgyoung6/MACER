@@ -55,14 +55,22 @@
 auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str= NULL, input_file= NULL, output_file=NULL)
 {
 
+#BOLD_database=TRUE
+#NCBI_database=TRUE
+#search_str= NULL
+#input_file= NULL
+#output_file=NULL
+
+
+
   #The following if checks to see if the user inputted a file location when calling the program if not then prompts the user to select
   if (is.null(input_file)){
 
-  # prompting to choose the file of interest with the tab delimited info
-  n <- substr(readline(prompt="Choose the file with the genera of interest to download. Hit enter key to continue..."),1,1)
-  genera_list<-file.choose()
+    # prompting to choose the file of interest with the tab delimited info
+    n <- substr(readline(prompt="Choose the file with the genera of interest to download. Hit enter key to continue..."),1,1)
+    genera_list<-file.choose()
 
-  } else{
+  } else if (!is.null(input_file)){
 
     genera_list=input_file
 
@@ -79,9 +87,23 @@ auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str
     Work_loc=output_file
 
   }
+
   # load in the data file in to the data for the lines
   genera_list<-read.table(genera_list,header=F,sep="\t",dec=".", fill = TRUE )
-  genera_list<-unique(genera_list$V1)
+
+  #Check to see if there is a one column table with only genera names or a two column table including specific search criteria
+  if(ncol(genera_list)==1){
+
+    genera_list<-genera_list[,1]
+
+  }else if (ncol(genera_list)==2){
+
+    search_str<-genera_list[,2]
+    genera_list<-genera_list[,1]
+
+  }
+
+
 
   #Make a file folder to contain all results from the program
   main_file_folder<-paste0(Work_loc, "/Seq_auto_dl",format(Sys.time(), "_%H%M%S_%b_%d"))
@@ -209,7 +231,7 @@ auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str
 
       }else{
 
-        ncbi_search_str<-search_str
+        ncbi_search_str<-search_str[genera_list_loop_counter]
 
       }
 
