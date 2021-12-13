@@ -301,7 +301,7 @@ for(h in 1:length(file_name)){
     for (p in 1:nrow(no_outliers_dist_matrix)){
       if (length(na.omit(no_outliers_dist_matrix[,p]))>1){
 
-        if((mean(as.numeric(na.omit(no_outliers_dist_matrix[,p])))>=dist_matrix_inter_quant) && (dist_matrix_inter_quant!=0)){
+        if((mean(as.numeric(na.omit(no_outliers_dist_matrix[,p])))>=dist_matrix_inter_quant) && (median(as.numeric(na.omit(no_outliers_dist_matrix[,p])))>=dist_matrix_inter_quant) && (dist_matrix_inter_quant!=0)){
           seq_to_remove_outlier<-c(seq_to_remove_outlier,rownames(no_outliers_dist_matrix)[p])
         }
       }
@@ -381,7 +381,7 @@ for(h in 1:length(file_name)){
         for (p in 1:nrow(outlier_loop_species_dist_matrix_within)){
           if (length(na.omit(outlier_loop_species_dist_matrix_within[,p]))>1){
 
-            if((mean(as.numeric(na.omit(outlier_loop_species_dist_matrix_within[,p])))>=dist_matrix_inter_quant) && (dist_matrix_inter_quant!=0)){
+            if((mean(as.numeric(na.omit(outlier_loop_species_dist_matrix_within[,p])))>=dist_matrix_inter_quant) && (median(as.numeric(na.omit(outlier_loop_species_dist_matrix_within[,p])))>=dist_matrix_inter_quant) && (dist_matrix_inter_quant!=0)){
               seq_to_remove_outlier<-c(seq_to_remove_outlier,rownames(outlier_loop_species_dist_matrix_within)[p])
             }
           }
