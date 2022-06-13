@@ -517,6 +517,9 @@ for(h in 1:length(file_name)){
 
           #add the results of the species barcode gap check to the log_df
           log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap
+            
+         #add the results of the species barcode gap calculation to the log_df
+           log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<- loop_species_dist_matrix_between - loop_species_dist_matrix_within
 
         }#closing the loop through the unique species in the genus
 
