@@ -441,7 +441,7 @@ for(h in 1:length(file_name)){
     Genera<-unique(barcode_gap_data_frame$Genus)
 
     #Add barcode gap reporting columns to the species output reporting table log_df
-    barcode_gap_columns<-c("Intraspecific", "Interspecific", "Barcode_Gap")
+    barcode_gap_columns<-c("Intraspecific", "Interspecific", "Barcode_Gap", "Barcode_Gap_Value")
     log_df[,barcode_gap_columns]<-"-"
 
     #Initializing the storage data frame for the barcode gap results
@@ -519,7 +519,7 @@ for(h in 1:length(file_name)){
           log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap
             
          #add the results of the species barcode gap calculation to the log_df
-           log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<- loop_species_dist_matrix_between - loop_species_dist_matrix_within
+           log_df$Barcode_Gap_Value[log_df$Species %in% Species[species_list_counter] ] <- loop_species_dist_matrix_between - loop_species_dist_matrix_within
 
         }#closing the loop through the unique species in the genus
 
