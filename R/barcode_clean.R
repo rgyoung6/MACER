@@ -49,7 +49,14 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL){
+barcode_clean <- function(AA_code="invert",
+                          dist_model = c("raw", "JC69", "K80", "F81")
+                          AGCT_only = TRUE,
+                          m,
+                          B = 10000,
+                          replacement = TRUE,
+                          conf.level = 0.95
+                          data_folder = NULL){
 
   #AA_code="invert"
   #AGCT_only = TRUE
@@ -277,7 +284,7 @@ for(h in 1:length(file_name)){
   if(nrow(Seq_file_data_frame)>2){
 
     #using the ape function to obtain the distance matrix
-    dist_matrix<-dist.dna(Seq_file_DNAbin, model = "raw", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE)
+    dist_matrix<-dist.dna(Seq_file_DNAbin, model = dist_model, variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE)
 
     #Making the contents of the matrix numeric
     dist_matrix<-apply(dist_matrix, 2, as.numeric)
@@ -477,11 +484,11 @@ for(h in 1:length(file_name)){
             if (nrow(loop_species_records)>1 && length(Species)>1){
 
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
-              loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
+              loop_species_dist_matrix <<- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
               loop_species_dist_matrix_within <<- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Now get comparisons between the loop species and all other records
-              loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
+              loop_species_dist_matrix <<- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
               loop_species_dist_matrix_between <<- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Getting the maximum within species distance
