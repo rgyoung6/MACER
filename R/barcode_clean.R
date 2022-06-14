@@ -55,7 +55,7 @@ barcode_clean <- function(AA_code="invert",
                           m,
                           B = 10000,
                           replacement = TRUE,
-                          conf.level = 0.95
+                          conf.level = 0.95,
                           data_folder = NULL){
 
   #AA_code="invert"
