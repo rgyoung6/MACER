@@ -284,7 +284,7 @@ for(h in 1:length(file_name)){
   if(nrow(Seq_file_data_frame)>2){
 
     #using the ape function to obtain the distance matrix
-    dist_matrix<-dist.dna(Seq_file_DNAbin, model = dist_model, variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE)
+    dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = dist_model, variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
 
     #Making the contents of the matrix numeric
     dist_matrix<-apply(dist_matrix, 2, as.numeric)
