@@ -478,11 +478,11 @@ for(h in 1:length(file_name)){
 
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_within <<- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Now get comparisons between the loop species and all other records
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_between <<- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
@@ -517,7 +517,7 @@ for(h in 1:length(file_name)){
 
           #add the results of the species barcode gap check to the log_df
           log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap
-            
+
          #add the results of the species barcode gap calculation to the log_df
            log_df$Barcode_Gap_Value[log_df$Species %in% Species[species_list_counter] ] <- loop_species_dist_matrix_between - loop_species_dist_matrix_within
 
