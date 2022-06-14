@@ -510,6 +510,8 @@ for(h in 1:length(file_name)){
                 # bootstrapped barcode gap
                 boot.samples[i] <- min(inter.boot) - max(intra.boot)
 
+              }
+
                 # bootstrap mean
                 stat.boot.est <- mean(boot.samples)
                 # bootstrap bias
