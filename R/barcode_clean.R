@@ -510,7 +510,7 @@ for(h in 1:length(file_name)){
               #   # bootstrapped barcode gap
               #   boot_samples[i] <- min(inter.boot) - max(intra.boot)
 
-              }
+              #}
 
               # # bootstrap standard error
               # stat.boot.se <- sd(boot_samples)
