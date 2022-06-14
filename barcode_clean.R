@@ -49,7 +49,14 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL){
+barcode_clean <- function(AA_code="invert",
+                          dist_model = c("raw", "JC69", "K80", "F81"),
+                          AGCT_only = TRUE,
+                          m,
+                          B = 10000,
+                          replacement = TRUE,
+                          conf.level = 0.95,
+                          data_folder = NULL){
 
   #AA_code="invert"
   #AGCT_only = TRUE
@@ -277,7 +284,7 @@ for(h in 1:length(file_name)){
   if(nrow(Seq_file_data_frame)>2){
 
     #using the ape function to obtain the distance matrix
-    dist_matrix<-dist.dna(Seq_file_DNAbin, model = "raw", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE)
+    dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = dist_model, variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
 
     #Making the contents of the matrix numeric
     dist_matrix<-apply(dist_matrix, 2, as.numeric)
@@ -478,11 +485,39 @@ for(h in 1:length(file_name)){
 
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_within <<- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Now get comparisons between the loop species and all other records
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_between <<- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+
+              ##### Resampling to calculate barcode gap standard error (SE) #####
+
+              # pre-allocate storage vector of bootstrap resamples
+              boot.samples <- numeric(B)
+
+              # perform resampling
+              for (i in 1:B) {
+                # sample m genetic distances with or without replacement
+                if (replacement == TRUE) { # bootstrapping
+                  intra.boot <- sample(loop_species_dist_matrix_within , size = m, replace = TRUE)
+                  inter.boot <- sample(loop_species_dist_matrix_between, size = m, replace = TRUE)
+                } else { # subsampling
+                  intra.boot <- sample(loop_species_dist_matrix_within , size = m, replace = FALSE)
+                  inter.boot <- sample(loop_species_dist_matrix_between, size = m, replace = FALSE)
+                }
+
+                # bootstrapped barcode gap
+                boot.samples[i] <- min(inter.boot) - max(intra.boot)
+
+              }
+
+                # bootstrap mean
+                stat.boot.est <- mean(boot.samples)
+                # bootstrap bias
+                # stat.boot.bias <- stat.boot.est - stat.obs
+                # bootstrap standard error
+                stat.boot.se <- sd(boot.samples)
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
@@ -520,6 +555,10 @@ for(h in 1:length(file_name)){
 
          #add the results of the species barcode gap calculation to the log_df
            log_df$Barcode_Gap_Value[log_df$Species %in% Species[species_list_counter] ] <- loop_species_dist_matrix_between - loop_species_dist_matrix_within
+
+        #add results of the bootstrap SE
+           log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat.boot.se
+
 
         }#closing the loop through the unique species in the genus
 
