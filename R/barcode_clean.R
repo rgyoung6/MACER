@@ -512,12 +512,8 @@ for(h in 1:length(file_name)){
 
               }
 
-                # bootstrap mean
-                stat.boot.est <- mean(boot.samples)
-                # bootstrap bias
-                stat.boot.bias <- stat.boot.est - stat.obs
-                # bootstrap standard error
-                stat.boot.se <- sd(boot.samples)
+              # bootstrap standard error
+              stat.boot.se <- sd(boot.samples)
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
@@ -558,7 +554,6 @@ for(h in 1:length(file_name)){
 
         #add results of the bootstrap SE
            log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat.boot.se
-
 
         }#closing the loop through the unique species in the genus
 
