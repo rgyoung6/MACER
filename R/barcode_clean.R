@@ -493,27 +493,27 @@ for(h in 1:length(file_name)){
 
               ##### Resampling to calculate barcode gap standard error (SE) #####
 
-              # pre-allocate storage vector of bootstrap resamples
-              boot.samples <- numeric(B)
-
-              # perform resampling
-              for (i in 1:B) {
-                # sample m genetic distances with or without replacement
-                if (replacement == TRUE) { # bootstrapping
-                  intra.boot <- sample(loop_species_dist_matrix_within , size = m, replace = TRUE)
-                  inter.boot <- sample(loop_species_dist_matrix_between, size = m, replace = TRUE)
-                } else { # subsampling
-                  intra.boot <- sample(loop_species_dist_matrix_within , size = m, replace = FALSE)
-                  inter.boot <- sample(loop_species_dist_matrix_between, size = m, replace = FALSE)
-                }
-
-                # bootstrapped barcode gap
-                boot.samples[i] <- min(inter.boot) - max(intra.boot)
+              # # pre-allocate storage vector of bootstrap resamples
+              # boot_samples <- numeric(B)
+              #
+              # # perform resampling
+              # for (i in 1:B) {
+              #   # sample m genetic distances with or without replacement
+              #   if (replacement == TRUE) { # bootstrapping
+              #     intra_boot <- sample(loop_species_dist_matrix_within, size = m, replace = TRUE)
+              #     inter_boot <- sample(loop_species_dist_matrix_between, size = m, replace = TRUE)
+              #   } else { # subsampling
+              #     intra_boot <- sample(loop_species_dist_matrix_within , size = m, replace = FALSE)
+              #     inter_boot <- sample(loop_species_dist_matrix_between, size = m, replace = FALSE)
+              #   }
+              #
+              #   # bootstrapped barcode gap
+              #   boot_samples[i] <- min(inter.boot) - max(intra.boot)
 
               }
 
-              # bootstrap standard error
-              stat.boot.se <- sd(boot.samples)
+              # # bootstrap standard error
+              # stat.boot.se <- sd(boot_samples)
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
