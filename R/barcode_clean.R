@@ -553,7 +553,7 @@ for(h in 1:length(file_name)){
            log_df$Barcode_Gap_Value[log_df$Species %in% Species[species_list_counter] ] <- loop_species_dist_matrix_between - loop_species_dist_matrix_within
 
         #add results of the bootstrap SE
-           log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat.boot.se
+           log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- "-"
 
         }#closing the loop through the unique species in the genus
 
