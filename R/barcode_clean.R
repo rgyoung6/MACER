@@ -518,7 +518,7 @@ for(h in 1:length(file_name)){
               }
 
               # bootstrap mean
-              stat.boot.mean <- mean(boot.samples)
+              stat.boot.mean <- mean(boot_samples)
 
               # bootstrap bias
               stat.boot.bias <- stat.boot.mean - stat.obs
