@@ -22,7 +22,12 @@
 #' }
 #'
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
+#' @param dist_model This is the genetic distance model of nucleotide substitution (as implemented through ape). The default model is "raw", which corresponds to simple p-distance. Other avilable models are JC69 (Jukes-Cantor, 1969), K80 (Kimura-2-Paramter), and F81 (Felenstein, 1981)
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
+#' @param m This is the subsample size used for bootstrapping, which should be less than 1.
+#' @param B This is is number of bootstrap replications. This value should be set to at least 1000. The default is 10000.
+#' @param replacement This indicates sampling with replacement or sampling without replacement. The default is TRUE, indicating sampling with replacement.
+#' @param conf_level This is the confidence level used for interval estimation. The default is 0.95, indicating 95% confidence.
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
 #'
 #' @returns
@@ -55,7 +60,7 @@ barcode_clean <- function(AA_code="invert",
                           m,
                           B = 10000,
                           replacement = TRUE,
-                          conf.level = 0.95,
+                          conf_level = 0.95,
                           data_folder = NULL){
 
   #AA_code="invert"
@@ -516,7 +521,7 @@ for(h in 1:length(file_name)){
               stat_boot_se <- sd(boot_samples)
 
               # percentile CI
-              stat_boot_ci <- quantile(boot_samples, c((1 - conf.level) / 2, (1 + conf.level) / 2))
+              stat_boot_ci <- quantile(boot_samples, c((1 - conf_level) / 2, (1 + conf_level) / 2))
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
@@ -601,7 +606,7 @@ for(h in 1:length(file_name)){
   }
 
   print(log_df)
-
+  print(m)
 } #end of file loop
 
 print(paste("Start time... ",start_time," and end time... ",Sys.time()))
