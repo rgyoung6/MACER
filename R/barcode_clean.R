@@ -500,8 +500,8 @@ for(h in 1:length(file_name)){
               for (i in 1:B) {
               # sample m genetic distances with or without replacement
                 if (replacement == TRUE) { # bootstrapping
-                intra_boot <- sample(loop_species_dist_matrix_within, size = m, replace = TRUE)
-                inter_boot <- sample(loop_species_dist_matrix_between, size = m, replace = TRUE)
+                  intra_boot <- sample(loop_species_dist_matrix_within, size = m, replace = TRUE)
+                  inter_boot <- sample(loop_species_dist_matrix_between, size = m, replace = TRUE)
                 } else { # subsampling
                     intra_boot <- sample(loop_species_dist_matrix_within , size = m, replace = FALSE)
                     inter_boot <- sample(loop_species_dist_matrix_between, size = m, replace = FALSE)
