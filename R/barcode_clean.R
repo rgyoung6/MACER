@@ -518,7 +518,7 @@ for(h in 1:length(file_name)){
               }
 
               # bootstrap mean
-              stat.boot.mean <- mean(boot_samples)
+              stat_boot_mean <- mean(boot_samples)
 
               # bootstrap standard error
               stat_boot_se <- sd(boot_samples)
@@ -567,7 +567,7 @@ for(h in 1:length(file_name)){
            log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
 
         # bootstrap bias
-           stat.boot.bias <- stat.boot.mean - (loop_species_dist_matrix_between - loop_species_dist_matrix_within)
+           stat_boot_bias <- stat_boot_mean - (loop_species_dist_matrix_between - loop_species_dist_matrix_within)
 
         #add results of the bootstrap SE
            log_df$Barcode_Gap_Value_Bias[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_bias
