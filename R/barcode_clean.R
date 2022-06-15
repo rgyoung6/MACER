@@ -508,15 +508,15 @@ for(h in 1:length(file_name)){
                     }
 
               # bootstrapped barcode gap
-              boot_samples[i] <- min(inter.boot) - max(intra.boot)
+              boot_samples[i] <- min(inter_boot) - max(intra_boot)
 
               }
 
               # bootstrap standard error
-              stat.boot.se <- sd(boot_samples)
+              stat_boot_se <- sd(boot_samples)
 
               # percentile CI
-              stat.boot.ci <- quantile(boot.samples, c((1 - conf.level) / 2, (1 + conf.level) / 2))
+              stat_boot_ci <- quantile(boot_samples, c((1 - conf.level) / 2, (1 + conf.level) / 2))
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
@@ -556,13 +556,13 @@ for(h in 1:length(file_name)){
            log_df$Barcode_Gap_Value[log_df$Species %in% Species[species_list_counter] ] <- loop_species_dist_matrix_between - loop_species_dist_matrix_within
 
         #add results of the bootstrap SE
-           log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat.boot.se
+           log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
 
         #add results of the lower bootstrap CI endpoint
-           log_df$Barcode_Gap_Value_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat.boot.ci[1]
+           log_df$Barcode_Gap_Value_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
 
         #add results of the upper bootstrap CI endpoint
-           log_df$Barcode_Gap_Value_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat.boot.ci[2]
+           log_df$Barcode_Gap_Value_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
 
 
         }#closing the loop through the unique species in the genus
