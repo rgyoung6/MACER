@@ -57,8 +57,8 @@
 barcode_clean <- function(AA_code="invert",
                           dist_model = c("raw", "JC69", "K80", "F81"),
                           AGCT_only = TRUE,
-                          m,
-                          B = 10000,
+                          subsample_size,
+                          replicate_size = 10000,
                           replacement = TRUE,
                           conf_level = 0.95,
                           data_folder = NULL){
@@ -453,7 +453,7 @@ for(h in 1:length(file_name)){
     Genera<-unique(barcode_gap_data_frame$Genus)
 
     #Add barcode gap reporting columns to the species output reporting table log_df
-    barcode_gap_columns<-c("Intraspecific", "Interspecific", "Barcode_Gap", "Barcode_Gap_Value", "Barcode_Gap_Value_SE", "Barcode_Gap_Value_CI_Lower", "Barcode_Gap_Value_CI_Upper")
+    barcode_gap_columns<-c("Intraspecific", "Interspecific", "Barcode_Gap", "Barcode_Gap_Value", "Barcode_Gap_Value_Bias", "Barcode_Gap_Value_SE", "Barcode_Gap_Value_CI_Lower", "Barcode_Gap_Value_CI_Upper")
     log_df[,barcode_gap_columns]<-"-"
 
     #Initializing the storage data frame for the barcode gap results
@@ -499,23 +499,29 @@ for(h in 1:length(file_name)){
               ##### Resampling to calculate barcode gap standard error (SE) #####
 
               # # pre-allocate storage vector of bootstrap resamples
-              boot_samples <- numeric(B)
+              boot_samples <- numeric(replicate_size)
 
               # perform resampling
-              for (i in 1:B) {
+              for (i in 1:replicate_size) {
               # sample m genetic distances with or without replacement
                 if (replacement == TRUE) { # bootstrapping
-                  intra_boot <- sample(loop_species_dist_matrix_within, size = m, replace = TRUE)
-                  inter_boot <- sample(loop_species_dist_matrix_between, size = m, replace = TRUE)
+                  intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = TRUE)
+                  inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = TRUE)
                 } else { # subsampling
-                    intra_boot <- sample(loop_species_dist_matrix_within , size = m, replace = FALSE)
-                    inter_boot <- sample(loop_species_dist_matrix_between, size = m, replace = FALSE)
+                    intra_boot <- sample(loop_species_dist_matrix_within , size = subsample_size, replace = FALSE)
+                    inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
                     }
 
               # bootstrapped barcode gap
               boot_samples[i] <- min(inter_boot) - max(intra_boot)
 
               }
+
+              # bootstrap mean
+              stat.boot.mean <- mean(boot.samples)
+
+              # bootstrap bias
+              stat.boot.bias <- stat.boot.mean - stat.obs
 
               # bootstrap standard error
               stat_boot_se <- sd(boot_samples)
@@ -562,6 +568,10 @@ for(h in 1:length(file_name)){
 
         #add results of the bootstrap SE
            log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
+
+        #add results of the bootstrap SE
+           log_df$Barcode_Gap_Value_Bias[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_bias
+
 
         #add results of the lower bootstrap CI endpoint
            log_df$Barcode_Gap_Value_CI_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
