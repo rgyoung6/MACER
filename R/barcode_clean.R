@@ -559,10 +559,10 @@ for(h in 1:length(file_name)){
            log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
 
         #add results of the lower bootstrap CI endpoint
-           log_df$Barcode_Gap_Value_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
+           log_df$Barcode_Gap_Value_CI_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
 
         #add results of the upper bootstrap CI endpoint
-           log_df$Barcode_Gap_Value_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
+           log_df$Barcode_Gap_Value_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
 
 
         }#closing the loop through the unique species in the genus
