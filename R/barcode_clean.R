@@ -496,35 +496,35 @@ for(h in 1:length(file_name)){
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
               loop_species_dist_matrix_between <<- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
-              # ##### Resampling to calculate barcode gap standard error (SE) #####
-              #
-              # # pre-allocate storage vector of bootstrap resamples
-              # boot_samples <- numeric(replicate_size)
-              #
-              # # perform resampling
-              # for (i in 1:replicate_size) {
-              #   # sample m genetic distances with or without replacement
-              #   if (replacement == TRUE) { # bootstrapping
-              #     intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = TRUE)
-              #     inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = TRUE)
-              #   } else { # subsampling
-              #     intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = FALSE)
-              #     inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
-              #   }
-              #
-              #   # calculate bootstrapped barcode gap
-              #   boot_samples[i] <- min(inter_boot) - max(intra_boot)
-              #
-              # }
-              #
-              # # calculate  bootstrap mean
-              # stat_boot_mean <- mean(boot_samples)
-              #
-              # # calculate bootstrap standard error
-              # stat_boot_se <- sd(boot_samples)
+              ##### Resampling to calculate barcode gap standard error (SE) #####
 
-              # # calculate percentile CI
-              # stat_boot_ci <- quantile(boot_samples, c((1 - conf_level) / 2, (1 + conf_level) / 2))
+              # pre-allocate storage vector of bootstrap resamples
+              boot_samples <- numeric(replicate_size)
+
+              # perform resampling
+              for (i in 1:replicate_size) {
+                # sample m genetic distances with or without replacement
+                if (replacement == TRUE) { # bootstrapping
+                  intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = TRUE)
+                  inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = TRUE)
+                  } else { # subsampling
+                    intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = FALSE)
+                    inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
+                    }
+
+              # calculate bootstrapped barcode gap
+              boot_samples[i] <- min(inter_boot) - max(intra_boot)
+
+              }
+
+              # calculate  bootstrap mean
+              stat_boot_mean <- mean(boot_samples)
+
+              # calculate bootstrap standard error
+              stat_boot_se <- sd(boot_samples)
+
+              # calculate percentile CI
+              stat_boot_ci <- quantile(boot_samples, c((1 - conf_level) / 2, (1 + conf_level) / 2))
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
@@ -560,23 +560,23 @@ for(h in 1:length(file_name)){
           #add the results of the species barcode gap check to the log_df
           log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap
 
-         #add the results of the species barcode gap calculation to the log_df
-           log_df$Barcode_Gap_Value[log_df$Species %in% Species[species_list_counter] ] <- loop_species_dist_matrix_between - loop_species_dist_matrix_within
+          #add the results of the species barcode gap calculation to the log_df
+          log_df$Barcode_Gap_Value[log_df$Species %in% Species[species_list_counter] ] <- loop_species_dist_matrix_between - loop_species_dist_matrix_within
 
-        # #add results of the bootstrap SE
-        #    log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
-        #
-        # # calculate bootstrap bias
-        #    stat_boot_bias <- stat_boot_mean - (loop_species_dist_matrix_between - loop_species_dist_matrix_within)
-        #
-        # #add results of the bootstrap SE
-        #    log_df$Barcode_Gap_Value_Bias[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_bias
-        #
-        # #add results of the lower bootstrap CI endpoint
-        #    log_df$Barcode_Gap_Value_CI_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
-        #
-        # #add results of the upper bootstrap CI endpoint
-        #    log_df$Barcode_Gap_Value_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
+        #add results of the bootstrap SE
+        log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
+
+        # calculate bootstrap bias
+        stat_boot_bias <- stat_boot_mean - (loop_species_dist_matrix_between - loop_species_dist_matrix_within)
+
+        #add results of the bootstrap SE
+        log_df$Barcode_Gap_Value_Bias[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_bias
+
+        #add results of the lower bootstrap CI endpoint
+        log_df$Barcode_Gap_Value_CI_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
+
+        #add results of the upper bootstrap CI endpoint
+        log_df$Barcode_Gap_Value_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
 
 
         }#closing the loop through the unique species in the genus
