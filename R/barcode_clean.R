@@ -616,7 +616,7 @@ for(h in 1:length(file_name)){
   }
 
   print(log_df)
-  print(m)
+
 } #end of file loop
 
 print(paste("Start time... ",start_time," and end time... ",Sys.time()))
