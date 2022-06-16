@@ -24,8 +24,8 @@
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
 #' @param dist_model This is the genetic distance model of nucleotide substitution (as implemented through ape). The default model is "raw", which corresponds to simple p-distance. Other avilable models are JC69 (Jukes-Cantor, 1969), K80 (Kimura-2-Paramter), and F81 (Felenstein, 1981)
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
-#' @param m This is the subsample size used for bootstrapping, which should be less than 1.
-#' @param B This is is number of bootstrap replications. This value should be set to at least 1000. The default is 10000.
+#' @param subsample_size This is the subsample size used for bootstrapping, which should be less than 1.
+#' @param replicate_size This is is number of bootstrap replications. This value should be set to at least 1000. The default is 10000.
 #' @param replacement This indicates sampling with replacement or sampling without replacement. The default is TRUE, indicating sampling with replacement.
 #' @param conf_level This is the confidence level used for interval estimation. The default is 0.95, indicating 95% confidence.
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
@@ -508,22 +508,22 @@ for(h in 1:length(file_name)){
                   intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = TRUE)
                   inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = TRUE)
                 } else { # subsampling
-                    intra_boot <- sample(loop_species_dist_matrix_within , size = subsample_size, replace = FALSE)
+                    intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = FALSE)
                     inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
                     }
 
-              # bootstrapped barcode gap
+              # calculate bootstrapped barcode gap
               boot_samples[i] <- min(inter_boot) - max(intra_boot)
 
               }
 
-              # bootstrap mean
+              # calculate  bootstrap mean
               stat_boot_mean <- mean(boot_samples)
 
-              # bootstrap standard error
+              # calculate bootstrap standard error
               stat_boot_se <- sd(boot_samples)
 
-              # percentile CI
+              # calculate percentile CI
               stat_boot_ci <- quantile(boot_samples, c((1 - conf_level) / 2, (1 + conf_level) / 2))
 
               #Getting the maximum within species distance
@@ -566,12 +566,11 @@ for(h in 1:length(file_name)){
         #add results of the bootstrap SE
            log_df$Barcode_Gap_Value_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
 
-        # bootstrap bias
+        # calculate bootstrap bias
            stat_boot_bias <- stat_boot_mean - (loop_species_dist_matrix_between - loop_species_dist_matrix_within)
 
         #add results of the bootstrap SE
            log_df$Barcode_Gap_Value_Bias[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_bias
-
 
         #add results of the lower bootstrap CI endpoint
            log_df$Barcode_Gap_Value_CI_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
