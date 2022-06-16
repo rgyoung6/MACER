@@ -578,6 +578,13 @@ for(h in 1:length(file_name)){
         #add results of the upper bootstrap CI endpoint
         log_df$Barcode_Gap_Value_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
 
+        # plot sampling distribution
+        par(mfrow = c(1, 2))
+
+        hist(boot_samples)
+        abline(v = stat_boot_mean, lty = 2)
+        qqnorm(boot_samples)
+        qqline(boot_samples)
 
         }#closing the loop through the unique species in the genus
 
