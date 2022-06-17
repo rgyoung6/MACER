@@ -57,7 +57,7 @@
 barcode_clean <- function(AA_code="invert",
                           dist_model = c("raw", "JC69", "K80", "F81"),
                           AGCT_only = TRUE,
-                          subsample_size = round(sqrt(length(no_outliers_dist_matrix))),
+                          subsample_size,
                           replicate_size = 10000,
                           replacement = TRUE,
                           conf_level = 0.95,
