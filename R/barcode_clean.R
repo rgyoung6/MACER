@@ -4,7 +4,7 @@
 #'
 #' @title DNA Barcode Clean
 #'
-#' @author Robert G. Young
+#' @author Robert G. Young and Jarrett D.Phillips
 #'
 #' @description
 #' Takes an input fasta file and identifies genus level outliers and species outliers based on the 1.5 x greater than the interquartile range.
@@ -57,7 +57,7 @@
 barcode_clean <- function(AA_code="invert",
                           dist_model = c("raw", "JC69", "K80", "F81"),
                           AGCT_only = TRUE,
-                          subsample_size,
+                          subsample_size = round(sqrt(length(no_outliers_dist_matrix))),
                           replicate_size = 10000,
                           replacement = TRUE,
                           conf_level = 0.95,
@@ -581,9 +581,9 @@ for(h in 1:length(file_name)){
         # plot sampling distribution
         par(mfrow = c(1, 2))
 
-        hist(boot_samples)
+        hist(boot_samples) # histogram
         abline(v = stat_boot_mean, lty = 2)
-        qqnorm(boot_samples)
+        qqnorm(boot_samples) # QQ plot
         qqline(boot_samples)
 
         }#closing the loop through the unique species in the genus
