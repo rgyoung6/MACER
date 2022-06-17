@@ -513,7 +513,7 @@ for(h in 1:length(file_name)){
                     }
 
               # calculate bootstrapped barcode gap
-              boot_samples[i] <- min(inter_boot) - max(intra_boot)
+              boot_samples[i] <- min(inter_boot[i]) - max(intra_boot[i])
 
               }
 
