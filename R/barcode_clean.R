@@ -505,11 +505,11 @@ for(h in 1:length(file_name)){
               for (i in 1:replicate_size) {
                 # sample m genetic distances with or without replacement
                 if (replacement == TRUE) { # bootstrapping
-                  intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = TRUE)
-                  inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = TRUE)
+                  intra_boot[i] <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = TRUE)
+                  inter_boot[i] <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = TRUE)
                   } else { # subsampling
-                    intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = FALSE)
-                    inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
+                    intra_boot[i] <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = FALSE)
+                    inter_boot[i] <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
                     }
 
               # calculate bootstrapped barcode gap
