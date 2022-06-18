@@ -54,7 +54,7 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code="invert",
+barcode_clean <- function(AA_code=c("invert","vert", "std")
                           dist_model = c("raw", "JC69", "K80", "F81"),
                           AGCT_only = TRUE,
                           subsample_size,
@@ -501,9 +501,9 @@ for(h in 1:length(file_name)){
               # pre-allocate storage vector of bootstrap resamples
               boot_samples <- numeric(replicate_size)
 
-              # perform resampling
+              # perform resampling - Added by Jarrett
+              # resample subsample_size genetic distances with or without replacement B times
               for (i in 1:replicate_size) {
-                # sample m genetic distances with or without replacement
                 if (replacement == TRUE) { # bootstrapping
                   intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = TRUE)
                   inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = TRUE)
