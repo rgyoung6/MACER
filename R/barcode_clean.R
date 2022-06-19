@@ -514,7 +514,7 @@ for(h in 1:length(file_name)){
               boot_samples <- replicate(replicate_size, generate_samples())
 
               # calculate bootstrapped barcode gap
-              boot_samples <- min(generate_samples$inter_boot) - max(generate_samples$intra_boot)
+              boot_samples <- min(boot_samples$inter_boot) - max(boot_samples$intra_boot)
 
               # calculate  bootstrap mean
               stat_boot_mean <- mean(boot_samples)
