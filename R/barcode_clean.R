@@ -54,7 +54,7 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code=c("invert","vert", "std")
+barcode_clean <- function(AA_code=c("invert","vert", "std"),
                           dist_model = c("raw", "JC69", "K80", "F81"),
                           AGCT_only = TRUE,
                           subsample_size,
