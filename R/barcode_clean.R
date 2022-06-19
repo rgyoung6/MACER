@@ -490,11 +490,11 @@ for(h in 1:length(file_name)){
 
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_within <<- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Now get comparisons between the loop species and all other records
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_between <<- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               ##### Resampling to calculate barcode gap standard error (SE) #####
 
