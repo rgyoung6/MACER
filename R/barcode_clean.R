@@ -580,10 +580,10 @@ for(h in 1:length(file_name)){
         # plot sampling distribution
         par(mfrow = c(1, 2))
 
-        hist(boot_samples) # histogram
-        abline(v = stat_boot_mean, lty = 2)
-        qqnorm(boot_samples) # QQ plot
-        qqline(boot_samples)
+        # hist(boot_samples) # histogram
+        # abline(v = stat_boot_mean, lty = 2)
+        # qqnorm(boot_samples) # QQ plot
+        # qqline(boot_samples)
 
         }#closing the loop through the unique species in the genus
 
