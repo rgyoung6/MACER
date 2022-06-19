@@ -499,7 +499,7 @@ for(h in 1:length(file_name)){
               ##### Resampling to calculate barcode gap standard error (SE) #####
 
               # preallocate vector of resamples
-              #boot_samples <- numeric(replicate_size)
+              boot_samples <- numeric(replicate_size)
 
               # perform resampling - Added by Jarrett
               # resample subsample_size genetic distances with or without replacement replicate_size times
