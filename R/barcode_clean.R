@@ -507,6 +507,7 @@ for(h in 1:length(file_name)){
                 } else { # subsampling
                   intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = FALSE)
                   inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
+                }
               }
 
               boot_samples <- replicate(replicate_size, generate_samples())
