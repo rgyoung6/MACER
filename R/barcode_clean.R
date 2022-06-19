@@ -444,7 +444,7 @@ for(h in 1:length(file_name)){
 
     #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
     no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),]
-    no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
+    no_outliers_dist_matrix <- no_outliers_dist_matrix[, !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
 
     #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
     barcode_gap_data_frame<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
@@ -512,8 +512,8 @@ for(h in 1:length(file_name)){
                     inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
                     }
 
-              # calculate bootstrapped barcode gap
-              boot_samples[i] <- min(inter_boot) - max(intra_boot)
+                # calculate bootstrapped barcode gap
+                boot_samples[i] <- min(inter_boot) - max(intra_boot)
 
               }
 
