@@ -498,9 +498,12 @@ for(h in 1:length(file_name)){
 
               ##### Resampling to calculate barcode gap standard error (SE) #####
 
+              # preallocate vector of resamples
+              boot_samples <- numeric(replicate_size)
+
               # perform resampling - Added by Jarrett
-              # resample subsample_size genetic distances with or without replacement B times
-              generate_samples <- function() {
+              # resample subsample_size genetic distances with or without replacement replicate_size times
+              for (i in 1:replicate_size) {
                 if (replacement == TRUE) { # bootstrapping
                   intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = TRUE)
                   inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = TRUE)
@@ -508,13 +511,11 @@ for(h in 1:length(file_name)){
                   intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = FALSE)
                   inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
                 }
-              return(list(intra_boot, inter_boot))
+
+                # calculate bootstrapped barcode gap
+                boot_samples[i] <- min(inter_boot) - max(intra_boot)
+
               }
-
-              boot_samples <- replicate(replicate_size, generate_samples())
-
-              # calculate bootstrapped barcode gap
-              boot_samples <- min(boot_samples$inter_boot) - max(boot_samples$intra_boot)
 
               # calculate  bootstrap mean
               stat_boot_mean <- mean(boot_samples)
