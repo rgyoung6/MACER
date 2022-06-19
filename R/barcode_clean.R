@@ -508,14 +508,13 @@ for(h in 1:length(file_name)){
                   intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = FALSE)
                   inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
                 }
-               intra_boot
-               inter_boot
+               lst <- list(intra_boot, inter_boot)
               }
 
               boot_samples <- replicate(replicate_size, generate_samples())
 
               # calculate bootstrapped barcode gap
-              boot_samples <- min(inter_boot) - max(intra_boot)
+              boot_samples <- min(lst$inter_boot) - max(lst$intra_boot)
 
               # calculate  bootstrap mean
               stat_boot_mean <- mean(boot_samples)
