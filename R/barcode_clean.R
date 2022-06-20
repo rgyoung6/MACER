@@ -585,7 +585,6 @@ for(h in 1:length(file_name)){
           abline(v = stat_boot_mean, lty = 2)
           qqnorm(boot_samples) # QQ plot
           qqline(boot_samples)
-          mtext(expression(paste(bold(Species[species_list_counter]))), side = 3, outer = TRUE)
 
         }#closing the loop through the unique species in the genus
 
