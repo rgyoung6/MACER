@@ -4,7 +4,7 @@
 #'
 #' @title DNA Barcode Clean
 #'
-#' @author Robert G. Young and Jarrett D.Phillips
+#' @author Robert G. Young and Jarrett D. Phillips
 #'
 #' @description
 #' Takes an input fasta file and identifies genus level outliers and species outliers based on the 1.5 x greater than the interquartile range.
@@ -24,7 +24,7 @@
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
 #' @param dist_model This is the genetic distance model of nucleotide substitution (as implemented through ape). The default model is "raw", which corresponds to simple p-distance. Other avilable models are JC69 (Jukes-Cantor, 1969), K80 (Kimura-2-Paramter), and F81 (Felenstein, 1981)
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
-#' @param subsample_size This is the subsample size used for bootstrapping, which should be less than 1.
+#' @param subsample_prop This is the subsample proportion used for bootstrapping, which should be between than 0 and 1 exclusive.
 #' @param replicate_size This is is number of bootstrap replications. This value should be set to at least 1000. The default is 10000.
 #' @param replacement This indicates sampling with replacement or sampling without replacement. The default is TRUE, indicating sampling with replacement.
 #' @param conf_level This is the confidence level used for interval estimation. The default is 0.95, indicating 95% confidence.
@@ -57,7 +57,7 @@
 barcode_clean <- function(AA_code= c("invert", "vert", "std"),
                           dist_model = c("raw", "JC69", "K80", "F81"),
                           AGCT_only = TRUE,
-                          subsample_size = NULL,
+                          subsample_prop = NULL,
                           replicate_size = 10000,
                           replacement = TRUE,
                           conf_level = 0.95,
@@ -505,11 +505,11 @@ for(h in 1:length(file_name)){
               # resample subsample_size genetic distances with or without replacement replicate_size times
               for (i in 1:replicate_size) {
                 if (replacement == TRUE) { # bootstrapping
-                  intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = TRUE)
-                  inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = TRUE)
+                  intra_boot <- sample(loop_species_dist_matrix_within, size = ceiling(subsample_prop * length(loop_species_dist_matrix_within)), replace = TRUE)
+                  inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length( loop_species_dist_matrix_between)), replace = TRUE)
                 } else { # subsampling
-                  intra_boot <- sample(loop_species_dist_matrix_within, size = subsample_size, replace = FALSE)
-                  inter_boot <- sample(loop_species_dist_matrix_between, size = subsample_size, replace = FALSE)
+                  intra_boot <- sample(loop_species_dist_matrix_within, size = ceiling(subsample_prop * length(loop_species_dist_matrix_within)), replace = FALSE)
+                  inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length( loop_species_dist_matrix_between)), replace = FALSE)
                 }
 
                 # calculate bootstrapped barcode gap
