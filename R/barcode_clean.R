@@ -291,7 +291,15 @@ for(h in 1:length(file_name)){
   if(nrow(Seq_file_data_frame)>2){
 
     #using the ape function to obtain the distance matrix
-    dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = dist_model, variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
+    if (dist_model == "raw") {
+      dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = "raw", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
+    } else if(dist_model == "JC69") {
+      dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = "JC69", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
+    } else if(dist_model == "K80") {
+      dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = "K80", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
+    } else {
+      dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = "F81", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
+    }
 
     #Making the contents of the matrix numeric
     dist_matrix<-apply(dist_matrix, 2, as.numeric)
