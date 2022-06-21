@@ -531,7 +531,6 @@ for(h in 1:length(file_name)){
                   boot.samples[i] <- max(intra.boot)
                   # observed sample maximum intraspecific distance
                   stat.obs <- max(loop_species_dist_matrix_within)
-                  }
                 }
               }
 
