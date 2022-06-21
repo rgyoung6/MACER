@@ -585,7 +585,7 @@ for(h in 1:length(file_name)){
           log_df$Estimate_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
 
           # calculate bootstrap bias
-          stat_boot_bias <- stat_boot_mean - stat.obs
+          stat_boot_bias <- stat_boot_mean - stat_obs
 
           #add results of the bootstrap SE
           log_df$Estimate_Bias[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_bias
