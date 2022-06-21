@@ -516,19 +516,19 @@ for(h in 1:length(file_name)){
                   inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length(loop_species_dist_matrix_between)), replace = FALSE)
                 }
 
-                if (statistic == "barcode.gap") {
+                if (statistic == "barcode_gap") {
                   # bootstrapped barcode gap
-                  boot.samples[i] <- min(inter.boot) - max(intra.boot)
+                  boot.samples[i] <- min(inter_boot) - max(intra_boot)
                   # observed sample barcode gap
                   stat.obs <- min(loop_species_dist_matrix_between) - max(loop_species_dist_matrix_within)
-                } else if (statistic == "min.inter") {
+                } else if (statistic == "min_inter") {
                   # bootstrapped minimum intraspecific distance
-                  boot.samples[i] <- min(inter.boot)
+                  boot.samples[i] <- min(inter_boot)
                   # observed sample minimum interspecfic distance
                   stat.obs <- min(loop_species_dist_matrix_between)
-                } else { # max.intra
+                } else { # max_intra
                   # bootstrapped minimum intraspecific distance
-                  boot.samples[i] <- max(intra.boot)
+                  boot.samples[i] <- max(intra_boot)
                   # observed sample maximum intraspecific distance
                   stat.obs <- max(loop_species_dist_matrix_within)
                 }
