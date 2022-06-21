@@ -499,6 +499,7 @@ for(h in 1:length(file_name)){
               loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               ##### Resampling to calculate barcode gap standard error (SE) #####
+              # perform resampling - Added by Jarrett
 
               # select desired statistic
               statistic <- match.arg(statistic)
@@ -506,7 +507,6 @@ for(h in 1:length(file_name)){
               # preallocate vector of resamples
               boot_samples <- numeric(replicate_size)
 
-              # perform resampling - Added by Jarrett
               # resample subsample_size genetic distances with or without replacement replicate_size times
               for (i in 1:replicate_size) {
                 if (replacement == TRUE) { # bootstrapping
@@ -519,19 +519,19 @@ for(h in 1:length(file_name)){
 
                 if (statistic == "barcode_gap") {
                   # bootstrapped barcode gap
-                  boot.samples[i] <- min(inter_boot) - max(intra_boot)
+                  boot_samples[i] <- min(inter_boot) - max(intra_boot)
                   # observed sample barcode gap
-                  stat.obs <- min(loop_species_dist_matrix_between) - max(loop_species_dist_matrix_within)
+                  stat_obs <- min(loop_species_dist_matrix_between) - max(loop_species_dist_matrix_within)
                 } else if (statistic == "min_inter") {
                   # bootstrapped minimum intraspecific distance
-                  boot.samples[i] <- min(inter_boot)
+                  boot_samples[i] <- min(inter_boot)
                   # observed sample minimum interspecfic distance
-                  stat.obs <- min(loop_species_dist_matrix_between)
+                  stat_obs <- min(loop_species_dist_matrix_between)
                 } else { # max_intra
                   # bootstrapped minimum intraspecific distance
-                  boot.samples[i] <- max(intra_boot)
+                  boot_samples[i] <- max(intra_boot)
                   # observed sample maximum intraspecific distance
-                  stat.obs <- max(loop_species_dist_matrix_within)
+                  stat_obs <- max(loop_species_dist_matrix_within)
                 }
               }
 
