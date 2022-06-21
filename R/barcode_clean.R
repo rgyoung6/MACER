@@ -22,8 +22,9 @@
 #' }
 #'
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
-#' @param dist_model This is the genetic distance model of nucleotide substitution (as implemented through ape). The default model is "raw", which corresponds to simple p-distance. Other avilable models are JC69 (Jukes-Cantor, 1969), K80 (Kimura-2-Paramter), and F81 (Felenstein, 1981)
+#' @param dist_model This is the genetic distance model of nucleotide substitution (as implemented through ape). The default model is "raw", which corresponds to simple p-distance. Other available models are JC69 (Jukes-Cantor, 1969), K80 (Kimura-2-Paramter), and F81 (Felenstein, 1981)
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
+#' @param statistic This is the desired statistic to be resampled. By default, the DNA barcode gap (barcode_gap) is computed. Other statistics are the minimum interspecific distance (min_inter) and the maximum intraspecific distance (max_intra).
 #' @param subsample_prop This is the subsample proportion used for bootstrapping, which should be between than 0 and 1 exclusive.
 #' @param replicate_size This is is number of bootstrap replications. This value should be set to at least 1000. The default is 10000.
 #' @param replacement This indicates sampling with replacement or sampling without replacement. The default is TRUE, indicating sampling with replacement.
@@ -57,7 +58,7 @@
 barcode_clean <- function(AA_code= c("invert", "vert", "std"),
                           dist_model = c("raw", "JC69", "K80", "F81"),
                           AGCT_only = TRUE,
-                          statistic = NULL,
+                          statistic = c("barcode_gap", "min_inter", "max_intra"),
                           subsample_prop = NULL,
                           replicate_size = 10000,
                           replacement = TRUE,
