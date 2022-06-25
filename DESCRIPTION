@@ -35,7 +35,7 @@ Imports:
   ape,
 	httr,
 	stats, 
-	utilS,
+	utils,
 	foreach,
 	parallel
 Language: en-GB
