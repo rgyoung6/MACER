@@ -521,7 +521,7 @@ for(h in 1:length(file_name)){
               boot_samples <- numeric(replicate_size)
 
               # resample subsample_size genetic distances with or without replacement replicate_size times
-              foreach (i = 1:replicate_size, .combine = cbind) %dopar% {
+              foreach (i = 1:replicate_size, .combine = c) %dopar% {
                 if (replacement == TRUE) { # bootstrapping
                   intra_boot <- sample(loop_species_dist_matrix_within, size = ceiling(subsample_prop * length(loop_species_dist_matrix_within)), replace = TRUE)
                   inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length(loop_species_dist_matrix_between)), replace = TRUE)
