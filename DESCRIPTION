@@ -37,7 +37,7 @@ Imports:
 	stats, 
 	utils,
 	foreach,
-	parallel
+	doParallel
 Language: en-GB
 LazyData: true
 RoxygenNote: 7.1.1
