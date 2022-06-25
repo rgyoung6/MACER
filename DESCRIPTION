@@ -35,10 +35,7 @@ Imports:
   ape,
 	httr,
 	stats, 
-	utils,
-	foreach,
-	doParallel,
-	parallel
+	utils
 Language: en-GB
 LazyData: true
 RoxygenNote: 7.1.1
