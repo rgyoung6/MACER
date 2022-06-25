@@ -511,7 +511,7 @@ for(h in 1:length(file_name)){
               # perform resampling - Added by Jarrett
 
               # set up cluster
-              clust <- makeCluster(num_cores)
+              registerDoParallel(num_cores)
 
               # select desired statistic
               statistic <- match.arg(statistic)
