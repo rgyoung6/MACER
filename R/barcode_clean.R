@@ -58,7 +58,6 @@
 barcode_clean <- function(AA_code= c("invert", "vert", "std"),
                           dist_model = c("raw", "JC69", "K80", "F81"),
                           AGCT_only = TRUE,
-                          num_cores = detectCores() - 1,
                           statistic = c("barcode_gap", "min_inter", "max_intra"),
                           subsample_prop = NULL,
                           replicate_size = 10000,
