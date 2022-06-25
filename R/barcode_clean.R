@@ -524,7 +524,7 @@ for(h in 1:length(file_name)){
               res <- foreach (i = 1:replicate_size, .combine = c) %dopar% {
                 if (replacement == TRUE) { # bootstrapping
                   intra_boot <- sample(loop_species_dist_matrix_within, size = ceiling(subsample_prop * length(loop_species_dist_matrix_within)), replace = TRUE)
-                  inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length(loop_species_dist_matrix_between)), replace = TRUE
+                  inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length(loop_species_dist_matrix_between)), replace = TRUE)
                                        } else { # subsampling
                                          intra_boot <- sample(loop_species_dist_matrix_within, size = ceiling(subsample_prop * length(loop_species_dist_matrix_within)), replace = FALSE)
                                          inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length(loop_species_dist_matrix_between)), replace = FALSE)
