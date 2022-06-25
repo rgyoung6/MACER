@@ -547,6 +547,8 @@ for(h in 1:length(file_name)){
                 }
               }
 
+              stopCluster(clust)
+
               # calculate  bootstrap mean
               stat_boot_mean <- mean(boot_samples)
 
