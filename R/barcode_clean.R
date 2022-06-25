@@ -63,6 +63,7 @@ barcode_clean <- function(AA_code= c("invert", "vert", "std"),
                           replicate_size = 10000,
                           replacement = TRUE,
                           conf_level = 0.95,
+                          conf_type = c("percentile", "basic", "normal"),
                           data_folder = NULL){
 
   #AA_code="invert"
@@ -550,8 +551,17 @@ for(h in 1:length(file_name)){
               # calculate bootstrap standard error
               stat_boot_se <- sd(boot_samples)
 
-              # calculate percentile CI
-              stat_boot_ci <- quantile(boot_samples, c((1 - conf_level) / 2, (1 + conf_level) / 2))
+              # calculate CIs
+              idx <- trunc((B + 1) * c((1 - conf.level) / 2, (1 + conf.level) / 2))
+              z_crit <- qnorm(c((1 - conf.level) / 2, (1 + conf.level) / 2)) # z critical values
+
+              if (conf_type == "percentile") {
+                stat_boot_ci <- sort(boot.samples)[idx] # Percentile
+              } else if (conf_type == "basic") {
+                stat_boot_ci <- rev(2*stat.obs - sort(boot.samples)[idx]) # Basic
+              } else {
+                stat_boot_ci <- (stat.obs - stat.boot.bias) + z_crit * stat_boot_se # Normal
+              }
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
