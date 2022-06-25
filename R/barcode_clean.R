@@ -556,11 +556,11 @@ for(h in 1:length(file_name)){
               z_crit <- qnorm(c((1 - conf_level) / 2, (1 + conf_level) / 2)) # z critical values
 
               if (conf_type == "percentile") {
-                stat_boot_ci <- sort(boot.samples)[idx] # Percentile
+                stat_boot_ci <- sort(boot_samples)[idx] # Percentile
               } else if (conf_type == "basic") {
-                stat_boot_ci <- rev(2*stat.obs - sort(boot.samples)[idx]) # Basic
+                stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
               } else {
-                stat_boot_ci <- (stat.obs - stat.boot.bias) + z_crit * stat_boot_se # Normal
+                stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
               }
 
               #Getting the maximum within species distance
