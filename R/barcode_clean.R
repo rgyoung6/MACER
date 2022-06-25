@@ -510,10 +510,6 @@ for(h in 1:length(file_name)){
               ##### Resampling to calculate barcode gap standard error (SE) #####
               # perform resampling - Added by Jarrett
 
-              # set up and register cluster
-              clust <- makeCluster(num_cores)
-              registerDoParallel(clust)
-
               # select desired statistic
               statistic <- match.arg(statistic)
 
@@ -521,14 +517,15 @@ for(h in 1:length(file_name)){
               boot_samples <- numeric(replicate_size)
 
               # resample subsample_size genetic distances with or without replacement replicate_size times
-              res <- foreach (i = 1:replicate_size, .combine = c) %dopar% {
+
+              for (i in 1:replicate_size, .combine = c) {
                 if (replacement == TRUE) { # bootstrapping
                   intra_boot <- sample(loop_species_dist_matrix_within, size = ceiling(subsample_prop * length(loop_species_dist_matrix_within)), replace = TRUE)
                   inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length(loop_species_dist_matrix_between)), replace = TRUE)
-                                       } else { # subsampling
-                                         intra_boot <- sample(loop_species_dist_matrix_within, size = ceiling(subsample_prop * length(loop_species_dist_matrix_within)), replace = FALSE)
-                                         inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length(loop_species_dist_matrix_between)), replace = FALSE)
-                                                              }
+                  } else { # subsampling
+                    intra_boot <- sample(loop_species_dist_matrix_within, size = ceiling(subsample_prop * length(loop_species_dist_matrix_within)), replace = FALSE)
+                    inter_boot <- sample(loop_species_dist_matrix_between, size = ceiling(subsample_prop * length(loop_species_dist_matrix_between)), replace = FALSE)
+                    }
 
                 if (statistic == "barcode_gap") {
                   # bootstrapped barcode gap
@@ -547,8 +544,6 @@ for(h in 1:length(file_name)){
                   stat_obs <- max(loop_species_dist_matrix_within)
                 }
               }
-
-              stopCluster(clust)
 
               # calculate  bootstrap mean
               stat_boot_mean <- mean(boot_samples)
