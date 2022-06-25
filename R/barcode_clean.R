@@ -510,8 +510,9 @@ for(h in 1:length(file_name)){
               ##### Resampling to calculate barcode gap standard error (SE) #####
               # perform resampling - Added by Jarrett
 
-              # set up cluster
-              registerDoParallel(num_cores)
+              # set up and register cluster
+              clust <-makeCluster(num_cores)
+              registerDoParallel(clust)
 
               # select desired statistic
               statistic <- match.arg(statistic)
