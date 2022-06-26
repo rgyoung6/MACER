@@ -555,8 +555,9 @@ for(h in 1:length(file_name)){
               stat_boot_se <- sd(boot_samples)
 
               # calculate CIs
-              idx <- trunc((replicate_size + 1) * c((1 - conf_level) / 2, (1 + conf_level) / 2))
-              z_crit <- qnorm(c((1 - conf_level) / 2, (1 + conf_level) / 2)) # z critical values
+              perc <- c((1 - conf_level) / 2, (1 + conf_level) / 2)
+              idx <- trunc((replicate_size + 1) * perc)
+              z_crit <- qnorm(perc) # z critical values
 
               if (conf_type == "percentile") {
                 stat_boot_ci <- sort(boot_samples)[idx] # Percentile
