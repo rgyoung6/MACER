@@ -566,7 +566,7 @@ for(h in 1:length(file_name)){
                 stat_boot_ci <- stat_obs + z_crit * stat_boot_se # Normal
               } else if (conf_type == "normal" && corrected == TRUE) {
                 stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
-              } else if {
+              } else if (conf_type == "basic"){
                 stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
               } else {
                 ## BCa interval ##
