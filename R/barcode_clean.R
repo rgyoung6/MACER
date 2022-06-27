@@ -562,9 +562,9 @@ for(h in 1:length(file_name)){
 
               if (conf_type == "percentile") {
                 stat_boot_ci <- sort(boot_samples)[idx] # Percentile
-              } else if (conf_type == "normal" && corrected = FALSE) {
+              } else if (conf_type == "normal" && corrected == FALSE) {
                 stat_boot_ci <- stat_obs + z_crit * stat_boot_se # Normal
-              } else if (conf_type == "normal" && corrected = TRUE) {
+              } else if (conf_type == "normal" && corrected == TRUE) {
                 stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
               } else if {
                 stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
