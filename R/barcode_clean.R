@@ -29,6 +29,7 @@
 #' @param replicate_size This is is number of bootstrap replications. This value should be set to at least 1000. The default is 10000.
 #' @param replacement This indicates sampling with replacement or sampling without replacement. The default is TRUE, indicating sampling with replacement.
 #' @param conf_level This is the confidence level used for interval estimation. The default is 0.95, indicating 95% confidence.
+#' @param conf_type This is the type of confidence interval desired by the user. The default is "percentile" but users can also select between "basic" and "normal".
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
 #'
 #' @returns
@@ -555,16 +556,46 @@ for(h in 1:length(file_name)){
               stat_boot_se <- sd(boot_samples)
 
               # calculate CIs
-              perc <- c((1 - conf_level) / 2, (1 + conf_level) / 2)
+              perc <- c((1 - conf_level) / 2, (1 + conf_level) / 2) # percentiles
               idx <- trunc((replicate_size + 1) * perc)
               z_crit <- qnorm(perc) # z critical values
 
               if (conf_type == "percentile") {
                 stat_boot_ci <- sort(boot_samples)[idx] # Percentile
-              } else if (conf_type == "basic") {
+              } else if (conf_type == "normal" && corrected = FALSE) {
+                stat_boot_ci <- stat_obs + z_crit * stat_boot_se # Normal
+              } else if (conf_type == "normal" && corrected = TRUE) {
+                stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
+              } else if {
                 stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
               } else {
-                stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
+                ## BCa interval ##
+
+                z0 <- qnorm(mean(boot.samples <= stat.obs))
+
+                I <- rep(NA, N)
+                for (i in 1:N) {
+                  # Remove ith data point
+                  intra_new <- loop_species_dist_matrix_within[-i]
+                  inter_new <- loop_species_dist_matrix_between[-i]
+                  # Estimate parameter
+                  if (statistic == "max_intra") {
+                    jack_est <- max(intra.new)
+                  } else if (statistic == "min_inter") {
+                    jack_est <- min(inter_new)
+                  } else {
+                    jack_est <- min(inter.new) - max(intra.new)
+                  }
+                  I[i] <- mean(jack_est) - jack_est
+                }
+
+                # Estimate acceleration constant
+                a_hat <- (sum(I^3) / sum(I^2)^(3/2)) / 6
+                # Estimate bias parameter
+                p_adjusted <- pnorm(z0 + (z0 + z.crit) / (1 - a.hat * (z0 + z.crit))) # adjusted z critical value
+
+                stat_boot_ci <- quantile(boot_samples, p_adjusted)
+
               }
 
               #Getting the maximum within species distance
