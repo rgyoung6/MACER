@@ -65,7 +65,7 @@ barcode_clean <- function(AA_code= c("invert", "vert", "std"),
                           replacement = TRUE,
                           conf_level = 0.95,
                           conf_type = c("percentile", "basic", "normal"),
-                          corrected = TRUE,
+                          correct_interval = TRUE,
                           data_folder = NULL){
 
   #AA_code="invert"
@@ -563,9 +563,9 @@ for(h in 1:length(file_name)){
 
               if (conf_type == "percentile") {
                 stat_boot_ci <- sort(boot_samples)[idx] # Percentile
-              } else if (conf_type == "normal" && corrected == FALSE) {
+              } else if (conf_type == "normal" && correct_interval == FALSE) {
                 stat_boot_ci <- stat_obs + z_crit * stat_boot_se # Normal
-              } else if (conf_type == "normal" && corrected == TRUE) {
+              } else if (conf_type == "normal" && correct_interval == TRUE) {
                 stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
               } else if (conf_type == "basic"){
                 stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
