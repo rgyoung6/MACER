@@ -65,7 +65,7 @@ barcode_clean <- function(AA_code= c("invert", "vert", "std"),
                           replacement = TRUE,
                           conf_level = 0.95,
                           conf_type = c("percentile", "basic", "normal"),
-                          correct_interval = TRUE,
+                          correct_interval = NULL,
                           data_folder = NULL){
 
   #AA_code="invert"
@@ -537,7 +537,7 @@ for(h in 1:length(file_name)){
                 } else if (statistic == "min_inter") {
                   # bootstrapped minimum intraspecific distance
                   boot_samples[i] <- min(inter_boot)
-                  # observed sample minimum interspecfic distance
+                  # observed sample minimum interspecific distance
                   stat_obs <- min(loop_species_dist_matrix_between)
                 } else { # max_intra
                   # bootstrapped minimum intraspecific distance
