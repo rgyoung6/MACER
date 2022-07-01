@@ -29,7 +29,8 @@
 #' @param replicate_size This is is number of bootstrap replications. This value should be set to at least 1000. The default is 10000.
 #' @param replacement This indicates sampling with replacement or sampling without replacement. The default is TRUE, indicating sampling with replacement.
 #' @param conf_level This is the confidence level used for interval estimation. The default is 0.95, indicating 95% confidence.
-#' @param conf_type This is the type of confidence interval desired by the user. The default is "percentile" but users can also select between "basic" and "normal".
+#' @param conf_type This is the type of confidence interval desired by the user. The default is "percentile" but users can also select among "normal", "basic" and "BCa".
+#' @param correct_interval This indicates whether bias correction should be applied for \code{conf_type = "normal"}
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
 #'
 #' @returns
@@ -503,11 +504,11 @@ for(h in 1:length(file_name)){
 
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_within <<- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Now get comparisons between the loop species and all other records
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_between <<- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               ##### Resampling to calculate barcode gap standard error (SE) #####
               # perform resampling - Added by Jarrett
