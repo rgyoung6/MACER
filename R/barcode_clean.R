@@ -19,6 +19,7 @@
 #' barcode_clean(),
 #' barcode_clean(AA_code = "vert", AGCT_only = TRUE),
 #' barcode_clean(AA_code = "vert")
+#' barcode_clean(statistic = "barcode_gap", subsample_prop = 0.10, conf_type = "percentile")
 #' }
 #'
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
