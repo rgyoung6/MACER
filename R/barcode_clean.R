@@ -700,7 +700,7 @@ for(h in 1:length(file_name)){
 # plot dotplot for DNA barcode gap
 
 df <- data.frame(log_df$Intraspecific, log_df$Interspecific)
-plot(df)
+plot(df, pch = 21, lwd = 2)
 abline(coef = c(0, 1), col = "red", lwd = 2) # add diagonal line
 
 print(paste("Start time... ",start_time," and end time... ",Sys.time()))
