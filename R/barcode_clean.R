@@ -574,7 +574,7 @@ for(h in 1:length(file_name)){
               } else {
                 ## BCa interval ##
 
-                z0 <- qnorm(mean(boot.samples <= stat.obs))
+                z0 <- qnorm(mean(boot_samples <= stat_obs))
 
                 I <- rep(NA, N)
                 for (i in 1:N) {
@@ -583,11 +583,11 @@ for(h in 1:length(file_name)){
                   inter_new <- loop_species_dist_matrix_between[-i]
                   # Estimate parameter
                   if (statistic == "max_intra") {
-                    jack_est <- max(intra.new)
+                    jack_est <- max(intra_new)
                   } else if (statistic == "min_inter") {
                     jack_est <- min(inter_new)
                   } else {
-                    jack_est <- min(inter.new) - max(intra.new)
+                    jack_est <- min(inter_new) - max(intra_new)
                   }
                   I[i] <- mean(jack_est) - jack_est
                 }
@@ -595,7 +595,7 @@ for(h in 1:length(file_name)){
                 # Estimate acceleration constant
                 a_hat <- (sum(I^3) / sum(I^2)^(3/2)) / 6
                 # Estimate bias parameter
-                p_adjusted <- pnorm(z0 + (z0 + z.crit) / (1 - a.hat * (z0 + z.crit))) # adjusted z critical value
+                p_adjusted <- pnorm(z0 + (z0 + z.crit) / (1 - a_hat * (z0 + z_crit))) # adjusted z critical value
 
                 stat_boot_ci <- quantile(boot_samples, p_adjusted)
 
