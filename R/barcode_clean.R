@@ -599,7 +599,7 @@ for(h in 1:length(file_name)){
               #
               #   stat_boot_ci <- quantile(boot_samples, p_adjusted)
 
-              }
+              #}
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
