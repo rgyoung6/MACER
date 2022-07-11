@@ -535,69 +535,69 @@ for(h in 1:length(file_name)){
                   # bootstrapped barcode gap
                   boot_samples[i] <- min(inter_boot) - max(intra_boot)
                   # observed sample barcode gap
-                  stat_obs <- min(loop_species_dist_matrix_between) - max(loop_species_dist_matrix_within)
+                  #stat_obs <- min(loop_species_dist_matrix_between) - max(loop_species_dist_matrix_within)
                 } else if (statistic == "min_inter") {
                   # bootstrapped minimum intraspecific distance
                   boot_samples[i] <- min(inter_boot)
                   # observed sample minimum interspecific distance
-                  stat_obs <- min(loop_species_dist_matrix_between)
+                  #stat_obs <- min(loop_species_dist_matrix_between)
                 } else { # max_intra
                   # bootstrapped minimum intraspecific distance
                   boot_samples[i] <- max(intra_boot)
                   # observed sample maximum intraspecific distance
-                  stat_obs <- max(loop_species_dist_matrix_within)
+                  #stat_obs <- max(loop_species_dist_matrix_within)
                 }
               }
 
               # calculate  bootstrap mean
-              stat_boot_mean <- mean(boot_samples)
+              #stat_boot_mean <- mean(boot_samples)
 
               # calculate bootstrap bias
-              stat_boot_bias <- stat_boot_mean - stat_obs
+              #stat_boot_bias <- stat_boot_mean - stat_obs
 
               # calculate bootstrap standard error
-              stat_boot_se <- sd(boot_samples)
+              #stat_boot_se <- sd(boot_samples)
 
               # calculate CIs
-              perc <- c((1 - conf_level) / 2, (1 + conf_level) / 2) # percentiles
-              idx <- trunc((replicate_size + 1) * perc)
-              z_crit <- qnorm(perc) # z critical values
+              #perc <- c((1 - conf_level) / 2, (1 + conf_level) / 2) # percentiles
+              #idx <- trunc((replicate_size + 1) * perc)
+              #z_crit <- qnorm(perc) # z critical values
 
-              if (conf_type == "percentile") {
-                stat_boot_ci <- sort(boot_samples)[idx] # Percentile
-              } else if (conf_type == "normal" && correct_interval == FALSE) {
-                stat_boot_ci <- stat_obs + z_crit * stat_boot_se # Normal
-              } else if (conf_type == "normal" && correct_interval == TRUE) {
-                stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
-              } else if (conf_type == "basic"){
-                stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
-              } else {
-                ## BCa interval ##
-
-                z0 <- qnorm(mean(boot_samples <= stat_obs))
-
-                I <- rep(NA, N)
-                for (i in 1:N) {
-                  # Remove ith data point
-                  intra_new <- loop_species_dist_matrix_within[-i]
-                  inter_new <- loop_species_dist_matrix_between[-i]
-                  # Estimate parameter
-                  if (statistic == "max_intra") {
-                    jack_est <- max(intra_new)
-                  } else if (statistic == "min_inter") {
-                    jack_est <- min(inter_new)
-                  } else {
-                    jack_est <- min(inter_new) - max(intra_new)
-                  }
-                  I[i] <- mean(jack_est) - jack_est
-                }
-
-                # Estimate acceleration constant
-                a_hat <- (sum(I^3) / sum(I^2)^(3/2)) / 6
-                # Estimate bias parameter
-                p_adjusted <- pnorm(z0 + (z0 + z.crit) / (1 - a_hat * (z0 + z_crit))) # adjusted z critical value
-
-                stat_boot_ci <- quantile(boot_samples, p_adjusted)
+              # if (conf_type == "percentile") {
+              #   stat_boot_ci <- sort(boot_samples)[idx] # Percentile
+              # } else if (conf_type == "normal" && correct_interval == FALSE) {
+              #   stat_boot_ci <- stat_obs + z_crit * stat_boot_se # Normal
+              # } else if (conf_type == "normal" && correct_interval == TRUE) {
+              #   stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
+              # } else if (conf_type == "basic"){
+              #   stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
+              # } else {
+              #   ## BCa interval ##
+              #
+              #   z0 <- qnorm(mean(boot_samples <= stat_obs))
+              #
+              #   I <- rep(NA, N)
+              #   for (i in 1:N) {
+              #     # Remove ith data point
+              #     intra_new <- loop_species_dist_matrix_within[-i]
+              #     inter_new <- loop_species_dist_matrix_between[-i]
+              #     # Estimate parameter
+              #     if (statistic == "max_intra") {
+              #       jack_est <- max(intra_new)
+              #     } else if (statistic == "min_inter") {
+              #       jack_est <- min(inter_new)
+              #     } else {
+              #       jack_est <- min(inter_new) - max(intra_new)
+              #     }
+              #     I[i] <- mean(jack_est) - jack_est
+              #   }
+              #
+              #   # Estimate acceleration constant
+              #   a_hat <- (sum(I^3) / sum(I^2)^(3/2)) / 6
+              #   # Estimate bias parameter
+              #   p_adjusted <- pnorm(z0 + (z0 + z.crit) / (1 - a_hat * (z0 + z_crit))) # adjusted z critical value
+              #
+              #   stat_boot_ci <- quantile(boot_samples, p_adjusted)
 
               }
 
@@ -651,12 +651,12 @@ for(h in 1:length(file_name)){
           log_df$Estimate_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
 
           # plot sampling distribution
-          par(mfrow = c(1, 2))
+          #par(mfrow = c(1, 2))
 
-          hist(boot_samples) # histogram
-          abline(v = stat_boot_mean, lty = 2)
-          qqnorm(boot_samples) # QQ plot
-          qqline(boot_samples)
+          #hist(boot_samples) # histogram
+          #abline(v = stat_boot_mean, lty = 2)
+          #qqnorm(boot_samples) # QQ plot
+          #qqline(boot_samples)
 
         }#closing the loop through the unique species in the genus
 
@@ -699,9 +699,9 @@ for(h in 1:length(file_name)){
 
 # plot dotplot for DNA barcode gap
 
-df <- data.frame(log_df$Intraspecific, log_df$Interspecific)
-plot(df, pch = 21, lwd = 2)
-abline(coef = c(0, 1), col = "red", lwd = 2) # add diagonal line
+#df <- data.frame(log_df$Intraspecific, log_df$Interspecific)
+#plot(df, pch = 21, lwd = 2)
+#abline(coef = c(0, 1), col = "red", lwd = 2) # add diagonal line
 
 print(paste("Start time... ",start_time," and end time... ",Sys.time()))
 
