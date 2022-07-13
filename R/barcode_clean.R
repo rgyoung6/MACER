@@ -559,47 +559,47 @@ for(h in 1:length(file_name)){
               stat_boot_se <- sd(boot_samples)
 
               # calculate CIs
-              #perc <- c((1 - conf_level) / 2, (1 + conf_level) / 2) # percentiles
-              #idx <- trunc((replicate_size + 1) * perc)
-              #z_crit <- qnorm(perc) # z critical values
+              perc <- c((1 - conf_level) / 2, (1 + conf_level) / 2) # percentiles
+              idx <- trunc((replicate_size + 1) * perc)
+              z_crit <- qnorm(perc) # z critical values
 
-              # if (conf_type == "percentile") {
-              #   stat_boot_ci <- sort(boot_samples)[idx] # Percentile
-              # } else if (conf_type == "normal" && correct_interval == FALSE) {
-              #   stat_boot_ci <- stat_obs + z_crit * stat_boot_se # Normal
-              # } else if (conf_type == "normal" && correct_interval == TRUE) {
-              #   stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
-              # } else if (conf_type == "basic"){
-              #   stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
-              # } else {
-              #   ## BCa interval ##
-              #
-              #   z0 <- qnorm(mean(boot_samples <= stat_obs))
-              #
-              #   I <- rep(NA, N)
-              #   for (i in 1:N) {
-              #     # Remove ith data point
-              #     intra_new <- loop_species_dist_matrix_within[-i]
-              #     inter_new <- loop_species_dist_matrix_between[-i]
-              #     # Estimate parameter
-              #     if (statistic == "max_intra") {
-              #       jack_est <- max(intra_new)
-              #     } else if (statistic == "min_inter") {
-              #       jack_est <- min(inter_new)
-              #     } else {
-              #       jack_est <- min(inter_new) - max(intra_new)
-              #     }
-              #     I[i] <- mean(jack_est) - jack_est
-              #   }
-              #
-              #   # Estimate acceleration constant
-              #   a_hat <- (sum(I^3) / sum(I^2)^(3/2)) / 6
-              #   # Estimate bias parameter
-              #   p_adjusted <- pnorm(z0 + (z0 + z.crit) / (1 - a_hat * (z0 + z_crit))) # adjusted z critical value
-              #
-              #   stat_boot_ci <- quantile(boot_samples, p_adjusted)
+              if (conf_type == "percentile") {
+                 stat_boot_ci <- sort(boot_samples)[idx] # Percentile
+               } else if (conf_type == "normal" && correct_interval == FALSE) {
+                 stat_boot_ci <- stat_obs + z_crit * stat_boot_se # Normal
+               } else if (conf_type == "normal" && correct_interval == TRUE) {
+                 stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
+               } else if (conf_type == "basic"){
+                 stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
+               } else {
+                 ## BCa interval ##
 
-              #}
+                 z0 <- qnorm(mean(boot_samples <= stat_obs))
+
+                 I <- rep(NA, N)
+                 for (i in 1:N) {
+                   # Remove ith data point
+                   intra_new <- loop_species_dist_matrix_within[-i]
+                   inter_new <- loop_species_dist_matrix_between[-i]
+                   # Estimate parameter
+                   if (statistic == "max_intra") {
+                     jack_est <- max(intra_new)
+                   } else if (statistic == "min_inter") {
+                     jack_est <- min(inter_new)
+                   } else {
+                     jack_est <- min(inter_new) - max(intra_new)
+                   }
+                   I[i] <- mean(jack_est) - jack_est
+                 }
+
+                 # Estimate acceleration constant
+                 a_hat <- (sum(I^3) / sum(I^2)^(3/2)) / 6
+                 # Estimate bias parameter
+                 p_adjusted <- pnorm(z0 + (z0 + z.crit) / (1 - a_hat * (z0 + z_crit))) # adjusted z critical value
+
+                 stat_boot_ci <- quantile(boot_samples, p_adjusted)
+
+              }
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
@@ -645,10 +645,10 @@ for(h in 1:length(file_name)){
           log_df$Estimate_Bias[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_bias
 
           #add results of the lower bootstrap CI endpoint
-          #log_df$Estimate_CI_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
+          log_df$Estimate_CI_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
 
           #add results of the upper bootstrap CI endpoint
-          #log_df$Estimate_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
+          log_df$Estimate_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
 
           # plot sampling distribution
           par(mfrow = c(1, 2))
