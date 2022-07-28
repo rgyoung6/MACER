@@ -535,22 +535,22 @@ for(h in 1:length(file_name)){
                   # bootstrapped barcode gap
                   boot_samples[i] <- min(inter_boot) - max(intra_boot)
                   # observed sample barcode gap
-                  #stat_obs <- min(loop_species_dist_matrix_between) - max(loop_species_dist_matrix_within)
+                  stat_obs <- min(loop_species_dist_matrix_between) - max(loop_species_dist_matrix_within)
                 } else if (statistic == "min_inter") {
                   # bootstrapped minimum intraspecific distance
                   boot_samples[i] <- min(inter_boot)
                   # observed sample minimum interspecific distance
-                  #stat_obs <- min(loop_species_dist_matrix_between)
+                  stat_obs <- min(loop_species_dist_matrix_between)
                 } else { # max_intra
                   # bootstrapped minimum intraspecific distance
                   boot_samples[i] <- max(intra_boot)
                   # observed sample maximum intraspecific distance
-                  #stat_obs <- max(loop_species_dist_matrix_within)
+                  stat_obs <- max(loop_species_dist_matrix_within)
                 }
               }
 
               # calculate  bootstrap mean
-              #stat_boot_mean <- mean(boot_samples)
+              stat_boot_mean <- mean(boot_samples)
 
               # calculate bootstrap bias
               stat_boot_bias <- stat_boot_mean - stat_obs
@@ -696,12 +696,6 @@ for(h in 1:length(file_name)){
   print(log_df)
 
 } #end of file loop
-
-# plot dotplot for DNA barcode gap
-
-df <- data.frame(log_df$Intraspecific, log_df$Interspecific)
-plot(df, pch = 21, lwd = 2)
-abline(coef = c(0, 1), col = "red", lwd = 2) # add diagonal line
 
 print(paste("Start time... ",start_time," and end time... ",Sys.time()))
 
