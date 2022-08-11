@@ -4,7 +4,7 @@
 #'
 #' @title DNA Barcode Clean
 #'
-#' @author Robert G. Young and Jarrett D. Phillips
+#' @author Robert G. Young
 #'
 #' @description
 #' Takes an input fasta file and identifies genus level outliers and species outliers based on the 1.5 x greater than the interquartile range.
@@ -19,19 +19,10 @@
 #' barcode_clean(),
 #' barcode_clean(AA_code = "vert", AGCT_only = TRUE),
 #' barcode_clean(AA_code = "vert")
-#' barcode_clean(statistic = "barcode_gap", subsample_prop = 0.10, conf_type = "percentile")
 #' }
 #'
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
-#' @param dist_model This is the genetic distance model of nucleotide substitution (as implemented through ape). The default model is "raw", which corresponds to simple p-distance. Other available models are JC69 (Jukes-Cantor, 1969), K80 (Kimura-2-Paramter), and F81 (Felenstein, 1981)
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
-#' @param statistic This is the desired statistic to be resampled. By default, the DNA barcode gap (barcode_gap) is computed. Other statistics are the minimum interspecific distance (min_inter) and the maximum intraspecific distance (max_intra).
-#' @param subsample_prop This is the subsample proportion used for bootstrapping, which should be between than 0 and 1 exclusive.
-#' @param replicate_size This is is number of bootstrap replications. This value should be set to at least 1000. The default is 10000.
-#' @param replacement This indicates sampling with replacement or sampling without replacement. The default is TRUE, indicating sampling with replacement.
-#' @param conf_level This is the confidence level used for interval estimation. The default is 0.95, indicating 95% confidence.
-#' @param conf_type This is the type of confidence interval desired by the user. The default is "percentile" but users can also select among "normal", "basic" and "BCa".
-#' @param correct_interval This indicates whether bias correction should be applied for \code{conf_type = "normal"}
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
 #'
 #' @returns
@@ -58,16 +49,9 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code = "invert",
+barcode_clean <- function(AA_code="invert",
                           dist_model = "raw",
                           AGCT_only = TRUE,
-                          statistic = "barcode_gap",
-                          subsample_prop = NULL,
-                          replicate_size = 10000,
-                          replacement = TRUE,
-                          conf_level = 0.95,
-                          conf_type = "percentile",
-                          correct_interval = NULL,
                           data_folder = NULL){
 
   #AA_code="invert"
@@ -87,7 +71,7 @@ barcode_clean <- function(AA_code = "invert",
 
   }else{
 
-    Work_loc <- data_folder
+    Work_loc = data_folder
 
   }
 
@@ -108,12 +92,12 @@ log_header<- paste0("DNA_Clean_Log_File - File name = ", log_file_name, " - AA c
 #Making the amino acid translation codes into numbers for the ape package.
 if (AA_code == "vert"){
   AA_code = 2
-} else if (AA_code == "invert"){
+}else if (AA_code == "invert"){
   AA_code = 5
 }else if (AA_code == "std"){
   AA_code = 1
 }else {
-  AA_code == 0
+  (AA_code == 0)
 }
 
 #outputing the header to the log file
@@ -129,8 +113,8 @@ file_list <- list.files(path=Work_loc, pattern = "*[.][Ff][Aa][Ss]$")
 file_name <- sub("\\..*","",as.vector(file_list))
 
 #Initialize the no_outliers_dist_matrix
-no_outliers_dist_matrix<-""
-no_outliers_dataset<-""
+no_outliers_dist_matrix=""
+no_outliers_dataset=""
 
 #************************** LOOPING THROUGH EACH OF THE FILES IN THE TARGET DIRECTORY *******************************************************************
 
@@ -459,7 +443,7 @@ for(h in 1:length(file_name)){
 
     #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
     no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),]
-    no_outliers_dist_matrix <- no_outliers_dist_matrix[, !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
+    no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
 
     #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
     barcode_gap_data_frame<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
@@ -497,7 +481,7 @@ for(h in 1:length(file_name)){
           for (species_list_counter in 1:length(Species)){
 
             #Get the records for the loop species
-            loop_species_records<<-loop_genus_records[loop_genus_records$Species==Species[species_list_counter],]
+            loop_species_records<-loop_genus_records[loop_genus_records$Species==Species[species_list_counter],]
 
             #for species with more than one records so that the within is able to be calculated
 
@@ -505,104 +489,11 @@ for(h in 1:length(file_name)){
 
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_within <<- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Now get comparisons between the loop species and all other records
-              loop_species_dist_matrix_between <<- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
-
-              ##### Resampling to calculate barcode gap standard error (SE) #####
-              # perform resampling - Added by Jarrett
-
-              # select desired statistic
-              statistic <- match.arg(statistic)
-
-              # preallocate vector of resamples
-              boot_samples <- numeric(replicate_size)
-
-              # resample subsample_size genetic distances with or without replacement replicate_size times
-
-              ### rows are target taxa, columns are nontarget
-              ### size should be nrow() * ncol() NOT length()
-
-              # for (i in 1:replicate_size) {
-              #   if (replacement == TRUE) { # bootstraaping
-              #     intra_boot <- sample(replace = TRUE)
-              #     inter_boot <- sample(replace = TRUE)
-              #   } else { # subsampling
-              #     intra_boot <- sample(replace = FALSE)
-              #     inter_boot <- sample(replace = FALSE)
-              #   }
-              #
-              #
-              #   if (statistic == "barcode_gap") {
-              #     # bootstrapped barcode gap
-              #     boot_samples[i] <- min(inter_boot) - max(intra_boot)
-              #     # observed sample barcode gap
-              #     stat_obs <- min(loop_species_dist_matrix_between) - max(loop_species_dist_matrix_within)
-              #   } else if (statistic == "min_inter") {
-              #     # bootstrapped minimum intraspecific distance
-              #     boot_samples[i] <- min(inter_boot)
-              #     # observed sample minimum interspecific distance
-              #     stat_obs <- min(loop_species_dist_matrix_between)
-              #   } else { # max_intra
-              #     # bootstrapped minimum intraspecific distance
-              #     boot_samples[i] <- max(intra_boot)
-              #     # observed sample maximum intraspecific distance
-              #     stat_obs <- max(loop_species_dist_matrix_within)
-              #   }
-              # }
-              #
-              # # calculate  bootstrap mean
-              # stat_boot_mean <- mean(boot_samples)
-              #
-              # # calculate bootstrap bias
-              # stat_boot_bias <- stat_boot_mean - stat_obs
-              #
-              # # calculate bootstrap standard error
-              # stat_boot_se <- sd(boot_samples)
-              #
-              # # calculate CIs
-              # perc <- c((1 - conf_level) / 2, (1 + conf_level) / 2) # percentiles
-              # idx <- trunc((replicate_size + 1) * perc)
-              # z_crit <- qnorm(perc) # z critical values
-              #
-              # if (conf_type == "percentile") {
-              #    stat_boot_ci <- sort(boot_samples)[idx] # Percentile
-              #  } else if (conf_type == "normal" && correct_interval == FALSE) {
-              #    stat_boot_ci <- stat_obs + z_crit * stat_boot_se # Normal
-              #  } else if (conf_type == "normal" && correct_interval == TRUE) {
-              #    stat_boot_ci <- (stat_obs - stat_boot_bias) + z_crit * stat_boot_se # Normal
-              #  } else if (conf_type == "basic"){
-              #    stat_boot_ci <- rev(2*stat_obs - sort(boot_samples)[idx]) # Basic
-              #  } else {
-              #    ## BCa interval ##
-              #
-              #    z0 <- qnorm(mean(boot_samples <= stat_obs))
-              #
-              #    I <- rep(NA, N)
-              #    for (i in 1:N) {
-              #      # Remove ith data point
-              #      intra_new <- loop_species_dist_matrix_within[-i]
-              #      inter_new <- loop_species_dist_matrix_between[-i]
-              #      # Estimate parameter
-              #      if (statistic == "max_intra") {
-              #        jack_est <- max(intra_new)
-              #      } else if (statistic == "min_inter") {
-              #        jack_est <- min(inter_new)
-              #      } else {
-              #        jack_est <- min(inter_new) - max(intra_new)
-              #      }
-              #      I[i] <- mean(jack_est) - jack_est
-              #    }
-              #
-              #    # Estimate acceleration constant
-              #    a_hat <- (sum(I^3) / sum(I^2)^(3/2)) / 6
-              #    # Estimate bias parameter
-              #    p_adjusted <- pnorm(z0 + (z0 + z.crit) / (1 - a_hat * (z0 + z_crit))) # adjusted z critical value
-              #
-              #    stat_boot_ci <- quantile(boot_samples, p_adjusted)
-              #
-              # }
+              loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
+              loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
@@ -640,26 +531,6 @@ for(h in 1:length(file_name)){
 
           #add the results of the species barcode gap calculation to the log_df
           log_df$Barcode_Gap_Value[log_df$Species %in% Species[species_list_counter] ] <- loop_species_dist_matrix_between - loop_species_dist_matrix_within
-
-          #add results of the bootstrap SE
-          #log_df$Estimate_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
-
-          #add results of the bootstrap Bias
-         # log_df$Estimate_Bias[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_bias
-
-          #add results of the lower bootstrap CI endpoint
-          #log_df$Estimate_CI_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
-
-          #add results of the upper bootstrap CI endpoint
-          #log_df$Estimate_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
-
-          # plot sampling distribution
-          # par(mfrow = c(1, 2))
-          #
-          # hist(boot_samples) # histogram
-          # abline(v = stat_boot_mean, lty = 2)
-          # qqnorm(boot_samples) # QQ plot
-          # qqline(boot_samples)
 
         }#closing the loop through the unique species in the genus
 
