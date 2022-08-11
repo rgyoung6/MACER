@@ -524,7 +524,7 @@ for(h in 1:length(file_name)){
               ### rows are target taxa, columns are nontarget
               ### size should be nrow() * ncol() NOT length()
 
-              # for (i in 1:replicate_size) {
+              for (i in 1:replicate_size) {
               #   if (replacement == TRUE) { # bootstraaping
               #     intra_boot <-
               #     inter_boot <-
