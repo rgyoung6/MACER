@@ -58,15 +58,15 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code= c("invert", "vert", "std"),
-                          dist_model = c("raw", "JC69", "K80", "F81"),
+barcode_clean <- function(AA_code = "invert",
+                          dist_model = "raw",
                           AGCT_only = TRUE,
-                          statistic = c("barcode_gap", "min_inter", "max_intra"),
+                          statistic = "barcode_gap",
                           subsample_prop = NULL,
                           replicate_size = 10000,
                           replacement = TRUE,
                           conf_level = 0.95,
-                          conf_type = c("percentile", "basic", "normal"),
+                          conf_type = "percentile",
                           correct_interval = NULL,
                           data_folder = NULL){
 
@@ -87,7 +87,7 @@ barcode_clean <- function(AA_code= c("invert", "vert", "std"),
 
   }else{
 
-    Work_loc = data_folder
+    Work_loc <- data_folder
 
   }
 
@@ -108,12 +108,12 @@ log_header<- paste0("DNA_Clean_Log_File - File name = ", log_file_name, " - AA c
 #Making the amino acid translation codes into numbers for the ape package.
 if (AA_code == "vert"){
   AA_code = 2
-}else if (AA_code == "invert"){
+} else if (AA_code == "invert"){
   AA_code = 5
 }else if (AA_code == "std"){
   AA_code = 1
 }else {
-  (AA_code == 0)
+  AA_code == 0
 }
 
 #outputing the header to the log file
@@ -129,8 +129,8 @@ file_list <- list.files(path=Work_loc, pattern = "*[.][Ff][Aa][Ss]$")
 file_name <- sub("\\..*","",as.vector(file_list))
 
 #Initialize the no_outliers_dist_matrix
-no_outliers_dist_matrix=""
-no_outliers_dataset=""
+no_outliers_dist_matrix<-""
+no_outliers_dataset<-""
 
 #************************** LOOPING THROUGH EACH OF THE FILES IN THE TARGET DIRECTORY *******************************************************************
 
@@ -522,9 +522,16 @@ for(h in 1:length(file_name)){
               # resample subsample_size genetic distances with or without replacement replicate_size times
 
               ### rows are target taxa, columns are nontarget
-              ### size should be nrow()*ncol() NOT length()
+              ### size should be nrow() * ncol() NOT length()
 
               for (i in 1:replicate_size) {
+                if (replacement == TRUE) { # bootstraaping
+                  intra_boot <-
+                  inter_boot <-
+                } else { # subsampling
+                  intra_boot <-
+                  inter_boot <-
+                }
 
 
                 if (statistic == "barcode_gap") {
