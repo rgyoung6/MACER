@@ -523,7 +523,9 @@ for(h in 1:length(file_name)){
               # preallocate vector of resamples
               boot_samples <- numeric(replicate_size)
 
-              # resample subsample_size genetic distances with or without replacement replicate_size times
+              # resample subsample_size species record labels with or without
+              # replacement replicate_size times and then retrieve the
+              # corresponding genetic distances
 
               ### rows are target taxa, columns are nontarget
               ### size should be nrow() * ncol() NOT length()
@@ -566,6 +568,18 @@ for(h in 1:length(file_name)){
               # stat_boot_se <- sd(boot_samples)
               #
               # # calculate CIs
+
+              # Percentile method takes upper and lower quantiles of boostrap
+              # distribution to form a CI
+
+              # Normal method is based on large-sample theory (CLT) and corrects
+              # for estimator bias
+
+              # Basic method is a "reverse" percentile method
+
+              # BCa method corrects for bias and skewness in the bootstrap
+              # distribution
+
               # perc <- c((1 - conf_level) / 2, (1 + conf_level) / 2) # percentiles
               # idx <- trunc((replicate_size + 1) * perc)
               # z_crit <- qnorm(perc) # z critical values
@@ -658,6 +672,27 @@ for(h in 1:length(file_name)){
 
           #add results of the upper bootstrap CI endpoint
           #log_df$Estimate_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
+
+
+
+
+          ##### Visualizations #####
+
+          intra <- log_df$Intraspecific
+          inter <- log_df$Interspecific
+
+          df <- data.frame(intra, inter)
+
+          ### Dotplot ###
+
+          ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
+            geom_abline(intercept = 0, slope = 1, color = "red") +
+            labs(x = "Maximum Intraspecific Distance (%)"
+                 y = "Minimum Interspecific Distance (%)") +
+            xlim(0, 30) + ylim(0, 30)
+
+
+
 
 
         }#closing the loop through the unique species in the genus
