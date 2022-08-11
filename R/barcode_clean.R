@@ -19,10 +19,19 @@
 #' barcode_clean(),
 #' barcode_clean(AA_code = "vert", AGCT_only = TRUE),
 #' barcode_clean(AA_code = "vert")
+#' barcode_clean(statistic = "barcode_gap", subsample_prop = 0.10, conf_type = "percentile")
 #' }
 #'
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
+#' @param dist_model This is the genetic distance model of nucleotide substitution (as implemented through ape). The default model is "raw", which corresponds to simple p-distance. Other available models are JC69 (Jukes-Cantor, 1969), K80 (Kimura-2-Paramter), and F81 (Felenstein, 1981)
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
+#' @param statistic This is the desired statistic to be resampled. By default, the DNA barcode gap (barcode_gap) is computed. Other statistics are the minimum interspecific distance (min_inter) and the maximum intraspecific distance (max_intra).
+#' @param subsample_prop This is the subsample proportion used for bootstrapping, which should be between than 0 and 1 exclusive.
+#' @param replicate_size This is is number of bootstrap replications. This value should be set to at least 1000. The default is 10000.
+#' @param replacement This indicates sampling with replacement or sampling without replacement. The default is TRUE, indicating sampling with replacement.
+#' @param conf_level This is the confidence level used for interval estimation. The default is 0.95, indicating 95% confidence.
+#' @param conf_type This is the type of confidence interval desired by the user. The default is "percentile" but users can also select among "normal", "basic" and "BCa".
+#' @param correct_interval This indicates whether bias correction should be applied for \code{conf_type = "normal"}
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
 #'
 #' @returns
@@ -52,6 +61,13 @@
 barcode_clean <- function(AA_code="invert",
                           dist_model = "raw",
                           AGCT_only = TRUE,
+                          statistic = "barcode_gap",
+                          subsample_prop = NULL,
+                          replicate_size = 10000,
+                          replacement = TRUE,
+                          conf_level = 0.95,
+                          conf_type = "percentile",
+                          correct_interval = NULL,
                           data_folder = NULL){
 
   #AA_code="invert"
@@ -494,6 +510,22 @@ for(h in 1:length(file_name)){
               #Now get comparisons between the loop species and all other records
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
               loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+
+
+
+
+              ##### Resampling to calculate barcode gap standard error (SE) #####
+              # perform resampling - Added by Jarrett
+
+              # select desired statistic
+              statistic <- match.arg(statistic)
+
+              # preallocate vector of resamples
+              boot_samples <- numeric(replicate_size)
+
+
+
+
 
               #Getting the maximum within species distance
               loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
