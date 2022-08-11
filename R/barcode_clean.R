@@ -687,7 +687,7 @@ for(h in 1:length(file_name)){
 
           ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
             geom_abline(intercept = 0, slope = 1, color = "red") +
-            labs(x = "Maximum Intraspecific Distance (%)"
+            labs(x = "Maximum Intraspecific Distance (%)",
                  y = "Minimum Interspecific Distance (%)") +
             xlim(0, 30) + ylim(0, 30)
 
