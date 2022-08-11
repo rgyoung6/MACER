@@ -647,6 +647,19 @@ for(h in 1:length(file_name)){
           #add the results of the species barcode gap calculation to the log_df
           log_df$Barcode_Gap_Value[log_df$Species %in% Species[species_list_counter] ] <- loop_species_dist_matrix_between - loop_species_dist_matrix_within
 
+          #add results of the bootstrap SE
+          #log_df$Estimate_SE[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_se
+
+          #add results of the bootstrap Bias
+          # log_df$Estimate_Bias[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_bias
+
+          #add results of the lower bootstrap CI endpoint
+          #log_df$Estimate_CI_Lower[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[1]
+
+          #add results of the upper bootstrap CI endpoint
+          #log_df$Estimate_CI_Upper[log_df$Species %in% Species[species_list_counter] ] <- stat_boot_ci[2]
+
+
         }#closing the loop through the unique species in the genus
 
       }#closing if checking if there is more than one record in the genus
