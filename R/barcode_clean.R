@@ -524,14 +524,14 @@ for(h in 1:length(file_name)){
               ### rows are target taxa, columns are nontarget
               ### size should be nrow() * ncol() NOT length()
 
-              for (i in 1:replicate_size) {
-                if (replacement == TRUE) { # bootstraaping
-                  intra_boot <-
-                  inter_boot <-
-                } else { # subsampling
-                  intra_boot <-
-                  inter_boot <-
-                }
+              # for (i in 1:replicate_size) {
+              #   if (replacement == TRUE) { # bootstraaping
+              #     intra_boot <-
+              #     inter_boot <-
+              #   } else { # subsampling
+              #     intra_boot <-
+              #     inter_boot <-
+              #   }
 
 
                 if (statistic == "barcode_gap") {
