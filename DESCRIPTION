@@ -12,11 +12,7 @@ Authors@R:
              family = "Gill",
              role = c("aut"),
              email = "rekkab@uoguelph.ca"),
-      person(given = "Jarrett D",
-             family = "Phillips",
-             role = c("aut"),
-             email = "phill01@uoguelph.ca"),       
-      person(given = "Daniel J",
+      person(given = "Daniel",
              family = "Gillis",
              role = c("aut"),
              email = "dgillis@uoguelph.ca"),
@@ -35,7 +31,8 @@ Imports:
   ape,
 	httr,
 	stats, 
-	utils
+	utils,
+	ggplot2
 Language: en-GB
 LazyData: true
 RoxygenNote: 7.1.1
