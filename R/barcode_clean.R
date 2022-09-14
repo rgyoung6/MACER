@@ -58,21 +58,31 @@
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code="invert",
-                          dist_model = "raw",
-                          AGCT_only = TRUE,
-                          statistic = "barcode_gap",
-                          subsample_prop = NULL,
-                          replicate_size = 10000,
-                          replacement = TRUE,
-                          conf_level = 0.95,
-                          conf_type = "percentile",
-                          correct_interval = NULL,
-                          data_folder = NULL){
+# barcode_clean <- function(AA_code="invert",
+                          # dist_model = "raw",
+                          # AGCT_only = TRUE,
+                          # statistic = "barcode_gap",
+                          # subsample_prop = NULL,
+                          # replicate_size = 10000,
+                          # replacement = TRUE,
+                          # conf_level = 0.95,
+                          # conf_type = "percentile",
+                          # correct_interval = NULL,
+                          # data_folder = NULL){
 
-  #AA_code="invert"
-  #AGCT_only = TRUE
-  #data_folder = NULL
+
+                            AA_code="invert"
+                            dist_model = "raw"
+                            AGCT_only = TRUE
+                            statistic = "barcode_gap"
+                            subsample_prop = NULL
+                            replicate_size = 10000
+                            replacement = TRUE
+                            conf_level = 0.95
+                            conf_type = "percentile"
+                            correct_interval = NULL
+                            data_folder = NULL
+
 
 # Codes include 'std', 'vert', 'invert', 'NULL' skips the AA clean section
 # AGCT_only TRUE is on and FALSE is accepting all IUPAC characters
@@ -510,55 +520,43 @@ for(h in 1:length(file_name)){
               #Now get comparisons between the loop species and all other records
               loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
-
-
-
               ##### Resampling to calculate barcode gap standard error (SE) #####
               # perform resampling - Added by Jarrett
-
-               xxx <- sample(loop_species_records,
-                             size = length(loop_species_records),
-                             replace = TRUE)
-
-
-              # select desired statistic
-              statistic <- match.arg(statistic)
 
               # resample subsample_size species record labels with or without
               # replacement replicate_size times and then retrieve the
               # corresponding genetic distances
 
-
-              for (i in 1:replicate_size){
-                #Initialize the boot loop variables
-                bootLoopWithinMax <- NULL
-                bootLoopBetweenMin <- NULL
-
-                #add the rownames on to the front of the matrix
-                loop_species_matrix_within <- cbind(row.names(loop_species_matrix_within),loop_species_matrix_within)
-
-                #Sample the within matrix to create a resample matrix with replacement
-                bootLoopWithin <- loop_species_matrix_within[sample(nrow(loop_species_matrix_within),size=nrow(loop_species_matrix_within),replace=TRUE),]
-
-                #Use the first column of the within resampled matrix to build the between resampled matrix
-                bootLoopBetween <- loop_species_matrix_between[match(bootLoopWithin[,1],row.names(loop_species_matrix_between)),]
-
-                #Remove the added column with row names
-                bootLoopWithin <- bootLoopWithin[,-1]
-
-                #Get the maximum within values
-                bootLoopWithinMax <- c(bootLoopWithinMax, max(bootLoopWithin))
-
-                #Get the minimum between values
-                bootLoopBetweenMin <- c(bootLoopBetweenMin, max(bootLoopBetween))
-
-              }
+              #add the rownames onto the front of the matrix
+              # loop_species_dist_matrix_within <- cbind(row.names(loop_species_dist_matrix_within), loop_species_dist_matrix_within)
+              # loop_species_dist_matrix_between <- cbind(row.names(loop_species_dist_matrix_between), loop_species_dist_matrix_between)
+              #
+              # for (i in 1:replicate_size){
+              #   #Initialize the boot loop variables
+              #   boot_loop_within_max <- NULL
+              #   boot_loop_between_min <- NULL
+              #
+              #
+              #   #Sample the target species records to create a resample matrix with replacement
+              #   boot_loop_records <- sample(row.names(loop_species_dist_matrix_within), size = nrow(loop_species_dist_matrix_within), replace = TRUE)
+              #   # Create the within matrix using the resample with replacement
+              #   boot_loop_within <- as.data.frame(loop_species_dist_matrix_within[match(boot_loop_records, loop_species_dist_matrix_within[,1]),], check.names = FALSE, drop = FALSE)
+              #   # Create the between matrix using the resample with replacement
+              #   boot_loop_between <- loop_species_dist_matrix_between[match(boot_loop_records, loop_species_dist_matrix_between[,1]),]
+              #
+              #   #Get the maximum within values
+              #   boot_loop_within_max <- c(boot_loop_within_max, max(as.numeric(unlist(boot_loop_within[,2:ncol(boot_loop_within)], as.numeric))))
+              #
+              #   #Get the minimum between values
+              #   boot_loop_between_min <- c(boot_loop_between_min, min(as.numeric(unlist(boot_loop_between[,2:ncol(boot_loop_between)], as.numeric))))
+              #
+              # }
 
               #Getting the maximum within species distance
-              loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
+              loop_species_dist_matrix_within <- max(loop_species_dist_matrix_within)
 
               #Getting the minimum between distance
-              loop_species_dist_matrix_between<-min(loop_species_dist_matrix_between)
+              loop_species_dist_matrix_between <- min(loop_species_dist_matrix_between)
 
               #calculating the gap
               if(loop_species_dist_matrix_within<loop_species_dist_matrix_between){
@@ -606,10 +604,10 @@ for(h in 1:length(file_name)){
 
 
 
-          ##### Visualizations #####
+          # ##### Visualizations #####
 
-          intra <- log_df$Intraspecific
-          inter <- log_df$Interspecific
+          intra <- log_df$Intraspecific * 100
+          inter <- log_df$Interspecific * 100
 
           df <- data.frame(intra, inter)
 
@@ -621,8 +619,16 @@ for(h in 1:length(file_name)){
                  y = "Minimum Interspecific Distance (%)") +
             xlim(0, 30) + ylim(0, 30)
 
+          ### Quadrant plot ###
 
+          # plot horizontal and vertical lines using 2% distance py default #
 
+          gplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
+            geom_hline(yintercept = 2, color = "red") +
+            geom_vline(xintercept = 2  color = "red") +
+            labs(x = "Maximum Intraspecific Distance (%)",
+                 y = "Minimum Interspecific Distance (%)") +
+            xlim(0, 30) + ylim(0, 30)
 
 
         }#closing the loop through the unique species in the genus
