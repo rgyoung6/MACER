@@ -621,11 +621,11 @@ for(h in 1:length(file_name)){
 
           ### Quadrant plot ###
 
-          # plot horizontal and vertical lines using 2% distance py default #
+          # plot horizontal and vertical lines using 2% distance by default #
 
           gplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
             geom_hline(yintercept = 2, color = "red") +
-            geom_vline(xintercept = 2  color = "red") +
+            geom_vline(xintercept = 2,  color = "red") +
             labs(x = "Maximum Intraspecific Distance (%)",
                  y = "Minimum Interspecific Distance (%)") +
             xlim(0, 30) + ylim(0, 30)
