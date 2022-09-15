@@ -606,14 +606,14 @@ for(h in 1:length(file_name)){
 
           # ##### Visualizations #####
 
-          intra <- log_df$Intraspecific * 100
-          inter <- log_df$Interspecific * 100
+          intra <- as.numeric(log_df$Intraspecific) * 100
+          inter <- as.numeric(log_df$Interspecific) * 100
 
-          df <- data.frame(intra, inter)
+          df1 <- data.frame(intra, inter)
 
           ### Dotplot ###
 
-          ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
+          ggplot(df1, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
             geom_abline(intercept = 0, slope = 1, color = "red") +
             labs(x = "Maximum Intraspecific Distance (%)",
                  y = "Minimum Interspecific Distance (%)") +
@@ -623,12 +623,17 @@ for(h in 1:length(file_name)){
 
           # plot horizontal and vertical lines using 2% distance by default #
 
-          gplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
+          ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
             geom_hline(yintercept = 2, color = "red") +
             geom_vline(xintercept = 2,  color = "red") +
             labs(x = "Maximum Intraspecific Distance (%)",
                  y = "Minimum Interspecific Distance (%)") +
             xlim(0, 30) + ylim(0, 30)
+
+          ### Histograms ###
+
+
+          ### Density Plots ###
 
 
         }#closing the loop through the unique species in the genus
