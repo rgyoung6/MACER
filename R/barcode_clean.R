@@ -623,7 +623,7 @@ for(h in 1:length(file_name)){
 
           # plot horizontal and vertical lines using 2% distance by default #
 
-          ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
+          ggplot(df1, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
             geom_hline(yintercept = 2, color = "red") +
             geom_vline(xintercept = 2,  color = "red") +
             labs(x = "Maximum Intraspecific Distance (%)",
