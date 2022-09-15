@@ -606,32 +606,37 @@ for(h in 1:length(file_name)){
 
           # ##### Visualizations #####
 
-          intra <- as.numeric(log_df$Intraspecific) * 100
-          inter <- as.numeric(log_df$Interspecific) * 100
+          intra <- suppressWarnings(as.numeric(log_df$Intraspecific)) * 100
+          inter <- suppressWarnings(as.numeric(log_df$Interspecific)) * 100
 
           df1 <- data.frame(intra, inter)
 
           ### Dotplot ###
 
-          ggplot(df1, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
+          dotplot <- ggplot(df1, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
             geom_abline(intercept = 0, slope = 1, color = "red") +
             labs(x = "Maximum Intraspecific Distance (%)",
                  y = "Minimum Interspecific Distance (%)") +
             xlim(0, 30) + ylim(0, 30)
+          print(dotplot)
 
           ### Quadrant plot ###
 
           # plot horizontal and vertical lines using 2% distance by default #
 
-          ggplot(df1, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
+         quadrantplot <- quadrantplot <- ggplot(df1, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
             geom_hline(yintercept = 2, color = "red") +
             geom_vline(xintercept = 2,  color = "red") +
             labs(x = "Maximum Intraspecific Distance (%)",
                  y = "Minimum Interspecific Distance (%)") +
             xlim(0, 30) + ylim(0, 30)
+          print(quadrantplot)
 
           ### Histograms ###
 
+          # df2 <- c(loop_species_dist_matrix_within, loop_species_dist_matrix_between)
+          #
+          # ggplot(df2, aes(x = intra, y = inter))
 
           ### Density Plots ###
 
