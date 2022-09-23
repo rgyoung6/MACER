@@ -9,10 +9,8 @@
 #' Young RG, Gill R, Gillis D, Hanner RH (2021) Molecular Acquisition, Cleaning and Evaluation in R (MACER) - A tool to assemble molecular marker datasets from BOLD and GenBank. Biodiversity Data Journal 9: e71378. <https://doi.org/10.3897/BDJ.9.e71378>
 #'
 ############################################ DATA TABLE CLEAN FUNCTION ####################################################
-data_clean <- function(clean_data_table, target_genus)
+data_clean <- function(clean_data_table, target_genus, seq_min, seq_max)
 {
-
-  print_counter=1
 
   #Add column to the clean_data_table to hold the results of all of the checks
   Flags<-c("Flags")
@@ -113,9 +111,9 @@ data_clean <- function(clean_data_table, target_genus)
   clean_data_table<-as.data.frame(cbind(clean_data_table["uniqueID"], clean_data_table["DB"], clean_data_table["ID"], clean_data_table["Accession"], clean_data_table["Genus_Species"], clean_data_table["Genus"], clean_data_table["Species"], clean_data_table["BIN_OTU"], clean_data_table["Gene"], clean_data_table["Sequence"], clean_data_table["Flags"]))
 
   #Here I get entries which don't have a flag
-  flag_subset<-subset(clean_data_table,clean_data_table$Flags == "-")
+  flag_subset<-as.data.frame(subset(clean_data_table, clean_data_table$Flags == "-"), drop=FALSE)
 
-  if(nrow(flag_subset>0)){
+  if(nrow(flag_subset)>0){
 
     #Here I flag entries which don't have sequences
     flag_subset<-subset(flag_subset$uniqueID,flag_subset$Sequence=="")
@@ -125,13 +123,39 @@ data_clean <- function(clean_data_table, target_genus)
 
   }
 
+  #Here I get entries which don't have a flag
+  flag_subset<-as.data.frame(subset(clean_data_table, clean_data_table$Flags == "-"), drop=FALSE)
+
+  if(nrow(flag_subset)>0){
+
+    #Here I flag entries which have sequences either below the desired size
+    flag_subset<-subset(flag_subset$uniqueID,nchar(as.character(flag_subset$Sequence)) < seq_min)
+
+    #Adding the results of the above check to the clean_data_table Flags column
+    clean_data_table$Flags[clean_data_table$uniqueID %in% c(flag_subset)]<- "Min_Len"
+
+  }
+
+  #Here I get entries which don't have a flag
+  flag_subset<-as.data.frame(subset(clean_data_table, clean_data_table$Flags == "-"), drop=FALSE)
+
+  if(nrow(flag_subset)>0){
+
+    #Here I flag entries which have sequences either above the desired size
+    flag_subset<-subset(flag_subset$uniqueID,nchar(as.character(flag_subset$Sequence)) > seq_max )
+
+    #Adding the results of the above check to the clean_data_table Flags column
+    clean_data_table$Flags[clean_data_table$uniqueID %in% c(flag_subset)]<- "Max_Len"
+
+  }
+
   #make all of the sequence characters caps
   clean_data_table$Sequence<-toupper(clean_data_table$Sequence)
 
   #remove all gaps from the sequences
   clean_data_table$Sequence<- gsub( "-", "", as.character(clean_data_table$Sequence))
 
-  #Here I flag entries which don't have a flag
+  #Here I get entries which don't have a flag
   flag_subset<-subset(clean_data_table,clean_data_table$Flags == "-")
 
   if(nrow(flag_subset>0)){
@@ -144,7 +168,7 @@ data_clean <- function(clean_data_table, target_genus)
 
   }
 
-    #Here I flag entries which don't have a flag
+  #Here I get entries which don't have a flag
   flag_subset<-subset(clean_data_table,clean_data_table$Flags == "-")
 
   if(nrow(flag_subset>0)){
