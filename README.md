@@ -72,6 +72,8 @@ Default string…<br />
 Note: When using a custom search string for NCBI only a single genus at a time can be used.<br />
 input_file –  NULL prompts the user to indicate the location of the input file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL<br />
 output_file –  NULL prompts the user to indicate the location of the output file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL<br />
+seq_min - Lower sequence length value. Sequences with fewer than this number of nucleotide characters will be flagged in the final output. Default 100<br/>
+seq_max - Upper sequence length value. Sequences with more than this number of nucleotide characters will be flagged in the final output. Default 100<br/>
 
 ### Output
 One main folder containing three other folders.<br />
@@ -155,9 +157,18 @@ AGCT_only – This only keeps sequences with AGCT exclusively, not IUPAC charact
   - TRUE is on 
   - FALSE is accepting all IUPAC characters
 data_folder This variable can be used to provide a location for the file containing all of the fasta files wanting to be aligned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
+dist_model - This is the model of nucleotide evolution that the ape program will use (see ape documentation for options. Default is "raw"
+replicates - This is the number of replicates that the bootstrapping will perform. Note: more replicates will take longer. Default is 1000
+replacement - This indicates that the replacement of MSA nucleotide columns will be replaced in the random resampling. Default is set to TRUE
+conf_level - This is a percentage of the initial MSA nucleotide length. When set to 1 the bootstrapped resampling will have the same length as the initial MSA. Default is set to 1
+numCores - This is the number of cores that the user would like to use where multithreading is available. Default is set to 1, indicating only a single thread will be used.
+
 
 ### Output
 A single log file for the running of the function with the name A_Clean_File_YYYY-DD-TTTTTTTT. The function will also output three files for each fasta file submitted. The first is the distance matrix that was calculated and used to assess the DNA barcode gaps. This file is named the same as the input file with ‘_dist_table.dat” appended to the end of the name. The second file is the total data table file which provides a table of all submitted records for each data set accompanied with the results from each section of the analysis. This file is named the same as the input fasta with “_data_table.dat” appended to the end, Finally, a fasta file with all outliers and flagged records removed is generated for each input fasta file. This output file is named the same as the input fasta with “_no_outlier.fas” appended to the end. The flags that are possible are non_AGCT, Stop_Codon, Genus_Outlier, Species_Outlier, and '-'.
 
 ### Dependencies
 ape is required for distance matrix construction.
+ggplot2 is required for figure generation
+parallel is required for use of multiple processors
+pbapply is required to apply the function with a time bar
