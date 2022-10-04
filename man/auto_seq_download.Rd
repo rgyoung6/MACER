@@ -9,7 +9,9 @@ auto_seq_download(
   NCBI_database = TRUE,
   search_str = NULL,
   input_file = NULL,
-  output_file = NULL
+  output_file = NULL,
+  seq_min = 100,
+  seq_max = 2500
 )
 }
 \arguments{
@@ -23,6 +25,10 @@ The Default String is: (genus[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembl
 \item{input_file}{NULL prompts the user to indicate the location of the input file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL}
 
 \item{output_file}{NULL prompts the user to indicate the location of the output file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL}
+
+\item{seq_min}{holds the minimum length value to not flag the sequence; default 100}
+
+\item{seq_max}{holds the maximum length value to not flag the sequence; default 2500}
 }
 \value{
 Outputs: One main folder containing three other folders.
@@ -32,7 +38,7 @@ Three subfolders:
 2. NCBI - Contains a file for every genus downloaded with the raw data from GenBank.
 3. Total_tables - Contains files for the running of the function which include...
 A_Summary.txt - This file contains information about the downloads.
-A_Total_Table.tsv – A file with a single table containing the accumulated data for all genera searched.
+A_Total_Table.tsv - A file with a single table containing the accumulated data for all genera searched.
 }
 \description{
 Takes a list of genera, as supplied by the user, and searches and downloads molecular sequence data from BOLD and Genbank.
