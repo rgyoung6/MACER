@@ -4,7 +4,16 @@
 \alias{barcode_clean}
 \title{DNA Barcode Clean}
 \usage{
-barcode_clean(AA_code = "invert", AGCT_only = TRUE, data_folder = NULL)
+barcode_clean(
+  AA_code = "invert",
+  AGCT_only = TRUE,
+  data_folder = NULL,
+  dist_model = "raw",
+  replicates = 1000,
+  replacement = TRUE,
+  conf_level = 1,
+  numCores = 15
+)
 }
 \arguments{
 \item{AA_code}{This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.}
@@ -12,6 +21,16 @@ barcode_clean(AA_code = "invert", AGCT_only = TRUE, data_folder = NULL)
 \item{AGCT_only}{This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters}
 
 \item{data_folder}{This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.}
+
+\item{dist_model}{This is the model of nucleotide evolution that the ape program will use (see ape documentation for options. Default is "raw"}
+
+\item{replicates}{This is the number of replicates that the bootstrapping will perform. Note: more replicates will take longer. Default is 1000}
+
+\item{replacement}{This indicates that the replacement of MSA nucleotide columns will be replaced in the random resampling. Default is set to TRUE}
+
+\item{conf_level}{This is a percentage of the initial MSA nucleotide length. When set to 1 the bootstrapped resampling will have the same length as the initial MSA. Default is set to 1}
+
+\item{numCores}{This is the number of cores that the user would like to use where multithreading is available. Default is set to 1, indicating only a single thread will be used.}
 }
 \value{
 Output:
