@@ -24,6 +24,11 @@
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
+#' @param dist_model This is the model of nucleotide evolution that the ape program will use (see ape documentation for options. Default is "raw"
+#' @param replicates This is the number of replicates that the bootstrapping will perform. Note: more replicates will take longer. Default is 1000
+#' @param replacement This indicates that the replacement of MSA nucleotide columns will be replaced in the random resampling. Default is set to TRUE
+#' @param conf_level This is a percentage of the initial MSA nucleotide length. When set to 1 the bootstrapped resampling will have the same length as the initial MSA. Default is set to 1
+#' @param numCores This is the number of cores that the user would like to use where multithreading is available. Default is set to 1, indicating only a single thread will be used.
 #'
 #' @returns
 #' Output:
@@ -48,32 +53,11 @@
 #' @import ggplot2
 #' @import parallel
 #' @import pbapply
-
-library(ape)
-library(stats)
-library(utils)
-library(ggplot2)
-library(parallel)
-library(pbapply)
+#'
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL, dist_model = "raw", replicates = 10, replacement = TRUE,conf_level = 1,numCores = 15){
-
-#  AA_code="invert"
-#  AGCT_only = TRUE
-#  data_folder = "/media/hannerlab/T7/A_Culicoides/Seq_auto_dl_041735_May_01/Total_Tables/COI/MAFFT_trimmed"
-#  data_folder = "/media/hannerlab/T7/A_Test/Seq_auto_dl_115637_Sep_14/Fasta_file/MAFFT_trimmed"
-#  data_folder = NULL
-
-#  dist_model = "raw"
-#  replicates= 10
-#  replacement = TRUE
-#  conf_level = 1
-#  numCores = 1
-
-# options(warn=2)
-
+barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL, dist_model = "raw", replicates = 1000, replacement = TRUE,conf_level = 1,numCores = 15){
 
 # Codes include 'std', 'vert', 'invert', 'NULL' skips the AA clean section
 # AGCT_only TRUE is on and FALSE is accepting all IUPAC characters
@@ -112,14 +96,16 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                       " dist_model = ", dist_model, " replicates = ", replicates, " replacement = ", replacement," conf_level = ", conf_level, " numCores = ", numCores)
 
   #Making the amino acid translation codes into numbers for the ape package.
-  if (AA_code == "vert"){
+  if (is.null(AA_code)){
+    AA_code = 0
+  }else if (AA_code == "vert"){
     AA_code = 2
   }else if (AA_code == "invert"){
     AA_code = 5
   }else if (AA_code == "std"){
     AA_code = 1
   }else {
-    (AA_code == 0)
+    AA_code = 0
   }
 
   start_time=Sys.time()
@@ -557,7 +543,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                 loop_species_num_barcode_gap_overlap_records <- nrow(loop_species_barcode_gap_overlap_records)
 
                 #Get the list of taxa from the records by first splitting the headers
-                loop_species_barcode_gap_overlap_taxa <- data.frame(do.call("rbind", strsplit(as.character(row.names(loop_species_barcode_gap_overlap_records)), "|", fixed = TRUE)))[,c(3,4)]
+                loop_species_num_barcode_gap_overlap_taxa <- data.frame(do.call("rbind", strsplit(as.character(row.names(loop_species_barcode_gap_overlap_records)), "|", fixed = TRUE)))[,c(3,4)]
 
                 #If to place a greater than 20 in the reporting variable if too many records
                 if(nrow(loop_species_barcode_gap_overlap_records) < 20){
@@ -572,18 +558,18 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                 }
 
                 #Keeping the genus and species and creating a binomial name
-                loop_species_barcode_gap_overlap_taxa <- paste0(loop_species_barcode_gap_overlap_taxa[,1]," ", loop_species_barcode_gap_overlap_taxa[,2])
+                loop_species_num_barcode_gap_overlap_taxa <- paste0(loop_species_num_barcode_gap_overlap_taxa[,1]," ", loop_species_num_barcode_gap_overlap_taxa[,2])
 
                 #Get the number of taxa
-                loop_species_num_barcode_gap_overlap_taxa <- length(unique(loop_species_barcode_gap_overlap_taxa))
+                loop_species_num_barcode_gap_overlap_taxa <- length(unique(loop_species_num_barcode_gap_overlap_taxa))
 
                 #Collapsing all unique taxa into a single variable.
-                loop_species_barcode_gap_overlap_taxa <- paste0(as.vector(unique(loop_species_barcode_gap_overlap_taxa)),collapse = ", ")
+                loop_species_num_barcode_gap_overlap_taxa <- paste0(as.vector(unique(loop_species_num_barcode_gap_overlap_taxa)),collapse = ", ")
 
               }else{
 
                 loop_species_num_barcode_gap_overlap_records = "-"
-                loop_species_barcode_gap_overlap_taxa = "-"
+                loop_species_num_barcode_gap_overlap_taxa = "-"
 
               }
 
@@ -607,13 +593,9 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                 loop_species_overlap_haplotypes <- paste(barcode_gap_data_frame[barcode_gap_data_frame$Sequence %in% loop_species_overlap_haplotypes, "Header"], collapse = ", ")
               }
 
-              print(paste0("Begin bootstrap analsis of ", unique_genera_list[unique_genera], " ",Species[species_list_counter], " which is taxa ", species_list_counter, " of ", length(Species), " at ", Sys.time() ))
-
               #There was clearly more than one record as we made it here past the more than one species record,
               #so the extra record(s) were removed in reduction to unique haplotypes. So add one back in
               if(nrow(bootstrap_records[row.names(bootstrap_records) %in% loop_species_records$Header,]) == 1){#If to check if only one record. if so add one more
-
-                print("In the only one record after reducing to unique haplotype, so adding a duplicate")
 
                 #Get the target species records
                 bootstrap_records_temp <- barcode_gap_data_frame[barcode_gap_data_frame$Header %in% loop_species_records$Header,]
@@ -702,7 +684,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               loop_species_num_barcode_gap_overlap_records <- "-"
               loop_species_barcode_gap_overlap_records <- "-"
               loop_species_num_barcode_gap_overlap_taxa <- "-"
-              loop_species_barcode_gap_overlap_taxa <- "-"
+              loop_species_num_barcode_gap_overlap_taxa <- "-"
               loop_species_result <- "-"
               loop_species_bootstrap_result <- "-"
 
@@ -742,7 +724,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           log_df$Num_Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_taxa
 
           #add the results of the species barcode gap overlapping taxa to the log_df
-          log_df$Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap_overlap_taxa
+          log_df$Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_taxa
 
           #add the results of the species barcode gap check to the log_df
           log_df$Barcode_Gap_Result[log_df$Species %in% Species[species_list_counter] ]<-loop_species_result
