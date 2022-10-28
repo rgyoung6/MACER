@@ -484,7 +484,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                                  "Barcode_Gap_Result",
                                  "Bootstrap",
                                  "p",
-                                 "q"
+                                 "q",
                                  "p'",
                                  "q'")
           log_df[,barcode_gap_columns] <- "-"
