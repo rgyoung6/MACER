@@ -530,6 +530,13 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               #Now get comparisons between the loop species and all other records
               loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
+              ##### Added by Jarrett #####
+
+              p <- (length((which(loop_species_dist_matrix_within >= min(loop_species_dist_matrix_between))) && (which(loop_species_dist_matrix_within <= max(loop_species_dist_matrix_within))))) / length(loop_species_dist_matrix_within)
+              q <- (length((which(loop_species_dist_matrix_between >= min(loop_species_dist_matrix_between))) && (which(loop_species_dist_matrix_between <= max(loop_species_dist_matrix_within))))) / length(loop_species_dist_matrix_between)
+
+              ###########################
+
               #Get the number of records for the target species
               loop_species_target<-nrow(loop_species_dist_matrix_within)
 
@@ -748,6 +755,14 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           #add the results of the species bootstrapping
           log_df$Bootstrap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_bootstrap_result
+
+
+          #add the results of p
+          log_df$p[log_df$Species %in% Species[species_list_counter] ]<- p
+
+          #add the results of q
+          log_df$q[log_df$Species %in% Species[species_list_counter] ]<- q
+
 
           #Get the row for this loop to output to the file and
           #Add the genus to the front of the species name being outputted
