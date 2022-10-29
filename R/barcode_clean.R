@@ -483,10 +483,11 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                                  "Barcode_Gap_Overlap_Taxa",
                                  "Barcode_Gap_Result",
                                  "Bootstrap",
-                                 "p",
-                                 "q",
-                                 "p'",
-                                 "q'")
+                                 "p_i",
+                                 "q_i",
+                                 "p_i_prime",
+                                 "q_i_prime")
+
           log_df[,barcode_gap_columns] <- "-"
 
           #Reduce the target genus data set to data set to only include unique taxa and sequence records for use in the bootstrapping analysis
@@ -532,10 +533,8 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               ##### Added by Jarrett #####
 
-              p <- (length((which(loop_species_dist_matrix_within >= min(loop_species_dist_matrix_between))) && (which(loop_species_dist_matrix_within <= max(loop_species_dist_matrix_within))))) / length(loop_species_dist_matrix_within)
-              q <- (length((which(loop_species_dist_matrix_between >= min(loop_species_dist_matrix_between))) && (which(loop_species_dist_matrix_between <= max(loop_species_dist_matrix_within))))) / length(loop_species_dist_matrix_between)
-
-              ###########################
+              p_i <- length(which(loop_species_dist_matrix_within >= round(min(loop_species_dist_matrix_between), digits = 4))) / length(loop_species_dist_matrix_within)
+              q_i <- length(which(loop_species_dist_matrix_between <= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
 
               #Get the number of records for the target species
               loop_species_target<-nrow(loop_species_dist_matrix_within)
@@ -756,12 +755,11 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           #add the results of the species bootstrapping
           log_df$Bootstrap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_bootstrap_result
 
+          #add the results of p_i
+          log_df$p_i[log_df$Species %in% Species[species_list_counter] ]<- p_i
 
-          #add the results of p
-          log_df$p[log_df$Species %in% Species[species_list_counter] ]<- p
-
-          #add the results of q
-          log_df$q[log_df$Species %in% Species[species_list_counter] ]<- q
+          #add the results of q_i
+          log_df$q_i[log_df$Species %in% Species[species_list_counter] ]<- q_i
 
 
           #Get the row for this loop to output to the file and
