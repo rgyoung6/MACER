@@ -536,6 +536,11 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               p_i <- length(which(loop_species_dist_matrix_within >= round(min(loop_species_dist_matrix_between), digits = 4))) / length(loop_species_dist_matrix_within)
               q_i <- length(which(loop_species_dist_matrix_between <= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
 
+              p_i_prime <- length(which(loop_species_dist_matrix_within <= round(min(loop_species_dist_matrix_between), digits = 4))) / length(loop_species_dist_matrix_within)
+              q_i_prime <- length(which(loop_species_dist_matrix_between >= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
+
+              ############################
+
               #Get the number of records for the target species
               loop_species_target<-nrow(loop_species_dist_matrix_within)
 
@@ -760,6 +765,12 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           #add the results of q_i
           log_df$q_i[log_df$Species %in% Species[species_list_counter] ]<- q_i
+
+          #add the results of p_i_prime
+          log_df$p_i_prime[log_df$Species %in% Species[species_list_counter] ]<- p_i_prime
+
+          #add the results of q_i_prime
+          log_df$q_i_prime[log_df$Species %in% Species[species_list_counter] ]<- q_i_prime
 
 
           #Get the row for this loop to output to the file and
