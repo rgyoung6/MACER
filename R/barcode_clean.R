@@ -536,8 +536,6 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               p_i <- length(which(loop_species_dist_matrix_within >= round(min(loop_species_dist_matrix_between), digits = 4))) / length(loop_species_dist_matrix_within)
               q_i <- length(which(loop_species_dist_matrix_between <= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
 
-              p_i_prime <- length(which(loop_species_dist_matrix_within <= round(min(loop_species_dist_matrix_between), digits = 4))) / length(loop_species_dist_matrix_within)
-              q_i_prime <- length(which(loop_species_dist_matrix_between >= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
 
               ############################
 
@@ -767,10 +765,10 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           log_df$q_i[log_df$Species %in% Species[species_list_counter] ]<- q_i
 
           #add the results of p_i_prime
-          log_df$p_i_prime[log_df$Species %in% Species[species_list_counter] ]<- p_i_prime
+          # log_df$p_i_prime[log_df$Species %in% Species[species_list_counter] ]<- p_i_prime
 
           #add the results of q_i_prime
-          log_df$q_i_prime[log_df$Species %in% Species[species_list_counter] ]<- q_i_prime
+          # log_df$q_i_prime[log_df$Species %in% Species[species_list_counter] ]<- q_i_prime
 
 
           #Get the row for this loop to output to the file and
@@ -863,6 +861,21 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
         # save plot to file without using ggsave
         png(paste0(Work_loc,"/",file_name[h],"_quadplot.png"))
+        print(p)
+        dev.off()
+
+        p_i <- as.numeric(log_df$p_i)
+        q_i <- as.numeric(log_df$q_i)
+
+        df <- data.frame(p_i, q_i)
+
+        p <- ggplot(df, aes(x = p_i, y =  q_i)) + geom_point(colour = "blue") +
+          labs(x = "p",
+               y = "q") +
+          xlim(0, 1) + ylim(0, 1)
+
+        # save plot to file without using ggsave
+        png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
         print(p)
         dev.off()
 
