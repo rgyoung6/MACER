@@ -536,6 +536,8 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               p_i <- length(which(loop_species_dist_matrix_within >= round(min(loop_species_dist_matrix_between), digits = 4))) / length(loop_species_dist_matrix_within)
               q_i <- length(which(loop_species_dist_matrix_between <= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
 
+              # p_i_prime
+              # q_i_prime
 
               ############################
 
@@ -864,15 +866,19 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
         print(p)
         dev.off()
 
+        ### Barcode gap overlap plot ###
+
         p_i <- as.numeric(log_df$p_i)
         q_i <- as.numeric(log_df$q_i)
 
-        df <- data.frame(p_i, q_i)
+        # Since p and q can be 0, plotting on log2 scale allows easier visualization
+
+        df <- data.frame(log2(p_i + 1), log2(q_i + 1))
 
         p <- ggplot(df, aes(x = p_i, y =  q_i)) + geom_point(colour = "blue") +
-          labs(x = "p",
-               y = "q") +
-          xlim(0, 1) + ylim(0, 1)
+          labs(x = expression(log[2](p + 1)), y = expression(log[2](q + 1))) +
+               xlim(0, 1) +
+               ylim(0, 1)
 
         # save plot to file without using ggsave
         png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
