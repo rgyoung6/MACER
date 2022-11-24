@@ -59,8 +59,8 @@
 ##################################### Main FUNCTION ##############################################################
 barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL, dist_model = "raw", replicates = 1000, replacement = TRUE,conf_level = 1,numCores = 15){
 
-# Codes include 'std', 'vert', 'invert', 'NULL' skips the AA clean section
-# AGCT_only TRUE is on and FALSE is accepting all IUPAC characters
+  # Codes include 'std', 'vert', 'invert', 'NULL' skips the AA clean section
+  # AGCT_only TRUE is on and FALSE is accepting all IUPAC characters
 
   #Get the initial working directory
   start_wd <- getwd()
@@ -439,8 +439,8 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           }# end of loop going through species in the genus
 
-            #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-            no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
+          #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
+          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
 
           if(nrow(no_outliers_dataset)>0){
 
@@ -483,10 +483,10 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                                  "Barcode_Gap_Overlap_Taxa",
                                  "Barcode_Gap_Result",
                                  "Bootstrap",
-                                 "p_i",
-                                 "q_i",
-                                 "p_i_prime",
-                                 "q_i_prime")
+                                 "p_x",
+                                 "q_x",
+                                 "p_x_prime",
+                                 "q_x_prime")
 
           log_df[,barcode_gap_columns] <- "-"
 
@@ -533,11 +533,32 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               ##### Added by Jarrett #####
 
-              p_i <- length(which(loop_species_dist_matrix_within >= round(min(loop_species_dist_matrix_between), digits = 4))) / length(loop_species_dist_matrix_within)
-              q_i <- length(which(loop_species_dist_matrix_between <= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
+              ### Split dist matrix by species ###
 
-              # p_i_prime
-              # q_i_prime
+              splt <- split(loop_species_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(loop_species_dist_matrix)))
+
+              ### Compute cross entropy for each species ###
+
+              H_x <- -sum(t(loop_species_dist_matrix_between) %*% log(loop_species_dist_matrix_within))
+
+              # compute proportional overlap of intraspecific and interspecific distributions
+
+              # p_x is overlap of intra with inter
+              p_x <- length(which(loop_species_dist_matrix_within >= round(min(loop_species_dist_matrix_between), digits = 4))) / length(loop_species_dist_matrix_within)
+
+              # q_x is overlap of inter with intra
+              q_x <- length(which(loop_species_dist_matrix_between <= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
+
+              # compute proportional overlap between all species pairs
+
+              for (i in 1:length(splt)) {
+                for (j in 1:length(splt)) {
+                  if (splt[[i]] != splt[[j]]) {
+                    p_x_prime <- length(which(splt[[i]] >= round(min(splt[[j]]), digits = 4))) / length(splt[[i]])
+                    q_x_prime <- length(which(splt[[j]] <= round(max(splt[[i]]), digits = 4))) / length(splt[[j]])
+
+                  }
+                }
 
               ############################
 
@@ -718,172 +739,175 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
             }#closing the if else checking if there is more than one species record
 
-          #add the results of the species barcode gap within or intraspecific to the log_df
-          log_df$Target_Records[log_df$Species %in% Species[species_list_counter] ]<-loop_species_target
+            #add the results of the species barcode gap within or intraspecific to the log_df
+            log_df$Target_Records[log_df$Species %in% Species[species_list_counter] ]<-loop_species_target
 
-          #Add the results of the target species haplotypes to the log df
-          log_df$Target_Haplotypes[log_df$Species %in% Species[species_list_counter] ]<-loop_target_haplotypes
+            #Add the results of the target species haplotypes to the log df
+            log_df$Target_Haplotypes[log_df$Species %in% Species[species_list_counter] ]<-loop_target_haplotypes
 
-          #add the results of the species barcode gap within or intraspecific to the log_df
-          log_df$Genus_Records[log_df$Species %in% Species[species_list_counter] ]<-loop_species_nontarget
+            #add the results of the species barcode gap within or intraspecific to the log_df
+            log_df$Genus_Records[log_df$Species %in% Species[species_list_counter] ]<-loop_species_nontarget
 
-          #Add the results of the genus haplotypes to the log df
-          log_df$Genus_Haplotypes[log_df$Species %in% Species[species_list_counter] ]<-loop_genus_haplotypes
+            #Add the results of the genus haplotypes to the log df
+            log_df$Genus_Haplotypes[log_df$Species %in% Species[species_list_counter] ]<-loop_genus_haplotypes
 
-          #Add the results of the target sequences that have the exact same sequence in the non target species in the genus
-          log_df$Overlap_Haploptype[log_df$Species %in% Species[species_list_counter] ] <- loop_species_overlap_haplotypes
+            #Add the results of the target sequences that have the exact same sequence in the non target species in the genus
+            log_df$Overlap_Haploptype[log_df$Species %in% Species[species_list_counter] ] <- loop_species_overlap_haplotypes
 
-          #add the results of the species barcode gap within or intraspecific to the log_df
-          log_df$Intraspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_within
+            #add the results of the species barcode gap within or intraspecific to the log_df
+            log_df$Intraspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_within
 
-          #add the results of the species barcode gap between or interspecific to the log_df
-          log_df$Interspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_between
+            #add the results of the species barcode gap between or interspecific to the log_df
+            log_df$Interspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_between
 
-          #add the results of the species barcode gap check to the log_df
-          log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap
+            #add the results of the species barcode gap check to the log_df
+            log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap
 
-          #add the number of results of the species barcode gap overlapping records to the log_df
-          log_df$Num_Barcode_Gap_Overlap_Records[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_records
+            #add the number of results of the species barcode gap overlapping records to the log_df
+            log_df$Num_Barcode_Gap_Overlap_Records[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_records
 
-          #add the results of the species barcode gap overlapping records to the log_df
-          log_df$Barcode_Gap_Overlap_Records[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap_overlap_records
+            #add the results of the species barcode gap overlapping records to the log_df
+            log_df$Barcode_Gap_Overlap_Records[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap_overlap_records
 
-          #add the results of the species barcode gap overlapping taxa to the log_df
-          log_df$Num_Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_taxa
+            #add the results of the species barcode gap overlapping taxa to the log_df
+            log_df$Num_Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_taxa
 
-          #add the results of the species barcode gap overlapping taxa to the log_df
-          log_df$Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_taxa
+            #add the results of the species barcode gap overlapping taxa to the log_df
+            log_df$Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_taxa
 
-          #add the results of the species barcode gap check to the log_df
-          log_df$Barcode_Gap_Result[log_df$Species %in% Species[species_list_counter] ]<-loop_species_result
+            #add the results of the species barcode gap check to the log_df
+            log_df$Barcode_Gap_Result[log_df$Species %in% Species[species_list_counter] ]<-loop_species_result
 
-          #add the results of the species bootstrapping
-          log_df$Bootstrap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_bootstrap_result
+            #add the results of the species bootstrapping
+            log_df$Bootstrap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_bootstrap_result
 
-          #add the results of p_i
-          log_df$p_i[log_df$Species %in% Species[species_list_counter] ]<- p_i
+            #add the results of p_x
+            log_df$p_x[log_df$Species %in% Species[species_list_counter] ]<- p_x
 
-          #add the results of q_i
-          log_df$q_i[log_df$Species %in% Species[species_list_counter] ]<- q_i
+            #add the results of q_x
+            log_df$q_x[log_df$Species %in% Species[species_list_counter] ]<- q_x
 
-          #add the results of p_i_prime
-          # log_df$p_i_prime[log_df$Species %in% Species[species_list_counter] ]<- p_i_prime
-
-          #add the results of q_i_prime
-          # log_df$q_i_prime[log_df$Species %in% Species[species_list_counter] ]<- q_i_prime
+            #add the results of H_x
+            log_df$H_x[log_df$Species %in% Species[species_list_counter] ]<- H_x
 
 
-          #Get the row for this loop to output to the file and
-          #Add the genus to the front of the species name being outputted
-          to_print<-log_df[log_df$Species == Species[species_list_counter] ,]
-          to_print$Species <-paste0(unique_genera_list[unique_genera], " ", to_print$Species)
+            #add the results of p_x_prime
+            log_df$p_x_prime[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime
 
-          #Ensure that the values are characters so it will output properly
-          to_print<-data.frame(lapply(to_print, as.character), stringsAsFactors=FALSE)
+            #add the results of q_x_prime
+            log_df$q_x_prime[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime
 
-          #Replace all NA with -
-          to_print[to_print=="NA"] <- "-"
-          to_print[is.na(to_print)] <- "-"
-          to_print[to_print=="numeric(0)"] <- "-"
+            #Get the row for this loop to output to the file and
+            #Add the genus to the front of the species name being outputted
+            to_print<-log_df[log_df$Species == Species[species_list_counter] ,]
+            to_print$Species <-paste0(unique_genera_list[unique_genera], " ", to_print$Species)
 
-          #only print to file for the first element in the loop
-          if(loop_flag == 1){
+            #Ensure that the values are characters so it will output properly
+            to_print<-data.frame(lapply(to_print, as.character), stringsAsFactors=FALSE)
 
-            #outputting the file separator to the log file
-            write.table(file_sep,file=paste0(Work_loc,"/",log_file_name,".dat"),append=TRUE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="")
-            suppressWarnings(write.table(to_print,file=paste0(Work_loc,"/",log_file_name,".dat"),append=TRUE,row.names = FALSE, col.names=TRUE, quote = FALSE,sep="\t"))
+            #Replace all NA with -
+            to_print[to_print=="NA"] <- "-"
+            to_print[is.na(to_print)] <- "-"
+            to_print[to_print=="numeric(0)"] <- "-"
 
-            loop_flag=0
+            #only print to file for the first element in the loop
+            if(loop_flag == 1){
 
-          }else{
+              #outputting the file separator to the log file
+              write.table(file_sep,file=paste0(Work_loc,"/",log_file_name,".dat"),append=TRUE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="")
+              suppressWarnings(write.table(to_print,file=paste0(Work_loc,"/",log_file_name,".dat"),append=TRUE,row.names = FALSE, col.names=TRUE, quote = FALSE,sep="\t"))
 
-            #Adding the results to the log file
-            suppressWarnings(write.table(to_print,file=paste0(Work_loc,"/",log_file_name,".dat"),append=TRUE,row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\t"))
+              loop_flag=0
+
+            }else{
+
+              #Adding the results to the log file
+              suppressWarnings(write.table(to_print,file=paste0(Work_loc,"/",log_file_name,".dat"),append=TRUE,row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\t"))
+
+            }
+
+          }#closing the loop through the unique species in the genus
+
+          #***************************************** OUTPUT ********************************************
+
+          #Getting the data ready to be written to file
+
+          #Printing the distance matrix to a file
+          write.table(no_outliers_dist_matrix,file=paste0(Work_loc,"/",file_name[h],"_dist_matrix.dat"),append=FALSE,na="",row.names = TRUE, col.names=NA, quote = FALSE,sep="\t")
+
+          #Writing the data to the data table
+          write.table(Seq_file_data_frame,file=paste0(Work_loc,"/",file_name[h],"_data_table.dat"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\t")
+
+          if(!is.null(seq_to_remove)){
+
+            #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
+            no_outliers_dataset<-no_outliers_dataset[!(no_outliers_dataset$Header %in% seq_to_remove),]
+
+            #removing the columns with data other than the header and the sequence data to construct the fasta file.
+            no_outliers_dataset<-cbind(no_outliers_dataset$Header, no_outliers_dataset$Sequence)
+
+            #outputting the fasta reduced file
+            write.table(no_outliers_dataset,file=paste0(Work_loc,"/",file_name[h],"_no_outliers.fas"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\n")
 
           }
 
-        }#closing the loop through the unique species in the genus
+          log_df<-log_df[log_df$Intraspecific != "NA",]
+          log_df<-log_df[log_df$Intraspecific != "-",]
 
-        #***************************************** OUTPUT ********************************************
+          # ##### Visualizations #####
 
-      #Getting the data ready to be written to file
+          intra <- as.numeric(log_df$Intraspecific) * 100
+          inter <- as.numeric(log_df$Interspecific) * 100
 
-      #Printing the distance matrix to a file
-      write.table(no_outliers_dist_matrix,file=paste0(Work_loc,"/",file_name[h],"_dist_matrix.dat"),append=FALSE,na="",row.names = TRUE, col.names=NA, quote = FALSE,sep="\t")
+          df <- data.frame(intra, inter)
 
-      #Writing the data to the data table
-      write.table(Seq_file_data_frame,file=paste0(Work_loc,"/",file_name[h],"_data_table.dat"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\t")
+          ### Dotplot ###
 
-      if(!is.null(seq_to_remove)){
+          p <- ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
+            geom_abline(intercept = 0, slope = 1, color = "red") +
+            labs(x = "Maximum Intraspecific Distance (%)",
+                 y = "Minimum Interspecific Distance (%)") +
+            xlim(0, 30) + ylim(0, 30)
 
-        #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-        no_outliers_dataset<-no_outliers_dataset[!(no_outliers_dataset$Header %in% seq_to_remove),]
+          # save plot to file without using ggsave
+          png(paste0(Work_loc,"/",file_name[h],"_dotplot.png"))
+          print(p)
+          dev.off()
 
-        #removing the columns with data other than the header and the sequence data to construct the fasta file.
-        no_outliers_dataset<-cbind(no_outliers_dataset$Header, no_outliers_dataset$Sequence)
+          ### Quadrant plot ###
 
-        #outputting the fasta reduced file
-        write.table(no_outliers_dataset,file=paste0(Work_loc,"/",file_name[h],"_no_outliers.fas"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\n")
+          # plot horizontal and vertical lines using 2% distance by default #
 
-      }
+          p <- ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
+            geom_hline(yintercept = 2, color = "red") +
+            geom_vline(xintercept = 2,  color = "red") +
+            labs(x = "Maximum Intraspecific Distance (%)",
+                 y = "Minimum Interspecific Distance (%)") +
+            xlim(0, 30) + ylim(0, 30)
 
-        log_df<-log_df[log_df$Intraspecific != "NA",]
-        log_df<-log_df[log_df$Intraspecific != "-",]
+          # save plot to file without using ggsave
+          png(paste0(Work_loc,"/",file_name[h],"_quadplot.png"))
+          print(p)
+          dev.off()
 
-        # ##### Visualizations #####
+          ### Barcode gap overlap plot ###
 
-        intra <- as.numeric(log_df$Intraspecific) * 100
-        inter <- as.numeric(log_df$Interspecific) * 100
+          p_x <- as.numeric(log_df$p_x)
+          q_x <- as.numeric(log_df$q_x)
 
-        df <- data.frame(intra, inter)
+          # Since p and q can be 0, plotting on log2 scale allows easier visualization
 
-        ### Dotplot ###
+          df <- data.frame(log2(p_x + 1), log2(q_x + 1))
 
-        p <- ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
-          geom_abline(intercept = 0, slope = 1, color = "red") +
-          labs(x = "Maximum Intraspecific Distance (%)",
-               y = "Minimum Interspecific Distance (%)") +
-          xlim(0, 30) + ylim(0, 30)
+          p <- ggplot(df, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
+            labs(x = expression(log[2](p + 1)), y = expression(log[2](q + 1))) +
+            xlim(0, 1) +
+            ylim(0, 1)
 
-        # save plot to file without using ggsave
-        png(paste0(Work_loc,"/",file_name[h],"_dotplot.png"))
-        print(p)
-        dev.off()
-
-        ### Quadrant plot ###
-
-        # plot horizontal and vertical lines using 2% distance by default #
-
-        p <- ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
-          geom_hline(yintercept = 2, color = "red") +
-          geom_vline(xintercept = 2,  color = "red") +
-          labs(x = "Maximum Intraspecific Distance (%)",
-               y = "Minimum Interspecific Distance (%)") +
-          xlim(0, 30) + ylim(0, 30)
-
-        # save plot to file without using ggsave
-        png(paste0(Work_loc,"/",file_name[h],"_quadplot.png"))
-        print(p)
-        dev.off()
-
-        ### Barcode gap overlap plot ###
-
-        p_i <- as.numeric(log_df$p_i)
-        q_i <- as.numeric(log_df$q_i)
-
-        # Since p and q can be 0, plotting on log2 scale allows easier visualization
-
-        df <- data.frame(log2(p_i + 1), log2(q_i + 1))
-
-        p <- ggplot(df, aes(x = p_i, y =  q_i)) + geom_point(colour = "blue") +
-          labs(x = expression(log[2](p + 1)), y = expression(log[2](q + 1))) +
-               xlim(0, 1) +
-               ylim(0, 1)
-
-        # save plot to file without using ggsave
-        png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
-        print(p)
-        dev.off()
+          # save plot to file without using ggsave
+          png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
+          print(p)
+          dev.off()
 
         } #End of gap analysis section
 
@@ -896,4 +920,3 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
   print(paste("Start time... ",start_time," and end time... ",Sys.time()))
 
 } #End of the function
-
