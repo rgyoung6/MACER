@@ -483,6 +483,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                                  "Barcode_Gap_Overlap_Taxa",
                                  "Barcode_Gap_Result",
                                  "Bootstrap",
+                                 "Nearest_Neighbour",
                                  "p_x",
                                  "q_x",
                                  "p_x_prime",
@@ -553,12 +554,16 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               for (i in 1:length(splt)) {
                 for (j in 1:length(splt)) {
-                  if (splt[[i]] != splt[[j]]) {
-                    p_x_prime <- length(which(splt[[i]] >= round(min(splt[[j]]), digits = 4))) / length(splt[[i]])
-                    q_x_prime <- length(which(splt[[j]] <= round(max(splt[[i]]), digits = 4))) / length(splt[[j]])
-
+                  if (i != j) {
+                    p_x_prime <- length(which(splt[[i]] >= min(splt[[j]]))) / length(splt[[i]])
+                    q_x_prime <- length(which(splt[[j]] <= max(splt[[i]]))) / length(splt[[j]])
                   }
                 }
+              }
+
+              # Get nearest neighbour for each target species
+
+              nn <- colnames(loop_species_dist_matrix)[which.min(loop_species_dist_matrix_between)]
 
               ############################
 
@@ -780,6 +785,10 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
             #add the results of the species bootstrapping
             log_df$Bootstrap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_bootstrap_result
+
+            #add the results of the species bootstrapping
+            log_df$Nearest_Neighbour[log_df$Species %in% Species[species_list_counter] ]<-nn
+
 
             #add the results of p_x
             log_df$p_x[log_df$Species %in% Species[species_list_counter] ]<- p_x
