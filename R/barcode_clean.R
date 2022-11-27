@@ -536,10 +536,6 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               ### Split dist matrix by species ###
               splt <- split(loop_species_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(loop_species_dist_matrix)))
 
-              ### Compute mean intraspevfic distance for each species
-              #mean_intra <- lapply(splt, mean)
-
-
               ### Compute cross entropy for each species ###
 
               H_x <- -sum(t(loop_species_dist_matrix_between) %*% log(loop_species_dist_matrix_within))
@@ -893,22 +889,36 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           print(p)
           dev.off()
 
-          ### Barcode gap overlap plot ###
+          ### Barcode gap overlap plots ###
 
           p_x <- as.numeric(log_df$p_x)
           q_x <- as.numeric(log_df$q_x)
+          p_x_prime <- as.numeric(log_df$p_x_prime)
+          q_x_prime <- as.numeric(log_df$q_x_prime)
 
           # Since p and q can be 0, plotting on log2 scale allows easier visualization
 
-          df <- data.frame(log2(p_x + 1), log2(q_x + 1))
+          df_pq <- data.frame(log2(p_x + 1), log2(q_x + 1))
+          df_pq_prime <- data.frame(log2(p_x_prime + 1), log2(q_x_prime + 1))
 
-          p <- ggplot(df, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
+
+          p <- ggplot(df_pq, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
             labs(x = expression(log[2](p + 1)), y = expression(log[2](q + 1))) +
             xlim(0, 1) +
             ylim(0, 1)
 
           # save plot to file without using ggsave
           png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
+          print(p)
+          dev.off()
+
+          p <- ggplot(df_pq_prime, aes(x = p_x_prime, y = q_x_prime)) + geom_point(colour = "blue") +
+            labs(x = expression(log[2](p^' + 1)), y = expression(log[2](q^' + 1))) +
+            xlim(0, 1) +
+            ylim(0, 1)
+
+          # save plot to file without using ggsave
+          png(paste0(Work_loc,"/",file_name[h],"_pq_prime.png"))
           print(p)
           dev.off()
 
