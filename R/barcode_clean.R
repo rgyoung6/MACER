@@ -559,6 +559,11 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                 }
               }
 
+              # compute proportional overlap for all neighbours
+
+              res_min <- sapply(splt, function(y) sapply(setNames(splt, names(splt)), function(z) length(which(y >= min(z))) / length(y)))
+              res_max <- sapply(splt, function(y) sapply(setNames(splt, names(splt)), function(z) length(which(y <= max(z))) / length(y)))
+
 
               ############################
 
