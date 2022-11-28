@@ -563,9 +563,10 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               # compute proportional overlap for all neighbours
 
-              p_x_prime_all_neighbours <- sapply(splt, function(y) sapply(setNames(splt, names(splt)), function(z) length(which(y >= min(z))) / length(y)))
-              q_k_prime_all|_neighbours <- sapply(splt, function(y) sapply(setNames(splt, names(splt)), function(z) length(which(y <= max(z))) / length(y)))
-
+              p_x_prime_all_neighbours <- sapply(splt, function(y) sapply(setNames(splt, Species), function(z) length(which(y >= min(z))) / length(y)))
+              colnames(p_x_prime_all_neighbours) <- Species
+              q_x_prime_all_neighbours <- sapply(splt, function(y) sapply(setNames(splt, Species), function(z) length(which(y <= max(z))) / length(y)))
+              colnames(q_x_prime_all_neighbours) <- Species
 
               ############################
 
@@ -901,14 +902,13 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           p_x <- as.numeric(log_df$p_x)
           q_x <- as.numeric(log_df$q_x)
-          p_x_prime <- as.numeric(log_df$p_x_prime)
-          q_x_prime <- as.numeric(log_df$q_x_prime)
+          p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
+          q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
 
           # Since p and q can be 0, plotting on log2 scale allows easier visualization
 
           df_pq <- data.frame(log2(p_x + 1), log2(q_x + 1))
-          df_pq_prime <- data.frame(log2(p_x_prime + 1), log2(q_x_prime + 1))
-
+          df_pq_prime_NN <- data.frame(log2(p_x_prime_NN + 1), log2(q_x_prime_NN + 1))
 
           p <- ggplot(df_pq, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
             labs(x = expression(log[2](p + 1)), y = expression(log[2](q + 1))) +
@@ -920,14 +920,24 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           print(p)
           dev.off()
 
-          p <- ggplot(df_pq_prime, aes(x = p_x_prime, y = q_x_prime)) + geom_point(colour = "blue") +
+          p <- ggplot(df_pq_prime_NN, aes(x = p_x_prime_NN, y = q_x_prime_NN)) + geom_point(colour = "blue") +
             labs(x = expression(log[2](p*"'"* + 1)), y = expression(log[2](q*"'"* + 1))) +
             xlim(0, 1) +
             ylim(0, 1)
 
           # save plot to file without using ggsave
-          png(paste0(Work_loc,"/",file_name[h],"_pq_prime.png"))
+          png(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.png"))
           print(p)
+          dev.off()
+
+          # heatmaps for all species comparisons
+
+          png(file="p_x_prime_all_neighbours.png")
+          heatmap(p_x_prime_all_neighbours, Rowv = NA, Colv = NA)
+          dev.off()
+
+          png(file="q_x_prime_all_neighbours.png")
+          heatmap(q_x_prime_all_neighbours, Rowv = NA, Colv = NA)
           dev.off()
 
         } #End of gap analysis section
