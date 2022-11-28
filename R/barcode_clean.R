@@ -485,8 +485,10 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                                  "Bootstrap",
                                  "p_x",
                                  "q_x",
-                                 "p_x_prime",
-                                 "q_x_prime")
+                                 "p_x_prime_NN",
+                                 "q_x_prime_NN",
+                                 "p_x_prime_all_neighbours",
+                                 "q_x_prime_all_neighbours")
 
           log_df[,barcode_gap_columns] <- "-"
 
@@ -553,16 +555,16 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               for (i in 1:length(splt)) {
                 for (j in 1:length(splt)) {
                   if (i != j) {
-                    p_x_prime <- length(which(splt[[i]] >= min(splt[[j]]))) / length(splt[[i]])
-                    q_x_prime <- length(which(splt[[j]] <= max(splt[[i]]))) / length(splt[[j]])
+                    p_x_prime_NN <- length(which(splt[[i]] >= min(splt[[j]]))) / length(splt[[i]])
+                    q_x_prime_NN <- length(which(splt[[j]] <= max(splt[[i]]))) / length(splt[[j]])
                   }
                 }
               }
 
               # compute proportional overlap for all neighbours
 
-              res_min <- sapply(splt, function(y) sapply(setNames(splt, names(splt)), function(z) length(which(y >= min(z))) / length(y)))
-              res_max <- sapply(splt, function(y) sapply(setNames(splt, names(splt)), function(z) length(which(y <= max(z))) / length(y)))
+              p_x_prime_all_neighbours <- sapply(splt, function(y) sapply(setNames(splt, names(splt)), function(z) length(which(y >= min(z))) / length(y)))
+              q_k_prime_all|_neighbours <- sapply(splt, function(y) sapply(setNames(splt, names(splt)), function(z) length(which(y <= max(z))) / length(y)))
 
 
               ############################
@@ -795,11 +797,17 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             #add the results of H_x
             log_df$H_x[log_df$Species %in% Species[species_list_counter] ]<- H_x
 
-            #add the results of p_x_prime
-            log_df$p_x_prime[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime
+            #add the results of p_x_prime_NN
+            log_df$p_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime_NN
 
-            #add the results of q_x_prime
-            log_df$q_x_prime[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime
+            #add the results of q_x_prime_NN
+            log_df$q_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime_NN
+
+            #add the results of p_x_prime_all_neighbours
+            log_df$p_x_prime_all_neighbours[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime_all_neighbours
+
+            #add the results of q_x_prime_all_neighbours
+            log_df$q_x_prime_all_neighbours[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime_all_neighbours
 
             #Get the row for this loop to output to the file and
             #Add the genus to the front of the species name being outputted
