@@ -913,7 +913,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           dev.off()
 
           p <- ggplot(df_pq_prime, aes(x = p_x_prime, y = q_x_prime)) + geom_point(colour = "blue") +
-            labs(x = expression(log[2](p^' + 1)), y = expression(log[2](q^' + 1))) +
+            labs(x = expression(log[2](p*"'"* + 1)), y = expression(log[2](q*"'"* + 1))) +
             xlim(0, 1) +
             ylim(0, 1)
 
