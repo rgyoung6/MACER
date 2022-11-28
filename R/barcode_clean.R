@@ -803,11 +803,6 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             #add the results of q_x_prime_NN
             log_df$q_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime_NN
 
-            #add the results of p_x_prime_all_neighbours
-            log_df$p_x_prime_all_neighbours[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime_all_neighbours
-
-            #add the results of q_x_prime_all_neighbours
-            log_df$q_x_prime_all_neighbours[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime_all_neighbours
 
             #Get the row for this loop to output to the file and
             #Add the genus to the front of the species name being outputted
