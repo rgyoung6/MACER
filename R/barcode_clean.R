@@ -487,8 +487,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                                  "q_x",
                                  "p_x_prime_NN",
                                  "q_x_prime_NN",
-                                 "p_x_prime_all_neighbours",
-                                 "q_x_prime_all_neighbours")
+                                 "H_x")
 
           log_df[,barcode_gap_columns] <- "-"
 
@@ -535,13 +534,6 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               ##### Added by Jarrett #####
 
-              ### Split dist matrix by species ###
-              splt <- split(loop_species_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(loop_species_dist_matrix)))
-
-              ### Compute cross entropy for each species ###
-
-              H_x <- -sum(t(loop_species_dist_matrix_between) %*% log(loop_species_dist_matrix_within))
-
               # compute proportional overlap of intraspecific and interspecific distributions
 
               # p_x is overlap of intra with inter
@@ -549,6 +541,9 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               # q_x is overlap of inter with intra
               q_x <- length(which(loop_species_dist_matrix_between <= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
+
+              ### Split dist matrix by species ###
+              splt <- split(loop_species_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(loop_species_dist_matrix)))
 
               # compute proportional overlap between each species with its nearest neighbour
 
@@ -565,8 +560,13 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               p_x_prime_all_neighbours <- sapply(splt, function(y) sapply(setNames(splt, Species), function(z) length(which(y >= min(z))) / length(y)))
               colnames(p_x_prime_all_neighbours) <- Species
+
               q_x_prime_all_neighbours <- sapply(splt, function(y) sapply(setNames(splt, Species), function(z) length(which(y <= max(z))) / length(y)))
               colnames(q_x_prime_all_neighbours) <- Species
+
+              ### Compute cross entropy for each species ###
+
+              H_x <- -sum(loop_species_dist_matrix_within %*% log(loop_species_dist_matrix_between))
 
               ############################
 
@@ -804,7 +804,6 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             #add the results of q_x_prime_NN
             log_df$q_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime_NN
 
-
             #Get the row for this loop to output to the file and
             #Add the genus to the front of the species name being outputted
             to_print<-log_df[log_df$Species == Species[species_list_counter] ,]
@@ -878,7 +877,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             xlim(0, 30) + ylim(0, 30)
 
           # save plot to file without using ggsave
-          png(paste0(Work_loc,"/",file_name[h],"_dotplot.png"))
+          pdf(paste0(Work_loc,"/",file_name[h],"_dotplot.pdf"))
           print(p)
           dev.off()
 
@@ -894,7 +893,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             xlim(0, 30) + ylim(0, 30)
 
           # save plot to file without using ggsave
-          png(paste0(Work_loc,"/",file_name[h],"_quadplot.png"))
+          pdf(paste0(Work_loc,"/",file_name[h],"_quadplot.pdf"))
           print(p)
           dev.off()
 
@@ -916,7 +915,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             ylim(0, 1)
 
           # save plot to file without using ggsave
-          png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
+          pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
           print(p)
           dev.off()
 
@@ -926,18 +925,20 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             ylim(0, 1)
 
           # save plot to file without using ggsave
-          png(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.png"))
+          pdf(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.pdf"))
           print(p)
           dev.off()
 
           # heatmaps for all species comparisons
 
-          png(file="p_x_prime_all_neighbours.png")
-          heatmap(p_x_prime_all_neighbours, Rowv = NA, Colv = NA)
+          pdf(file="p_x_prime_all_neighbours.pdf")
+          corr <- cor(p_x_prime_all_neighbours, method = "spearman")
+          heatmap(corr, Rowv = NA, Colv = NA)
           dev.off()
 
-          png(file="q_x_prime_all_neighbours.png")
-          heatmap(q_x_prime_all_neighbours, Rowv = NA, Colv = NA)
+          pdf(file="q_x_prime_all_neighbours.pdf")
+          corr <- cor(q_x_prime_all_neighbours, method = "spearman")
+          heatmap(corr, Rowv = NA, Colv = NA)
           dev.off()
 
         } #End of gap analysis section
