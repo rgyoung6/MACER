@@ -904,25 +904,42 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
           q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
 
-          # Since p and q can be 0, plotting on log2 scale allows easier visualization
+          # Since p and q can be 0, plotting on log10 scale allows easier visualization
 
           df_pq <- data.frame(log10(p_x), log10(q_x))
           df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
 
+          dummy_log <- trans_new("dummy",
+                                 transform = function(x) x^0.05,
+                                 inverse   = function(x) x^20,
+                                 domain    = c(0, 1))
+
           p <- ggplot(df_pq, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
-            labs(x = expression(log[10](p)), y = expression(log[10](q))) +
-            xlim(0, 1) +
-            ylim(0, 1)
+            labs(x = expression(log[10](p)), y = expression(log[10](q)))
+
+
+          p + scale_y_continuous(trans = dummy_log, limits = c(0, 1),
+                                 breaks = c(0, 0.001, 0.01, 0.1, sqrt(10)/10, 1),
+                                 labels = ~ifelse(.p_x == 0, "-\u221e", log10(.p_x))) +
+            scale_x_continuous(trans = dummy_log, limits = c(0, 1),
+                               breaks = c(0, 0.001, 0.01, 0.1, sqrt(10)/10, 1),
+                               labels = ~ifelse(.q_x == 0, "-\u221e", log10(.q_x)))
 
           # save plot to file without using ggsave
           pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
           print(p)
           dev.off()
 
-          p <- ggplot(df_pq_prime_NN, aes(x = p_x_prime_NN, y = q_x_prime_NN)) + geom_point(colour = "blue") +
-            labs(x = expression(log[10](p*"'"*)), y = expression(log[10](q*"'"*))) +
-            xlim(0, 1) +
-            ylim(0, 1)
+          p <- ggplot(df_pq_prime_NN, aes(x = p_x_prime_NN, y = q_x_prime_NN)) + geom_point(colour = "blue") |
+            labs(x = expression(log[10](p)), y = expression(log[10](q)))
+
+          p + scale_y_continuous(trans = dummy_log, limits = c(0, 1),
+                                 breaks = c(0, 0.001, 0.01, 0.1, sqrt(10)/10, 1),
+                                 labels = ~ifelse(.p_x_prime_NN == 0, "-\u221e", log10(.p_x_prime_NN))) +
+            scale_x_continuous(trans = dummy_log, limits = c(0, 1),
+                               breaks = c(0, 0.001, 0.01, 0.1, sqrt(10)/10, 1),
+                               labels = ~ifelse(.q_x_prime_NN == 0, "-\u221e", log10(.q_x_prime_NN)))
+
 
           # save plot to file without using ggsave
           pdf(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.pdf"))
@@ -932,13 +949,11 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           # heatmaps for all species comparisons
 
           pdf(file="p_x_prime_all_neighbours.pdf")
-          corr <- cor(p_x_prime_all_neighbours, method = "spearman")
-          heatmap(corr, Rowv = NA, Colv = NA)
+          heatmap(p_x_prime_all_neighbours, Rowv = NA, Colv = NA)
           dev.off()
 
           pdf(file="q_x_prime_all_neighbours.pdf")
-          corr <- cor(q_x_prime_all_neighbours, method = "spearman")
-          heatmap(corr, Rowv = NA, Colv = NA)
+          heatmap(q_x_prime_all_neighbours, Rowv = NA, Colv = NA)
           dev.off()
 
         } #End of gap analysis section
