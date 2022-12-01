@@ -550,8 +550,8 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               for (i in 1:length(splt)) {
                 for (j in 1:length(splt)) {
                   if (i != j) {
-                    p_x_prime_NN <- length(which(splt[[i]] >= min(splt[[j]]))) / length(splt[[i]])
-                    q_x_prime_NN <- length(which(splt[[j]] <= max(splt[[i]]))) / length(splt[[j]])
+                    p_x_prime_NN <- length(which(splt[[i]] >= round(min(splt[[j]]), digits = 4))) / length(splt[[i]])
+                    q_x_prime_NN <- length(which(splt[[j]] <= round(max(splt[[i]]), digits = 4))) / length(splt[[j]])
                   }
                 }
               }
@@ -744,6 +744,11 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               loop_species_num_barcode_gap_overlap_taxa <- "-"
               loop_species_result <- "-"
               loop_species_bootstrap_result <- "-"
+              p_x <- "-"
+              q_x <- "-"
+              p_x_prime_NN <- "-"
+              q_x_prime_NN <- "-"
+              H_x <- "-"
 
             }#closing the if else checking if there is more than one species record
 
@@ -897,63 +902,42 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           print(p)
           dev.off()
 
-          ### Barcode gap overlap plots ###
-
-          p_x <- as.numeric(log_df$p_x)
-          q_x <- as.numeric(log_df$q_x)
-          p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
-          q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
-
-          # Since p and q can be 0, plotting on log10 scale allows easier visualization
-
-          df_pq <- data.frame(log10(p_x), log10(q_x))
-          df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
-
-          dummy_log <- trans_new("dummy",
-                                 transform = function(x) x^0.05,
-                                 inverse   = function(x) x^20,
-                                 domain    = c(0, 1))
-
-          p <- ggplot(df_pq, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
-            labs(x = expression(log[10](p)), y = expression(log[10](q)))
-
-
-          p + scale_y_continuous(trans = dummy_log, limits = c(0, 1),
-                                 breaks = c(0, 0.001, 0.01, 0.1, sqrt(10)/10, 1),
-                                 labels = ~ifelse(.p_x == 0, "-\u221e", log10(.p_x))) +
-            scale_x_continuous(trans = dummy_log, limits = c(0, 1),
-                               breaks = c(0, 0.001, 0.01, 0.1, sqrt(10)/10, 1),
-                               labels = ~ifelse(.q_x == 0, "-\u221e", log10(.q_x)))
-
-          # save plot to file without using ggsave
-          pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
-          print(p)
-          dev.off()
-
-          p <- ggplot(df_pq_prime_NN, aes(x = p_x_prime_NN, y = q_x_prime_NN)) + geom_point(colour = "blue") |
-            labs(x = expression(log[10](p)), y = expression(log[10](q)))
-
-          p + scale_y_continuous(trans = dummy_log, limits = c(0, 1),
-                                 breaks = c(0, 0.001, 0.01, 0.1, sqrt(10)/10, 1),
-                                 labels = ~ifelse(.p_x_prime_NN == 0, "-\u221e", log10(.p_x_prime_NN))) +
-            scale_x_continuous(trans = dummy_log, limits = c(0, 1),
-                               breaks = c(0, 0.001, 0.01, 0.1, sqrt(10)/10, 1),
-                               labels = ~ifelse(.q_x_prime_NN == 0, "-\u221e", log10(.q_x_prime_NN)))
-
-
-          # save plot to file without using ggsave
-          pdf(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.pdf"))
-          print(p)
-          dev.off()
+          # ### Barcode gap overlap plots ###
+          #
+          # p_x <- as.numeric(log_df$p_x)
+          # q_x <- as.numeric(log_df$q_x)
+          # p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
+          # q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
+          #
+          # # Since p and q can be 0, plotting on log10 scale allows easier visualization
+          #
+          # df_pq <- data.frame(log10(p_x), log10(q_x))
+          # df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
+          #
+          # p <- ggplot(df_pq, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
+          #   labs(x = expression(log[10](p)), y = expression(log[10](q)))
+          #
+          # # save plot to file without using ggsave
+          # pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
+          # print(p)
+          # dev.off()
+          #
+          # p <- ggplot(df_pq_prime_NN, aes(x = p_x_prime_NN, y = q_x_prime_NN)) + geom_point(colour = "blue") |
+          #   labs(x = expression(log[10](p)), y = expression(log[10](q)))
+          #
+          # # save plot to file without using ggsave
+          # pdf(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.pdf"))
+          # print(p)
+          # dev.off()
 
           # heatmaps for all species comparisons
 
           pdf(file="p_x_prime_all_neighbours.pdf")
-          heatmap(p_x_prime_all_neighbours, Rowv = NA, Colv = NA)
+          heatmap(p_x_prime_all_neighbours, Rowv = NA, Colv = NA,  cexRow = 0.5, cexCol = 0.5)
           dev.off()
 
           pdf(file="q_x_prime_all_neighbours.pdf")
-          heatmap(q_x_prime_all_neighbours, Rowv = NA, Colv = NA)
+          heatmap(q_x_prime_all_neighbours, Rowv = NA, Colv = NA,  cexRow = 0.5, cexCol = 0.5)
           dev.off()
 
         } #End of gap analysis section
