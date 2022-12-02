@@ -94,10 +94,10 @@ rentrez used to access and download sequences from NCBI’s GenBank
 
 ### Input 
 File with list of genera with the molecular markers names below the taxa. The information to create this parameters file can be obtained from A_Summary.txt file from the download script results. For example see below…<br />
-Tamias<t/> Tamias
-CYTB<t/> COI-5P
-CYTOCHROMEB<t/>	CYTOCHROMECOXIDASESUBUNIT1
-CYTOCHROME-B<t/>	CYTOCHROMECOXIDASESUBUNITI
+Tamias<t/> Tamias<br />
+CYTB<t/> COI-5P<br />
+CYTOCHROMEB<t/>	CYTOCHROMECOXIDASESUBUNIT1<br />
+CYTOCHROME-B<t/>	CYTOCHROMECOXIDASESUBUNITI<br />
 
 ### Arguments
 data_file – NULL prompts the user to indicate the location of the data file in the format of the auto_seq_download output, anything other than NULL then the string supplied will be used for the location; default NULL<br />
