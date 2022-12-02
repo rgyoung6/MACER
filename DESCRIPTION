@@ -1,7 +1,7 @@
 Package: MACER
 Type: Package
 Title: Molecular Acquisition, Cleaning, and Evaluation in R 'MACER'
-Version: 0.2.0
+Version: 0.2.1
 Authors@R: 
     c(person(given = "Robert G",
              family = "Young",

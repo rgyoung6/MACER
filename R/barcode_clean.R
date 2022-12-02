@@ -24,6 +24,7 @@
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
+#' @param outliers This is the variable to indicate if the use would like to remove suspected sequence record outliers using 1.5X the genetic distance. If set to TRUE genus and species level outliers will be removed. If FALSE this will not occur. Default TRUE.
 #' @param dist_model This is the model of nucleotide evolution that the ape program will use (see ape documentation for options. Default is "raw"
 #' @param replicates This is the number of replicates that the bootstrapping will perform. Note: more replicates will take longer. Default is 1000
 #' @param replacement This indicates that the replacement of MSA nucleotide columns will be replaced in the random resampling. Default is set to TRUE
@@ -59,6 +60,26 @@
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
 barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL, outliers = TRUE, dist_model = "raw", replicates = 1000, replacement = TRUE,conf_level = 1,  numCores = 1){
+
+#  AA_code="invert"
+#  AGCT_only = TRUE
+#  data_folder = NULL
+#  outliers = TRUE
+#  dist_model = "raw"
+#  replicates = 10
+#  replacement = TRUE
+#  conf_level = 1
+#  numCores = 1
+
+#  library(ape)
+#  library(stats)
+#  library(utils)
+#  library(ggplot2)
+#  library(parallel)
+#  library(pbapply)
+#  library(grDevices)
+#  library(png)
+
 
   #Get the initial working directory
   start_wd <- getwd()
@@ -583,7 +604,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             if (numCores == 1){
               boot_species_results_final <- cbind(boot_species_results_final, pblapply(seq_len(replicates), bootstrap_barcode_gap))
             }else if(numCores >1){
-              boot_species_results_final <- cbind(boot_species_results_final, pblapplypbapply(seq_len(replicates), bootstrap_barcode_gap, cl = numCores))
+              boot_species_results_final <- cbind(boot_species_results_final, pblapply(seq_len(replicates), bootstrap_barcode_gap, cl = numCores))
             }
           }
         }

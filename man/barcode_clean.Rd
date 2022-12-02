@@ -8,11 +8,12 @@ barcode_clean(
   AA_code = "invert",
   AGCT_only = TRUE,
   data_folder = NULL,
+  outliers = TRUE,
   dist_model = "raw",
   replicates = 1000,
   replacement = TRUE,
   conf_level = 1,
-  numCores = 15
+  numCores = 1
 )
 }
 \arguments{
@@ -21,6 +22,8 @@ barcode_clean(
 \item{AGCT_only}{This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters}
 
 \item{data_folder}{This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.}
+
+\item{outliers}{This is the variable to indicate if the use would like to remove suspected sequence record outliers using 1.5X the genetic distance. If set to TRUE genus and species level outliers will be removed. If FALSE this will not occur. Default TRUE.}
 
 \item{dist_model}{This is the model of nucleotide evolution that the ape program will use (see ape documentation for options. Default is "raw"}
 
