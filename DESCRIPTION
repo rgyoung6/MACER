@@ -34,7 +34,9 @@ Imports:
 	utils,
 	ggplot2,
 	parallel,
-	pbapply
+	pbapply,
+	grDevices,
+	png
 Language: en-GB
 LazyData: true
 RoxygenNote: 7.2.1
