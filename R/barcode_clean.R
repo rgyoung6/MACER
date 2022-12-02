@@ -486,8 +486,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                                  "p_x",
                                  "q_x",
                                  "p_x_prime_NN",
-                                 "q_x_prime_NN",
-                                 "H_x")
+                                 "q_x_prime_NN") # add H_x back in here
 
           log_df[,barcode_gap_columns] <- "-"
 
@@ -545,13 +544,19 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               ### Split dist matrix by species ###
               splt <- split(loop_species_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(loop_species_dist_matrix)))
 
+              ###  Compute average intraspecific distance and sort values to find nearest neighbour ###
+
+              splt1 <- lapply(splt, mean)
+              splt2 <- splt[order(unlist(splt1), decreasing = FALSE)]
+
+
               # compute proportional overlap between each species with its nearest neighbour
 
-              for (i in 1:length(splt)) {
-                for (j in 1:length(splt)) {
+              for (i in 1:length(splt2)) {
+                for (j in 1:length(splt2)) {
                   if (i != j) {
-                    p_x_prime_NN <- length(which(splt[[i]] >= round(min(splt[[j]]), digits = 4))) / length(splt[[i]])
-                    q_x_prime_NN <- length(which(splt[[j]] <= round(max(splt[[i]]), digits = 4))) / length(splt[[j]])
+                    p_x_prime_NN <- length(which(splt2[[i]] >= round(min(splt2[[j]]), digits = 4))) / length(splt2[[i]])
+                    q_x_prime_NN <- length(which(splt2[[j]] <= round(max(splt2[[i]]), digits = 4))) / length(splt2[[j]])
                   }
                 }
               }
@@ -566,7 +571,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               ### Compute cross entropy for each species ###
 
-              H_x <- -sum(loop_species_dist_matrix_within %*% log(loop_species_dist_matrix_between))
+              # H_x <- -sum(loop_species_dist_matrix_within %*% log(loop_species_dist_matrix_between))
 
               ############################
 
@@ -748,7 +753,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               q_x <- "-"
               p_x_prime_NN <- "-"
               q_x_prime_NN <- "-"
-              H_x <- "-"
+              # H_x <- "-"
 
             }#closing the if else checking if there is more than one species record
 
@@ -801,7 +806,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             log_df$q_x[log_df$Species %in% Species[species_list_counter] ]<- q_x
 
             #add the results of H_x
-            log_df$H_x[log_df$Species %in% Species[species_list_counter] ]<- H_x
+            # log_df$H_x[log_df$Species %in% Species[species_list_counter] ]<- H_x
 
             #add the results of p_x_prime_NN
             log_df$p_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime_NN
