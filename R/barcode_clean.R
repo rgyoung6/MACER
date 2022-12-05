@@ -544,24 +544,21 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               ### Split dist matrix by species ###
               splt <- split(loop_species_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(loop_species_dist_matrix)))
 
-              ###  Compute average intraspecific distance and sort values to find nearest neighbour ###
+              # compute proportional overlap for nearest neighbours
 
               splt1 <- lapply(splt, mean)
               splt2 <- splt[order(unlist(splt1), decreasing = FALSE)]
 
-
-              # compute proportional overlap between each species with its nearest neighbour
-
-              for (i in 1:length(splt2)) {
-                for (j in 1:length(splt2)) {
+              for (i in 1:length(splt)) {
+                for (j in 1:length(splt)) {
                   if (i != j) {
-                    p_x_prime_NN <- length(which(splt2[[i]] >= round(min(splt2[[j]]), digits = 4))) / length(splt2[[i]])
-                    q_x_prime_NN <- length(which(splt2[[j]] <= round(max(splt2[[i]]), digits = 4))) / length(splt2[[j]])
+                    p_x_prime_NN <- length(which(splt[[i]] >= round(min(splt[[j]]), digits = 4))) / length(splt[[i]])
+                    q_x_prime_NN <- length(which(splt[[j]] <= round(max(splt[[i]]), digits = 4))) / length(splt[[j]])
                   }
                 }
               }
 
-              # compute proportional overlap for all neighbours
+              # compute proportional overlap for all neighbours - read matrix by columns
 
               p_x_prime_all_neighbours <- sapply(splt, function(y) sapply(setNames(splt, Species), function(z) length(which(y >= min(z))) / length(y)))
               colnames(p_x_prime_all_neighbours) <- Species
@@ -571,7 +568,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               ### Compute cross entropy for each species ###
 
-              # H_x <- -sum(loop_species_dist_matrix_within %*% log(loop_species_dist_matrix_between))
+              #H <- -sum(loop_species_dist_matrix_between * log(loop_species_dist_matrix_within))
 
               ############################
 
@@ -753,7 +750,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               q_x <- "-"
               p_x_prime_NN <- "-"
               q_x_prime_NN <- "-"
-              # H_x <- "-"
+              #H_x <- "-"
 
             }#closing the if else checking if there is more than one species record
 
@@ -805,14 +802,15 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             #add the results of q_x
             log_df$q_x[log_df$Species %in% Species[species_list_counter] ]<- q_x
 
-            #add the results of H_x
-            # log_df$H_x[log_df$Species %in% Species[species_list_counter] ]<- H_x
-
             #add the results of p_x_prime_NN
             log_df$p_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime_NN
 
             #add the results of q_x_prime_NN
             log_df$q_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime_NN
+
+
+            #add the results of H_x
+            # log_df$H_x[log_df$Species %in% Species[species_list_counter] ]<- H_x
 
             #Get the row for this loop to output to the file and
             #Add the genus to the front of the species name being outputted
@@ -871,79 +869,25 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           log_df<-log_df[log_df$Intraspecific != "NA",]
           log_df<-log_df[log_df$Intraspecific != "-",]
 
-          # ##### Visualizations #####
 
-          intra <- as.numeric(log_df$Intraspecific) * 100
-          inter <- as.numeric(log_df$Interspecific) * 100
+          ### Barcode gap overlap plots ###
 
-          df <- data.frame(intra, inter)
+          p_x <- as.numeric(log_df$p_x)
+          q_x <- as.numeric(log_df$q_x)
 
-          ### Dotplot ###
+          # Since p and q can be 0, plotting on log10 scale allows easier visualization
 
-          p <- ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
-            geom_abline(intercept = 0, slope = 1, color = "red") +
-            labs(x = "Maximum Intraspecific Distance (%)",
-                 y = "Minimum Interspecific Distance (%)") +
-            xlim(0, 30) + ylim(0, 30)
+          df_pq <- data.frame(log10(p_x), log10(q_x))
+
+          p <- ggplot(df_pq, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
+            labs(x = expression(log[10](p)), y = expression(log[10](q)))
 
           # save plot to file without using ggsave
-          pdf(paste0(Work_loc,"/",file_name[h],"_dotplot.pdf"))
+          pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
           print(p)
           dev.off()
 
-          ### Quadrant plot ###
 
-          # plot horizontal and vertical lines using 2% distance by default #
-
-          p <- ggplot(df, aes(x = intra, y = inter)) + geom_point(colour = "blue") +
-            geom_hline(yintercept = 2, color = "red") +
-            geom_vline(xintercept = 2,  color = "red") +
-            labs(x = "Maximum Intraspecific Distance (%)",
-                 y = "Minimum Interspecific Distance (%)") +
-            xlim(0, 30) + ylim(0, 30)
-
-          # save plot to file without using ggsave
-          pdf(paste0(Work_loc,"/",file_name[h],"_quadplot.pdf"))
-          print(p)
-          dev.off()
-
-          # ### Barcode gap overlap plots ###
-          #
-          # p_x <- as.numeric(log_df$p_x)
-          # q_x <- as.numeric(log_df$q_x)
-          # p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
-          # q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
-          #
-          # # Since p and q can be 0, plotting on log10 scale allows easier visualization
-          #
-          # df_pq <- data.frame(log10(p_x), log10(q_x))
-          # df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
-          #
-          # p <- ggplot(df_pq, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
-          #   labs(x = expression(log[10](p)), y = expression(log[10](q)))
-          #
-          # # save plot to file without using ggsave
-          # pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
-          # print(p)
-          # dev.off()
-          #
-          # p <- ggplot(df_pq_prime_NN, aes(x = p_x_prime_NN, y = q_x_prime_NN)) + geom_point(colour = "blue") |
-          #   labs(x = expression(log[10](p)), y = expression(log[10](q)))
-          #
-          # # save plot to file without using ggsave
-          # pdf(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.pdf"))
-          # print(p)
-          # dev.off()
-
-          # heatmaps for all species comparisons
-
-          pdf(file="p_x_prime_all_neighbours.pdf")
-          heatmap(p_x_prime_all_neighbours, Rowv = NA, Colv = NA,  cexRow = 0.5, cexCol = 0.5)
-          dev.off()
-
-          pdf(file="q_x_prime_all_neighbours.pdf")
-          heatmap(q_x_prime_all_neighbours, Rowv = NA, Colv = NA,  cexRow = 0.5, cexCol = 0.5)
-          dev.off()
 
         } #End of gap analysis section
 
