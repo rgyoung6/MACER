@@ -547,16 +547,19 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               # compute proportional overlap for nearest neighbours
 
               splt1 <- lapply(splt, mean)
-              splt2 <- splt[order(unlist(splt1), decreasing = FALSE)]
 
-              for (i in 1:length(splt)) {
-                for (j in 1:length(splt)) {
-                  if (i != j) {
-                    p_x_prime_NN <- length(which(splt[[i]] >= round(min(splt[[j]]), digits = 4))) / length(splt[[i]])
-                    q_x_prime_NN <- length(which(splt[[j]] <= round(max(splt[[i]]), digits = 4))) / length(splt[[j]])
-                  }
-                }
-              }
+              x <- as.data.frame(unlist(splt1))
+
+              colnames(x) <- "Mean"
+
+              d <- data.frame(`diag<-`(as.matrix(dist(x$Mean)), Inf))
+              ids <- unlist(Map(which.min, d))
+              Neigh <- x$Mean[ids]
+              x <- data.frame(Species, x$Mean, Neigh)
+              names(x)[1] <- "Species"
+              names(x)[2] <- "Mean"
+              x[, 3] <- x$Species[ids]
+              x
 
               # compute proportional overlap for all neighbours - read matrix by columns
 
@@ -565,6 +568,9 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               q_x_prime_all_neighbours <- sapply(splt, function(y) sapply(setNames(splt, Species), function(z) length(which(y <= max(z))) / length(y)))
               colnames(q_x_prime_all_neighbours) <- Species
+
+
+
 
               ### Compute cross entropy for each species ###
 
