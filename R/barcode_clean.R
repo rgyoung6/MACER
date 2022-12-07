@@ -554,12 +554,23 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
               d <- data.frame(`diag<-`(as.matrix(dist(x$Mean)), Inf))
               ids <- unlist(Map(which.min, d))
-              Neigh <- x$Mean[ids]
-              x <- data.frame(Species, x$Mean, Neigh)
+              Neighbour <- x$Mean[ids]
+              x <- data.frame(names(splt), x$Mean, Neighbour)
               names(x)[1] <- "Species"
-              names(x)[2] <- "Mean"
+              names(x)[2] <- "Mean Intraspecific Distance"
               x[, 3] <- x$Species[ids]
               x
+
+              splt2 <- splt[c(t(x[, c("Species", "Neighbour")]))]
+
+              for (i in 1:length(splt2)) {
+                for (j in 1:length(splt2)) {
+                  if ((i %% 2 == 1) && (j %% 2 == 0)) {
+                    p_x_prime_NN <- length(which(splt2[[i]] >= min(splt2[[j]]))) / length(splt2[[i]])
+                    q_x_prime_NN <- length(which(splt2[[j]] <= max(splt2[[i]]))) / length(splt2[[j]])
+                  }
+                }
+              }
 
               # compute proportional overlap for all neighbours - read matrix by columns
 
