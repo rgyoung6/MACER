@@ -898,18 +898,18 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
 
-          p <- ggplot(df_pq, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
-            labs(x = expression(log[10](p)), y = expression(log[10](q)))
+          p <- ggplot(df_pq, aes(x = log10.p_x., y = log10.q_x.)) + geom_point(colour = "blue") +
+          labs(x = expression(log[10](p)), y = expression(log[10](q)))
 
-          # save plot to file without using ggsave
+          save plot to file without using ggsave
           pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
           print(p)
           dev.off()
 
-          p <- ggplot(df_pq_prime_NN, aes(x = p_x_prime_NN, y =  q_x_prime_NN)) + geom_point(colour = "blue") +
-            labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'")))
+          p <- ggplot(df_pq_prime_NN, aes(x = log10.p_x_prime_NN., y = log10.q_x_prime_NN.)) + geom_point(colour = "blue") +
+          labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'")))
 
-          # save plot to file without using ggsave
+          save plot to file without using ggsave
           pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
           print(p)
           dev.off()
