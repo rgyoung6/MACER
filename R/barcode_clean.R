@@ -895,18 +895,18 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           # Since p and q can be 0, plotting on log10 scale allows easier visualization
 
           df_pq <- data.frame(log10(p_x), log10(q_x))
-          df_pq <- apply(df_pq, 2, function(x) replace(x, is.infinite(x), -10)) # replace Inf with finite value
+          df_pq <- apply(df_pq, 2, function(x) replace(x, is.infinite(x), -5)) # replace Inf with finite value
           df_pq <- as.data.frame(df_pq)
 
           df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
-          df_pq_prime_NN <- apply(df_pq_prime_NN, 2, function(x) replace(x, is.infinite(x), -10))
+          df_pq_prime_NN <- apply(df_pq_prime_NN, 2, function(x) replace(x, is.infinite(x), -5))
           df_pq_prime_NN <- as.data.frame(df_pq_prime_NN)
 
           p <- ggplot(df_pq, aes(x = log10.p_x., y = log10.q_x.)) + geom_point(colour = "blue") +
           labs(x = expression(log[10](p)), y = expression(log[10](q)))
 
           #save plot to file without using ggsave
-          pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
+          png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
           print(p)
           dev.off()
 
@@ -914,7 +914,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'")))
 
           #save plot to file without using ggsave
-          pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
+          png(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.png"))
           print(p)
           dev.off()
 
