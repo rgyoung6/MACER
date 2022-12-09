@@ -536,10 +536,10 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               # compute proportional overlap of intraspecific and interspecific distributions
 
               # p_x is overlap of intra with inter
-              p_x <- length(which(loop_species_dist_matrix_within >= round(min(loop_species_dist_matrix_between), digits = 4))) / length(loop_species_dist_matrix_within)
+              p_x <- length(which(loop_species_dist_matrix_within >= min(loop_species_dist_matrix_between))) / length(loop_species_dist_matrix_within)
 
               # q_x is overlap of inter with intra
-              q_x <- length(which(loop_species_dist_matrix_between <= round(max(loop_species_dist_matrix_within), digits = 4))) / length(loop_species_dist_matrix_between)
+              q_x <- length(which(loop_species_dist_matrix_between <= max(loop_species_dist_matrix_within))) / length(loop_species_dist_matrix_between)
 
               ### Split dist matrix by species ###
               splt <- split(loop_species_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(loop_species_dist_matrix)))
@@ -559,7 +559,6 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               names(x)[1] <- "Species"
               names(x)[2] <- "Mean Intraspecific Distance"
               x[, 3] <- x$Species[ids]
-              x
 
               splt2 <- splt[c(t(x[, c("Species", "Neighbour")]))]
 
@@ -581,11 +580,10 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               colnames(q_x_prime_all_neighbours) <- Species
 
 
-
-
               ### Compute cross entropy for each species ###
 
               #H <- -sum(loop_species_dist_matrix_between * log(loop_species_dist_matrix_within))
+
 
               ############################
 
@@ -599,13 +597,13 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               loop_species_barcode_gap_overlap_records <- loop_species_dist_matrix_between
 
               #Getting the maximum within species distance
-              loop_species_dist_matrix_within<-round(max(loop_species_dist_matrix_within), digits = 4)
+              loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
 
               #Getting the minimum between distance
-              loop_species_dist_matrix_between<-round(min(loop_species_dist_matrix_between), digits = 4)
+              loop_species_dist_matrix_between<-min(loop_species_dist_matrix_between)
 
               #calculating the gap
-              loop_species_barcode_gap<-round(as.numeric(loop_species_dist_matrix_between) - as.numeric(loop_species_dist_matrix_within), digits = 4)
+              loop_species_barcode_gap<-as.numeric(loop_species_dist_matrix_between) - as.numeric(loop_species_dist_matrix_within)
 
               #Get the min value of each column and place into a matrix row name and min value
               loop_species_barcode_gap_overlap_records<- as.data.frame(apply(loop_species_barcode_gap_overlap_records,2,min))
@@ -767,7 +765,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               q_x <- "-"
               p_x_prime_NN <- "-"
               q_x_prime_NN <- "-"
-              #H_x <- "-"
+              H_x <- "-"
 
             }#closing the if else checking if there is more than one species record
 
@@ -891,10 +889,14 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           p_x <- as.numeric(log_df$p_x)
           q_x <- as.numeric(log_df$q_x)
+          p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
+          q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
 
           # Since p and q can be 0, plotting on log10 scale allows easier visualization
 
           df_pq <- data.frame(log10(p_x), log10(q_x))
+
+          df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
 
           p <- ggplot(df_pq, aes(x = p_x, y =  q_x)) + geom_point(colour = "blue") +
             labs(x = expression(log[10](p)), y = expression(log[10](q)))
@@ -904,6 +906,13 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           print(p)
           dev.off()
 
+          p <- ggplot(df_pq_prime_NN, aes(x = p_x_prime_NN, y =  q_x_prime_NN)) + geom_point(colour = "blue") +
+            labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'")))
+
+          # save plot to file without using ggsave
+          pdf(paste0(Work_loc,"/",file_name[h],"_pq.pdf"))
+          print(p)
+          dev.off()
 
 
         } #End of gap analysis section
