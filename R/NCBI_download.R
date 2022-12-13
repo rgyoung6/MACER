@@ -97,13 +97,13 @@ NCBI_download <- function(target_genera, NCBI_folder_str, main_file_folder, sear
 
       #get all of the lines with sequence data
       record_sequence_start<-grep(pattern = "ORIGIN", record)
-
-      #first if is ignoring any record that has a whole genome as that would be too much data for the program
+      
+      #first if is ignoring any record that has many lines for the ORIGIN
       if(length(record_sequence_start)>10){
         record_sequence<-""
       } else if(length(record_sequence_start)!=0){
         #get all of the lines from the main file that belong to this record
-        record_sequence<-record[record_sequence_start:length(record)]
+        record_sequence<-record[record_sequence_start[1]:length(record)]
         record_sequence<-gsub("\\d","",record_sequence)
         record_sequence<-gsub(" ","",record_sequence)
         record_sequence<-paste0(record_sequence,collapse="")

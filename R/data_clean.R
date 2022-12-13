@@ -181,6 +181,20 @@ data_clean <- function(clean_data_table, target_genus, seq_min, seq_max)
 
   }
 
+
+  #Here I get entries which don't have a flag
+  flag_subset<-subset(clean_data_table,clean_data_table$Flags == "-")
+
+  if(nrow(flag_subset>0)){
+
+    #Here I flag entries which don't have molecular marker information
+    flag_subset<-subset(flag_subset$uniqueID, flag_subset$Genus!=target_genus)
+
+    #Adding the results of the above check to the clean_data_table Flags column
+    clean_data_table$Flags[clean_data_table$uniqueID %in% c(flag_subset)]<- "Non-Target"
+
+  }
+
   #make all of the gene identifiers upper case
   clean_data_table$Gene<-toupper(clean_data_table$Gene)
   #remove all gaps from the gene names
