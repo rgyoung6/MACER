@@ -25,6 +25,9 @@
 #' The Default String is: (genus[ORGN]) NOT (shotgun[ALL] OR genome[ALL] OR assembled[ALL] OR microsatellite[ALL])
 #' @param input_file NULL prompts the user to indicate the location of the input file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
 #' @param output_file NULL prompts the user to indicate the location of the output file through point and click prompts, anything other than NULL then the string supplied will be used for the location; default NULL
+#' @param seq_min holds the minimum length value to not flag the sequence; default 100
+#' @param seq_max holds the maximum length value to not flag the sequence; default 2500
+#'
 #'
 #' @returns Outputs: One main folder containing three other folders.
 #' Main folder - Seq_auto_dl_TTTTTT_MMM_DD
@@ -33,7 +36,7 @@
 #' 2. NCBI - Contains a file for every genus downloaded with the raw data from GenBank.
 #' 3. Total_tables - Contains files for the running of the function which include...
 #' A_Summary.txt - This file contains information about the downloads.
-#' A_Total_Table.tsv – A file with a single table containing the accumulated data for all genera searched.
+#' A_Total_Table.tsv - A file with a single table containing the accumulated data for all genera searched.
 #'
 #' @references
 #' <https://github.com/rgyoung6/MACER>
@@ -52,16 +55,8 @@
 #'
 
 ############################################ MAIN FOR FOR BOLD/NCBI DOWNLOAD ###################################################################################
-auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str= NULL, input_file= NULL, output_file=NULL)
+auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str= NULL, input_file= NULL, output_file=NULL, seq_min=100, seq_max=2500)
 {
-
-#BOLD_database=TRUE
-#NCBI_database=TRUE
-#search_str= NULL
-#input_file= NULL
-#output_file=NULL
-
-
 
   #The following if checks to see if the user inputted a file location when calling the program if not then prompts the user to select
   if (is.null(input_file)){
@@ -103,23 +98,21 @@ auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str
 
   }
 
-
-
   #Make a file folder to contain all results from the program
   main_file_folder<-paste0(Work_loc, "/Seq_auto_dl",format(Sys.time(), "_%H%M%S_%b_%d"))
   dir.create(main_file_folder)
 
-  #Create a subfolder to keep all of the full record downloads from BOLD
-  BOLD_folder_str<-paste0(main_file_folder, "/BOLD")
-  dir.create(BOLD_folder_str)
-
-  #Create a subfolder to keep all of the initial fastas NCBI
-  NCBI_folder_str<-paste0(main_file_folder, "/NCBI")
-  dir.create(NCBI_folder_str)
+  #Flags for the creation file folders to hold BOLD and GenBank outputs
+  BOLD_flag = 1
+  NCBI_flag = 1
 
   #Create a subfolder to keep all the genera tables
   table_folder<-paste0(main_file_folder, "/Total_Tables")
   dir.create(table_folder)
+
+  #Initialize final output variables
+  BOLD_data_table_cleaned = NULL
+  NCBI_data_table_cleaned = NULL
 
   #Initialize the total_data_table variable that will be used for the final data frame
   total_data_table<- data.frame(uniqueID=character(), DB=character(), ID=character(), Accession=character(),Genus_Species=character(), Genus=character(),Species=character(),BIN_OTU=character(),Gene=character(),Sequence=character(),Flags=character(), stringsAsFactors=FALSE)
@@ -144,15 +137,24 @@ auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str
     #This is a data table to hold the accumulation of all records from the target taxa list to use later to create marker specific fasta for all taxa
     total_data_table<-data.frame(DB=character(), ID=character(), Accession=character(), Genus=character(), Species=character(), BIN_OTU=character(), Gene=character(), Sequence=character(), stringsAsFactors=FALSE)
 
-    #Adding the attempt time to the log file
-    summary_log<-paste0("Attempting BOLD Download - ", Sys.time(), " - ", genera_list[genera_list_loop_counter])
-    (print(paste0("Attempting BOLD Download - ", Sys.time(), " - ", genera_list[genera_list_loop_counter])))
-    #Adding to the summary log for the running of the program and the results
-    write.table(summary_log ,file=paste0(table_folder,"/A_Summary.txt"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\n", append=TRUE)
-
     #*****************************downloading from BOLD, attempt at least 3 times*******************************************************************************#
 
     if (BOLD_database==TRUE){
+
+      #Adding the attempt time to the log file
+      summary_log<-paste0("Attempting BOLD Download - ", Sys.time(), " - ", genera_list[genera_list_loop_counter])
+      (print(paste0("Attempting BOLD Download - ", Sys.time(), " - ", genera_list[genera_list_loop_counter])))
+      #Adding to the summary log for the running of the program and the results
+      write.table(summary_log ,file=paste0(table_folder,"/A_Summary.txt"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\n", append=TRUE)
+
+      if (  BOLD_flag == 1){
+
+        #Create a subfolder to keep all of the full record downloads from BOLD
+        BOLD_folder_str<-paste0(main_file_folder, "/BOLD")
+        dir.create(BOLD_folder_str)
+
+        BOLD_flag = 0
+      }
       #initialize the attempt variables, set the error occurrence flag to false and initialize an empty data frame
       attempt<- 1
       BOLD_data_table <- data.frame(matrix(nrow=0, ncol=2))
@@ -186,43 +188,51 @@ auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str
         attempt<-attempt + 1
         BOLD_data_table <- data.frame(matrix(nrow=0, ncol=2))
       }
-    }
-    #*****************************downloading from BOLD finished*******************************************************************************#
+      #*****************************downloading from BOLD finished*******************************************************************************#
 
-    if(nrow(BOLD_data_table)>0){
+      if(nrow(BOLD_data_table)>0){
 
-      summary_log<-paste0("Download Complete: cleaning BOLD data table - ", Sys.time(), " - ", genera_list[genera_list_loop_counter])
-      (print(paste0("Download Complete: cleaning BOLD data table - ", genera_list[genera_list_loop_counter])))
-      #Adding to the summary log for the running of the program and the results
-      write.table(summary_log ,file=paste0(table_folder,"/A_Summary.txt"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\n", append=TRUE)
+        summary_log<-paste0("Download Complete: cleaning BOLD data table - ", Sys.time(), " - ", genera_list[genera_list_loop_counter])
+        (print(paste0("Download Complete: cleaning BOLD data table - ", genera_list[genera_list_loop_counter])))
+        #Adding to the summary log for the running of the program and the results
+        write.table(summary_log ,file=paste0(table_folder,"/A_Summary.txt"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\n", append=TRUE)
 
-      #Calling the clean function to clean the contents of the data_table
-      BOLD_data_table_cleaned<-as.data.frame(data_clean(BOLD_data_table,genera_list[genera_list_loop_counter]))
+        #Calling the clean function to clean the contents of the data_table
+        BOLD_data_table_cleaned<-as.data.frame(data_clean(BOLD_data_table,genera_list[genera_list_loop_counter], seq_min, seq_max))
 
-      #check if there is any data left after cleaning
-      if(nrow(BOLD_data_table_cleaned) < 1){
-        print(paste0("There is no useable data from BOLD download - " ,genera_list[genera_list_loop_counter]))
+        #check if there is any data left after cleaning
+        if(nrow(BOLD_data_table_cleaned) < 1){
+          print(paste0("There is no useable data from BOLD download - " ,genera_list[genera_list_loop_counter]))
+        }
+
+      }else{
+
+        print("BOLD Download Error: failed to populate data table or there is no data")
+        #this ensures that any other data remaining inside this table is wiped
+        BOLD_data_table_cleaned<-NULL
       }
-
-    }else{
-
-      print("BOLD Download Error: failed to populate data table or there is no data")
-      #this ensures that any other data remaining inside this table is wiped
-      BOLD_data_table_cleaned<-NULL
-    }
-
-    summary_log<-paste0("Attempting NCBI Download - ", Sys.time(), " - ", genera_list[genera_list_loop_counter])
-    (print(paste0("Attempting NCBI Download - ", genera_list[genera_list_loop_counter])))
-    #Adding to the summary log for the running of the program and the results
-    write.table(summary_log ,file=paste0(table_folder,"/A_Summary.txt"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\n", append=TRUE)
-
-    #Clearing the summary log to be used again
-    summary_log<-NULL
+    }#End of if BOLD_database
+    #*****************************Begin NCBI section *******************************************************************************#
 
     #*****************************downloading from NCBI, attempt at least 3 times************************************************************************************************#
 
-
     if (NCBI_database==TRUE){
+
+      summary_log<-paste0("Attempting NCBI Download - ", Sys.time(), " - ", genera_list[genera_list_loop_counter])
+      (print(paste0("Attempting NCBI Download - ", genera_list[genera_list_loop_counter])))
+      #Adding to the summary log for the running of the program and the results
+      write.table(summary_log ,file=paste0(table_folder,"/A_Summary.txt"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\n", append=TRUE)
+
+      if (NCBI_flag == 1){
+
+        #Create a subfolder to keep all of the initial fastas NCBI
+        NCBI_folder_str<-paste0(main_file_folder, "/NCBI")
+        dir.create(NCBI_folder_str)
+
+        NCBI_flag = 0
+
+      }
+
       #This is the section where I will build the search string for NCBI. If it is equal to the preset value then build it with the if, if it isn't then use it as the user inputted value
       if(is.null(search_str)){
 
@@ -281,46 +291,50 @@ auto_seq_download <- function(BOLD_database=TRUE, NCBI_database=TRUE, search_str
         attempt<-attempt + 1
         NCBI_data_table <- data.frame(matrix(nrow=0, ncol=2))
       }
-    }
+
 
     #*****************************downloading from NCBI finished*******************************************************************************#
 
-    if(nrow(NCBI_data_table)>0){
-      summary_log<-paste0("Download Complete: cleaning NCBI data table - ", genera_list[genera_list_loop_counter])
-      (print(paste0("Download Complete: cleaning NCBI data table - ", genera_list[genera_list_loop_counter])))
-      #Adding to the summary log for the running of the program and the results
-      write.table(summary_log ,file=paste0(table_folder,"/A_Summary.txt"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\n", append=TRUE)
+      if(nrow(NCBI_data_table)>0){
+        summary_log<-paste0("Download Complete: cleaning NCBI data table - ", genera_list[genera_list_loop_counter])
+        (print(paste0("Download Complete: cleaning NCBI data table - ", genera_list[genera_list_loop_counter])))
+        #Adding to the summary log for the running of the program and the results
+        write.table(summary_log ,file=paste0(table_folder,"/A_Summary.txt"), na="", row.names=FALSE, col.names=FALSE, quote = FALSE,sep="\n", append=TRUE)
 
-      #resetting the summary_log
-      summary_log<-NULL
+        #Calling the clean function to clean the contents of the data_table
+        NCBI_data_table_cleaned<-as.data.frame(data_clean(NCBI_data_table,genera_list[genera_list_loop_counter], seq_min, seq_max))
 
-      #Calling the clean function to clean the contents of the data_table
-      NCBI_data_table_cleaned<-as.data.frame(data_clean(NCBI_data_table,genera_list[genera_list_loop_counter]))
+        #check if theres any data left after cleaning
+        if(nrow(NCBI_data_table_cleaned) < 1){
+          print(paste0("There is no useable data from NCBI download - ",genera_list[genera_list_loop_counter]))
+        }
 
-      #check if theres any data left after cleaning
-      if(nrow(NCBI_data_table_cleaned) < 1){
-        print(paste0("There is no useable data from NCBI download - ",genera_list[genera_list_loop_counter]))
       }
+      else{
+        print("NCBI Download Error: failed to populate data table or there is no data")
+        #this ensures that any other data remaining inside this table is wiped
+        NCBI_data_table_cleaned<-NULL
+      }
+    }# end of if NCBI_database
 
+    if (is.null(BOLD_data_table_cleaned)){
+      total_data_table<-NCBI_data_table_cleaned
+    }else if (is.null(NCBI_data_table_cleaned)){
+      total_data_table<-BOLD_data_table_cleaned
+    }else if (nrow(BOLD_data_table_cleaned)==0){
+      total_data_table<-NCBI_data_table_cleaned
+    }else if (nrow(NCBI_data_table_cleaned)==0){
+      total_data_table<-BOLD_data_table_cleaned
+    }else if(nrow(BOLD_data_table_cleaned)>0 && nrow(NCBI_data_table_cleaned)>0){
+      # Create the total data table for this taxa first we need to make the name values equal
+      total_data_table<-rbind(BOLD_data_table_cleaned, NCBI_data_table_cleaned)
     }
-    else{
-      print("NCBI Download Error: failed to populate data table or there is no data")
-      #this ensures that any other data remaining inside this table is wiped
-      NCBI_data_table_cleaned<-NULL
-    }
-
-
-    # Create the total data table for this taxa first we need to make the name values equal
-    total_data_table<-rbind(BOLD_data_table_cleaned, NCBI_data_table_cleaned)
-
-    #Here after I create the table I think I should construct and add a fasta header column Also I think I should consider the idea of creating a table output
-    #file to summarize and just have a log file without results
 
     # This if is only adding this data to the total output file if there was data downloaded
     if(!is.na(nrow(total_data_table)) && nrow(total_data_table)>0){
 
       #Need to make a summary log file here.
-      summary_log<-c(summary_log,paste0("Number of records - ", nrow(total_data_table)))
+      summary_log<-c(paste0("Number of records - ", nrow(total_data_table)))
       unique_sp_list<-paste(unique(total_data_table$Species),collapse=",")
       summary_log<-c(summary_log,paste0("Species - ",unique_sp_list))
       unique_markers_list<-paste(unique(total_data_table$Gene), collapse = ",")

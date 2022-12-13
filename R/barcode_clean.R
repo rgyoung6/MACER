@@ -24,6 +24,7 @@
 #' @param AA_code This is the amino acid translation matrix (as implemented through ape) used to check the sequences for stop codons. The following codes are available std, vert, invert, F. The default is invert.
 #' @param AGCT_only This indicates if records with characters other than AGCT are kept, the default is TRUE. TRUE removes records with non-AGCT FALSE is accepting all IUPAC characters
 #' @param data_folder This variable can be used to provide a location for the MSA fasta files to be cleaned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
+#' @param outliers This is the variable to indicate if the use would like to remove suspected sequence record outliers using 1.5X the genetic distance. If set to TRUE genus and species level outliers will be removed. If FALSE this will not occur. Default TRUE.
 #' @param dist_model This is the model of nucleotide evolution that the ape program will use (see ape documentation for options. Default is "raw"
 #' @param replicates This is the number of replicates that the bootstrapping will perform. Note: more replicates will take longer. Default is 1000
 #' @param replacement This indicates that the replacement of MSA nucleotide columns will be replaced in the random resampling. Default is set to TRUE
@@ -53,18 +54,39 @@
 #' @import ggplot2
 #' @import parallel
 #' @import pbapply
-#'
+#' @import grDevices
+#' @import png
 
 #********************************************Main program section***********************************************
 ##################################### Main FUNCTION ##############################################################
-barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL, dist_model = "raw", replicates = 1000, replacement = TRUE,conf_level = 1,numCores = 15){
+barcode_clean <- function(AA_code = "invert", AGCT_only = TRUE, data_folder = NULL, gen_outliers = TRUE, sp_outliers = TRUE, dist_model = "raw", replicates = 1000, replacement = TRUE,conf_level = 1,  numCores = 1){
 
-  # Codes include 'std', 'vert', 'invert', 'NULL' skips the AA clean section
-  # AGCT_only TRUE is on and FALSE is accepting all IUPAC characters
+#  AA_code=0
+#  AGCT_only = TRUE
+#  data_folder = NULL
+#  gen_outliers = TRUE
+#  sp_outliers = TRUE
+#  dist_model = "raw"
+#  replicates = 10
+#  replacement = TRUE
+#  conf_level = 1
+#  numCores = 1
+
+#  library(ape)
+#  library(stats)
+#  library(utils)
+#  library(ggplot2)
+#  library(parallel)
+#  library(pbapply)
+#  library(grDevices)
+#  library(png)
+
 
   #Get the initial working directory
   start_wd <- getwd()
   on.exit(setwd(start_wd))
+
+  dateStamp <- paste0(format(Sys.time(), "%Y_%m_%d_%H%M"), "_")
 
   if (is.null(data_folder)){
 
@@ -104,6 +126,10 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
     AA_code = 5
   }else if (AA_code == "std"){
     AA_code = 1
+  }else if (AA_code == "moldPlus"){
+    AA_code = 4
+  }else if (AA_code == "yeast"){
+    AA_code = 3
   }else {
     AA_code = 0
   }
@@ -155,12 +181,15 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
     #Give headers for the new data frame
     colnames(Main_Seq_file_data_frame)<-c("Header", "ID", "Accession", "Genus", "Species", "BIN_OTU", "Gene", "Sequence", "Flags")
 
+    #Remove Duplicates
+    Main_Seq_file_data_frame<- Main_Seq_file_data_frame[!duplicated(Main_Seq_file_data_frame$Header),]
+
     #For each genus in the data file
     unique_genera_list <- unique(Main_Seq_file_data_frame$Genus)
 
     for(unique_genera in 1:length(unique_genera_list)){
 
-      #Get the dataframe witht he records from the loop genus
+      #Get the dataframe with the records from the loop genus
       Seq_file_data_frame <- Main_Seq_file_data_frame[Main_Seq_file_data_frame$Genus == unique_genera_list[unique_genera],]
 
       if(nrow(Seq_file_data_frame)>1){
@@ -207,6 +236,8 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
         if(AGCT_only==TRUE && nrow(Seq_file_data_frame)>2){
 
+          print(paste0("Removing records with non-AGCT characters at ", Sys.time()))
+
           #Getting rid of sequences with non AGCT characters
           no_AGCT_seq<-subset(Seq_file_data_frame,grepl("[^AGCTagct-]",Seq_file_data_frame$Sequence))
 
@@ -242,11 +273,16 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             log_df<-merge(log_df,ft_sp,by=1, all.x=TRUE)
 
           }
+        }else{
+          #Add a column with NA for the AGCT spot
+          log_df$AGCT <- "NA"
         }
 
         #**************************** Removing sequences with stop codons *********************************
 
         if(AA_code!=0 && nrow(Seq_file_data_frame)>2){
+
+          print(paste0("Removing recrods with stop codons at ", Sys.time()))
 
           # Using ape function take Seq_file_DNAbin and translate into AA
           # Code 1 is standard code, 2 is vertebrate mitochondrial, 5 is invert mitochondrial and is an argument at the beginning of the
@@ -292,22 +328,22 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             #Here I am merging the log_df with the results after the AA clean
             log_df<-merge(log_df,ft_sp,by=1, all.x=TRUE)
           }
+        }else{
+          #Add a column with NA for the AGCT spot
+          log_df$AA <- "NA"
         }
 
-
-        #**************************** Outlier based cleaning for Genus *********************************
+        #*************** Build the distance matrix for the cleaned sequence data *************************
 
         if(nrow(Seq_file_data_frame)>2){
 
+          print(paste0("Building the distance matrix for the molecular data set at ", Sys.time()))
+
           #using the ape function to obtain the distance matrix
-          if (dist_model == "raw") {
-            dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = "raw", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
-          } else if(dist_model == "JC69") {
-            dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = "JC69", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
-          } else if(dist_model == "K80") {
-            dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = "K80", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
+          if (dist_model == "raw" || dist_model == "JC69" || dist_model == "K80" || dist_model == "F81") {
+            dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = dist_model, variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
           } else {
-            dist_matrix<-suppressWarnings(dist.dna(Seq_file_DNAbin, model = "F81", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
+            stop(paste("No calculation of the distance matrix as the model selected (",dist_model, ") is not an accepted model. Please select an appropriate model and start the function again"))
           }
 
           #Making the contents of the matrix numeric
@@ -317,8 +353,16 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           row.names(dist_matrix)<-colnames(dist_matrix)
 
           #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
-          no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),]
+          no_outliers_dist_matrix <- dist_matrix[!(rownames(dist_matrix) %in% seq_to_remove),]
           no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
+
+        }#output is the no_outliers_dist_matrix
+
+        #**************************** Outlier based cleaning for Genus *********************************
+
+        if(gen_outliers == TRUE && nrow(Seq_file_data_frame)>2){
+
+          print(paste0("Genus outlier assessment at ", Sys.time()))
 
           #Getting the inter quartiles
           dist_matrix_quant <- quantile(no_outliers_dist_matrix, na.rm=TRUE)
@@ -371,11 +415,17 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           }
 
-        }#Closing the if to check if there are more than two records to evaluate so the outlier calcs can work
+        }else{#Closing the if to check if there are more than two records to evaluate so the outlier calcs can work
+
+          #Add a column with NA for the Genus_Outlier spot
+          log_df$Genus_Outlier <- "NA"
+        }
 
         #**************************** Species outlier to report in the records output only - NOT REDUCING THE DATASET JUST REPORTING *********************************
 
-        if(nrow(Seq_file_data_frame)>2){
+        if(sp_outliers == TRUE && nrow(Seq_file_data_frame)>2){
+
+          print(paste0("Species outlier assessment at ", Sys.time()))
 
           # Get a list of the species in the genus
           Species<-unique(no_outliers_dataset$Species)
@@ -439,8 +489,8 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           }# end of loop going through species in the genus
 
-          #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
+            #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
+            no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
 
           if(nrow(no_outliers_dataset)>0){
 
@@ -455,9 +505,12 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           }
 
-        }#end of the species more than 2 records check
+        }else{#end of the species more than 2 records check
 
-        #**************************** Barcode Gap analysis section *********************************
+          #Add a column with NA for the Species_Outlier spot
+          log_df$Species_Outlier <- "NA"
+        }
+        #**************************** Setting up the Barcode Gap analysis section *********************************
 
         if(nrow(Seq_file_data_frame)>2){
 
@@ -468,11 +521,18 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
           barcode_gap_data_frame<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
 
+          #Sort the data frame by Species
+          barcode_gap_data_frame<- barcode_gap_data_frame[order(barcode_gap_data_frame$Species),]
+
+          #Get a unique species list
+          Species<-unique(barcode_gap_data_frame$Species)
+
           #Add barcode gap reporting columns to the species output reporting table log_df
           barcode_gap_columns<-c("Target_Records",
                                  "Target_Haplotypes",
                                  "Genus_Records",
                                  "Genus_Haplotypes",
+                                 "Num_Overlap_Haploptype",
                                  "Overlap_Haploptype",
                                  "Intraspecific",
                                  "Interspecific",
@@ -480,38 +540,99 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                                  "Num_Barcode_Gap_Overlap_Records",
                                  "Barcode_Gap_Overlap_Records",
                                  "Num_Barcode_Gap_Overlap_Taxa",
-                                 "Barcode_Gap_Overlap_Taxa",
-                                 "Barcode_Gap_Result",
+                                 "Barcode_Gap_Overlap_Taxa", "Barcode_Gap_Result",
                                  "Bootstrap",
                                  "p_x",
                                  "q_x",
                                  "p_x_prime_NN",
-                                 "q_x_prime_NN") # add H_x back in here
-
+                                 "q_x_prime_NN")
           log_df[,barcode_gap_columns] <- "-"
 
-          #Reduce the target genus data set to data set to only include unique taxa and sequence records for use in the bootstrapping analysis
-          bootstrap_records <- barcode_gap_data_frame[!duplicated(barcode_gap_data_frame[,c("Genus", "Species", "Sequence")]),c("Header", "Sequence")]
+        }
 
-          #Break the fasta file into unique columns for the sequences
-          bootstrap_records<-cbind(bootstrap_records$Header, t(as.data.frame(strsplit(as.character(bootstrap_records$Sequence), ""))))
+        #**************************** Setting up the bootstrapping matricies *********************************
 
-          #Sort the dataframe by headers
-          bootstrap_records<-bootstrap_records[order(bootstrap_records[,1]),]
+        if(nrow(Seq_file_data_frame)>2){
 
-          #Make the Headers column the rownames
-          row.names(bootstrap_records)<-bootstrap_records[,1]
-          bootstrap_records <- bootstrap_records[,-1]
-          colnames(bootstrap_records)<-c(1:ncol(bootstrap_records))
+          #If the replicates is greater than 0 then need to bootstrap
+          if(replicates != 0){
 
-          #Make bootstrap_records a data frame
-          bootstrap_records<-as.data.frame(bootstrap_records)
+            print(paste0("Bootstrapping section at ", Sys.time()))
 
-          #Sort the data frame by Species
-          barcode_gap_data_frame<- barcode_gap_data_frame[order(barcode_gap_data_frame$Species),]
+            #Initialize the list
+            rep_matricies <- vector("list", replicates)
 
-          #Get a unique species list
-          Species<-unique(barcode_gap_data_frame$Species)
+            #Reduce the target genus data set to only include unique taxa and sequence records for use in the bootstrapping analysis
+            bootstrap_records <- barcode_gap_data_frame[!duplicated(barcode_gap_data_frame[,c("Genus", "Species", "Sequence")]),c("Header", "Sequence")]
+
+            #Break the fasta file into unique columns for the sequences
+            bootstrap_records<-as.data.frame(cbind(bootstrap_records$Header, t(as.data.frame(strsplit(as.character(bootstrap_records$Sequence), "")))))
+
+            #Sort the dataframe by headers
+            bootstrap_records<-bootstrap_records[order(bootstrap_records[,1]),]
+
+            #Make the Headers column the rownames
+            row.names(bootstrap_records)<-bootstrap_records[,1]
+            bootstrap_records <- bootstrap_records[,-1]
+            colnames(bootstrap_records)<-c(1:ncol(bootstrap_records))
+
+            #Make bootstrap_records a data frame
+            bootstrap_records<-as.data.frame(bootstrap_records)
+
+            #Get a list of species for this genus
+            list_of_species<-unique(Seq_file_data_frame$Species)
+            boot_species_results<-as.data.frame(cbind(list_of_species,boot_results=0))
+            boot_species_results_final<-as.data.frame(list_of_species)
+            row.names(boot_species_results_final)<-boot_species_results_final[,1]
+            boot_species_results_final<-boot_species_results_final[,-1]
+
+            bootstrap_barcode_gap <- function(i){
+
+              #Sample the target species records to create a resample matrix with replacement
+              boot_loop_records <- sample(colnames(bootstrap_records), size = ceiling(ncol(bootstrap_records)*conf_level), replace = replacement)
+
+              #Create the within matrix using the resample with replacement
+              boot_loop_matrix_temp <- as.data.frame(bootstrap_records[,match(boot_loop_records, colnames(bootstrap_records))], check.names = FALSE, drop = FALSE)
+
+              # Making the file of class DNAbin for use with ape functions
+              boot_loop_matrix_temp_DNAbin<-as.DNAbin(as.matrix(boot_loop_matrix_temp))
+
+              #using the ape function to obtain the distance matrix
+              if (dist_model == "raw" || dist_model == "JC69" || dist_model == "K80" || dist_model == "F81") {
+                boot_loop_dist_matrix<-as.data.frame(suppressWarnings(dist.dna(boot_loop_matrix_temp_DNAbin, model = dist_model, variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE)))
+              } else {
+                stop(paste("No calculation of the distance matrix as the model selected (",dist_model, ") is not an accepted model. Please select an appropriate model and start the function again"))
+              }
+
+              #For each species calculate the presence of the barcode gap and then save to a dataframe and return the dataframe
+              for (species_count in 1:length(list_of_species)){
+                between_values<-boot_loop_dist_matrix[grepl( list_of_species[species_count] , rownames( boot_loop_dist_matrix ) ) , !grepl( list_of_species[species_count] , colnames( boot_loop_dist_matrix ) ) ,drop=FALSE]
+                within_values<-boot_loop_dist_matrix[grepl( list_of_species[species_count] , rownames( boot_loop_dist_matrix ) ) , grepl( list_of_species[species_count] , colnames( boot_loop_dist_matrix ) ) ,drop=FALSE]
+                if(!is.null(between_values) & !is.null(within_values)){
+                  if(nrow(between_values)>0 & nrow(within_values)>0 ){
+                    if((as.numeric(min(between_values))- as.numeric(max(within_values)))>0){
+                      #There is a barcode gap so add one to the results
+                      boot_species_results[boot_species_results[,1]==list_of_species[species_count],2]<-as.numeric(boot_species_results[boot_species_results[,1]==list_of_species[species_count],2]) + 1
+                    }
+                  }
+                }
+              }
+
+              return(boot_species_results[,2])
+
+            } #End of bootstrap function
+
+            if (numCores == 1){
+              boot_species_results_final <- cbind(boot_species_results_final, pblapply(seq_len(replicates), bootstrap_barcode_gap))
+            }else if(numCores >1){
+              boot_species_results_final <- cbind(boot_species_results_final, pblapply(seq_len(replicates), bootstrap_barcode_gap, cl = numCores))
+            }
+          }
+        }
+
+        #*********************** Begin looping through the species in the genus ***************************
+
+        if(nrow(Seq_file_data_frame)>2){
 
           for (species_list_counter in 1:length(Species)){
 
@@ -529,7 +650,8 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
 
               #Now get comparisons between the loop species and all other records
-              loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header), drop=FALSE]
+
 
               ##### Added by Jarrett #####
 
@@ -580,13 +702,6 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               colnames(q_x_prime_all_neighbours) <- Species
 
 
-              ### Compute cross entropy for each species ###
-
-              #H <- -sum(loop_species_dist_matrix_between * log(loop_species_dist_matrix_within))
-
-
-              ############################
-
               #Get the number of records for the target species
               loop_species_target<-nrow(loop_species_dist_matrix_within)
 
@@ -597,19 +712,30 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               loop_species_barcode_gap_overlap_records <- loop_species_dist_matrix_between
 
               #Getting the maximum within species distance
-              loop_species_dist_matrix_within<-max(loop_species_dist_matrix_within)
+              loop_species_dist_matrix_within<-round(max(loop_species_dist_matrix_within), digits = 4)
 
               #Getting the minimum between distance
-              loop_species_dist_matrix_between<-min(loop_species_dist_matrix_between)
+              loop_species_dist_matrix_between_dist<-round(min(loop_species_dist_matrix_between), digits = 4)
 
               #calculating the gap
-              loop_species_barcode_gap<-as.numeric(loop_species_dist_matrix_between) - as.numeric(loop_species_dist_matrix_within)
+              loop_species_barcode_gap<-round(as.numeric(loop_species_dist_matrix_between_dist) - as.numeric(loop_species_dist_matrix_within), digits = 4)
 
-              #Get the min value of each column and place into a matrix row name and min value
-              loop_species_barcode_gap_overlap_records<- as.data.frame(apply(loop_species_barcode_gap_overlap_records,2,min))
+              if(nrow(loop_species_barcode_gap_overlap_records)>1){
 
-              #Drop min values greater than the max between
+                #Get the min value of each column and place into a matrix row name and min value
+                loop_species_barcode_gap_overlap_records<- as.data.frame(apply(loop_species_barcode_gap_overlap_records,2,min))
+
+              }
+
+              #Drop min values greater than the max between to get the overlapping records
               loop_species_barcode_gap_overlap_records <- loop_species_barcode_gap_overlap_records[loop_species_barcode_gap_overlap_records[,1, drop = FALSE] <= loop_species_dist_matrix_within,, drop=FALSE]
+
+              #Get the overlapping unique haplotypes
+              if (nrow(loop_species_barcode_gap_overlap_records) == 0){
+                loop_species_overlap_haplotypes = "-"
+              }else{
+                loop_species_overlap_haplotypes <- paste(unique(barcode_gap_data_frame[barcode_gap_data_frame$Header %in% row.names(loop_species_barcode_gap_overlap_records), "Sequence"]), collapse = ", ")
+              }
 
               if(nrow(loop_species_barcode_gap_overlap_records) != 0){ #Overlap records
 
@@ -618,6 +744,20 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
                 #Get the list of taxa from the records by first splitting the headers
                 loop_species_num_barcode_gap_overlap_taxa <- data.frame(do.call("rbind", strsplit(as.character(row.names(loop_species_barcode_gap_overlap_records)), "|", fixed = TRUE)))[,c(3,4)]
+
+                #Report the number of overlapping haplotypes
+                loop_species_num_overlap_haplotypes <-length(unique(barcode_gap_data_frame[barcode_gap_data_frame$Header %in% row.names(loop_species_barcode_gap_overlap_records), "Sequence"]))
+
+                #Check to see if the number of unique species overlap haplotypes is greater than 20
+                if(length(unique(barcode_gap_data_frame[barcode_gap_data_frame$Header %in% row.names(loop_species_barcode_gap_overlap_records), "Sequence"]))<20){
+
+                  loop_species_overlap_haplotypes <- paste(unique(barcode_gap_data_frame[barcode_gap_data_frame$Header %in% row.names(loop_species_barcode_gap_overlap_records), "Sequence"]), collapse = ", ")
+
+                }else{
+
+                  loop_species_overlap_haplotypes <- "Greater than 20"
+
+                }
 
                 #If to place a greater than 20 in the reporting variable if too many records
                 if(nrow(loop_species_barcode_gap_overlap_records) < 20){
@@ -634,6 +774,14 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                 #Keeping the genus and species and creating a binomial name
                 loop_species_num_barcode_gap_overlap_taxa <- paste0(loop_species_num_barcode_gap_overlap_taxa[,1]," ", loop_species_num_barcode_gap_overlap_taxa[,2])
 
+                #Get the taxa
+                loop_species_barcode_gap_overlap_taxa <- unique(loop_species_num_barcode_gap_overlap_taxa)
+
+                #If to place a greater than 20 in the reporting variable if too many records
+
+                #Using the record names get all records.
+                loop_species_barcode_gap_overlap_taxa <- paste0(loop_species_barcode_gap_overlap_taxa, collapse = ", ")
+
                 #Get the number of taxa
                 loop_species_num_barcode_gap_overlap_taxa <- length(unique(loop_species_num_barcode_gap_overlap_taxa))
 
@@ -644,7 +792,9 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
                 loop_species_num_barcode_gap_overlap_records = "-"
                 loop_species_num_barcode_gap_overlap_taxa = "-"
-
+                loop_species_barcode_gap_overlap_taxa = "-"
+                loop_species_num_overlap_haplotypes <- "-"
+                loop_species_overlap_haplotypes <- "-"
               }
 
               if(loop_species_barcode_gap <= 0){
@@ -659,106 +809,30 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               #Get the unique off target genera sequences for the haplotype reporting
               loop_genus_haplotypes <- length(unique(barcode_gap_data_frame[!(barcode_gap_data_frame$Header) %in% loop_species_records$Header, "Sequence"]))
 
-              #Get the number of target haplotypes that are also present in the non target records
-              loop_species_overlap_haplotypes <- unique(intersect(barcode_gap_data_frame[barcode_gap_data_frame$Header %in% loop_species_records$Header, "Sequence"], barcode_gap_data_frame[!(barcode_gap_data_frame$Header) %in% loop_species_records$Header, "Sequence"]))
-              if (length(loop_species_overlap_haplotypes) == 0){
-                loop_species_overlap_haplotypes = "-"
-              }else{
-                loop_species_overlap_haplotypes <- paste(barcode_gap_data_frame[barcode_gap_data_frame$Sequence %in% loop_species_overlap_haplotypes, "Header"], collapse = ", ")
-              }
-
-              #There was clearly more than one record as we made it here past the more than one species record,
-              #so the extra record(s) were removed in reduction to unique haplotypes. So add one back in
-              if(nrow(bootstrap_records[row.names(bootstrap_records) %in% loop_species_records$Header,]) == 1){#If to check if only one record. if so add one more
-
-                #Get the target species records
-                bootstrap_records_temp <- barcode_gap_data_frame[barcode_gap_data_frame$Header %in% loop_species_records$Header,]
-
-                #Remove the already existing record
-                bootstrap_records_temp <- bootstrap_records_temp[bootstrap_records_temp$Header != (row.names(bootstrap_records[row.names(bootstrap_records) %in% loop_species_records$Header,])),]
-
-                #Take the first record remaining and Break the fasta file into unique columns for the sequences
-                bootstrap_records_temp <- bootstrap_records_temp[1,,drop=FALSE]
-
-                #Break the fasta file into unique columns for the sequences
-                bootstrap_records_temp<-cbind(bootstrap_records_temp$Header, t(as.data.frame(strsplit(as.character(bootstrap_records_temp$Sequence), ""))))
-
-                #Make the Headers column the rownames
-                row.names(bootstrap_records_temp)<-bootstrap_records_temp[,1,drop=FALSE]
-                bootstrap_records_temp <- bootstrap_records_temp[,-1,drop=FALSE]
-                colnames(bootstrap_records_temp)<-c(1:ncol(bootstrap_records_temp))
-
-                #Make bootstrap_records a data frame
-                bootstrap_records<-as.data.frame(rbind(bootstrap_records, bootstrap_records_temp))
-
-              }
-
-              #for (i in 1:replicates){
-              bootstrap_barcode_gap <- function(i){
-
-                #Sample the target species records to create a resample matrix with replacement
-                boot_loop_records <- sample(colnames(bootstrap_records), size = ceiling(ncol(bootstrap_records)*conf_level), replace = replacement)
-
-                #Create the within matrix using the resample with replacement
-                boot_loop_matrix_temp <- as.data.frame(bootstrap_records[,match(boot_loop_records, colnames(bootstrap_records))], check.names = FALSE, drop = FALSE)
-
-                # Making the file of class DNAbin for use with ape functions
-                boot_loop_matrix_temp_DNAbin<-as.DNAbin(as.matrix(boot_loop_matrix_temp))
-
-                #using the ape function to obtain the distance matrix
-                if (dist_model == "raw") {
-                  boot_loop_dist_matrix<-suppressWarnings(dist.dna(boot_loop_matrix_temp_DNAbin, model = "raw", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
-                } else if(dist_model == "JC69") {
-                  boot_loop_dist_matrix<-suppressWarnings(dist.dna(boot_loop_matrix_temp_DNAbin, model = "JC69", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
-                } else if(dist_model == "K80") {
-                  boot_loop_dist_matrix<-suppressWarnings(dist.dna(boot_loop_matrix_temp_DNAbin, model = "K80", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
-                } else {
-                  boot_loop_dist_matrix<-suppressWarnings(dist.dna(boot_loop_matrix_temp_DNAbin, model = "F81", variance = FALSE, gamma = FALSE, pairwise.deletion = TRUE, base.freq = NULL, as.matrix = TRUE))
-                }
-
-                #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
-                boot_loop_dist_matrix_target <- boot_loop_dist_matrix[(rownames(boot_loop_dist_matrix) %in% loop_species_records$Header),]
-                boot_loop_dist_matrix_within <- boot_loop_dist_matrix_target[,(colnames(boot_loop_dist_matrix_target) %in% loop_species_records$Header)]
-
-                #Now get comparisons between the loop species and all other records
-                boot_loop_dist_matrix_between <- boot_loop_dist_matrix_target[,!(colnames(boot_loop_dist_matrix_target) %in% loop_species_records$Header)]
-
-                if(max(as.numeric(boot_loop_dist_matrix_within)) < min(as.numeric(boot_loop_dist_matrix_between))){
-                  return(1)
-                }else{
-                  return(0)
-                }
-              } #End of function bootstrapping
+              #There was clearly more than one record as we made it here past the more than one species record if so that means that the two records or more were
+              #dereplicated. So, then that would mean that the between species distance will be 0 and the only record would have this as the comparison
+              #Create the variable to report
 
               if(replicates != 0){
-                if(numCores==1){
-
-                  loop_species_bootstrap = sum(unlist(pblapply(seq_len(replicates), bootstrap_barcode_gap)))
-
-                }else{
-
-                  loop_species_bootstrap = sum(unlist(pblapply(seq_len(replicates), bootstrap_barcode_gap, cl = numCores)))
-
-                }
+                loop_species_bootstrap_result <- sum(as.numeric(as.character(boot_species_results_final[row.names(boot_species_results_final)==Species[species_list_counter],])))
+              }else{
+                loop_species_bootstrap_result <- "-"
               }
-
-              #Create the variable to report
-              loop_species_bootstrap_result <- paste0(loop_species_bootstrap, " of ", replicates)
-
-            } else{
+            }else{ #Closing the if more than one species if
 
               loop_species_target <- "-"
               loop_target_haplotypes <- "-"
               loop_species_nontarget <- "-"
               loop_genus_haplotypes <- "-"
+              loop_species_num_overlap_haplotypes <- "-"
               loop_species_overlap_haplotypes <- "-"
               loop_species_dist_matrix_within <- "-"
-              loop_species_dist_matrix_between <- "-"
+              loop_species_dist_matrix_between_dist <- "-"
               loop_species_barcode_gap <- "-"
               loop_species_num_barcode_gap_overlap_records <- "-"
               loop_species_barcode_gap_overlap_records <- "-"
               loop_species_num_barcode_gap_overlap_taxa <- "-"
-              loop_species_num_barcode_gap_overlap_taxa <- "-"
+              loop_species_barcode_gap_overlap_taxa <- "-"
               loop_species_result <- "-"
               loop_species_bootstrap_result <- "-"
               p_x <- "-"
@@ -781,6 +855,9 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             #Add the results of the genus haplotypes to the log df
             log_df$Genus_Haplotypes[log_df$Species %in% Species[species_list_counter] ]<-loop_genus_haplotypes
 
+            #Add the number of overlapping exact sequence haplotypes
+            log_df$Num_Overlap_Haploptype[log_df$Species %in% Species[species_list_counter] ] <- loop_species_num_overlap_haplotypes
+
             #Add the results of the target sequences that have the exact same sequence in the non target species in the genus
             log_df$Overlap_Haploptype[log_df$Species %in% Species[species_list_counter] ] <- loop_species_overlap_haplotypes
 
@@ -788,7 +865,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             log_df$Intraspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_within
 
             #add the results of the species barcode gap between or interspecific to the log_df
-            log_df$Interspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_between
+            log_df$Interspecific[log_df$Species %in% Species[species_list_counter] ]<-loop_species_dist_matrix_between_dist
 
             #add the results of the species barcode gap check to the log_df
             log_df$Barcode_Gap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_barcode_gap
@@ -803,7 +880,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             log_df$Num_Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_taxa
 
             #add the results of the species barcode gap overlapping taxa to the log_df
-            log_df$Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ]<-loop_species_num_barcode_gap_overlap_taxa
+            log_df$Barcode_Gap_Overlap_Taxa[log_df$Species %in% Species[species_list_counter] ] <- loop_species_barcode_gap_overlap_taxa
 
             #add the results of the species barcode gap check to the log_df
             log_df$Barcode_Gap_Result[log_df$Species %in% Species[species_list_counter] ]<-loop_species_result
@@ -811,7 +888,8 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             #add the results of the species bootstrapping
             log_df$Bootstrap[log_df$Species %in% Species[species_list_counter] ]<-loop_species_bootstrap_result
 
-            #add the results of p_x
+
+             #add the results of p_x
             log_df$p_x[log_df$Species %in% Species[species_list_counter] ]<- p_x
 
             #add the results of q_x
@@ -823,9 +901,6 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             #add the results of q_x_prime_NN
             log_df$q_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime_NN
 
-
-            #add the results of H_x
-            # log_df$H_x[log_df$Species %in% Species[species_list_counter] ]<- H_x
 
             #Get the row for this loop to output to the file and
             #Add the genus to the front of the species name being outputted
@@ -863,10 +938,10 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           #Getting the data ready to be written to file
 
           #Printing the distance matrix to a file
-          write.table(no_outliers_dist_matrix,file=paste0(Work_loc,"/",file_name[h],"_dist_matrix.dat"),append=FALSE,na="",row.names = TRUE, col.names=NA, quote = FALSE,sep="\t")
+          write.table(no_outliers_dist_matrix,file=paste0(Work_loc,"/",file_name[h],"_",unique_genera_list[unique_genera],"_dist_matrix.dat"),append=FALSE,na="",row.names = TRUE, col.names=NA, quote = FALSE,sep="\t")
 
           #Writing the data to the data table
-          write.table(Seq_file_data_frame,file=paste0(Work_loc,"/",file_name[h],"_data_table.dat"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\t")
+          write.table(Seq_file_data_frame,file=paste0(Work_loc,"/",file_name[h],"_",unique_genera_list[unique_genera],"_data_table.dat"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\t")
 
           if(!is.null(seq_to_remove)){
 
@@ -877,49 +952,44 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             no_outliers_dataset<-cbind(no_outliers_dataset$Header, no_outliers_dataset$Sequence)
 
             #outputting the fasta reduced file
-            write.table(no_outliers_dataset,file=paste0(Work_loc,"/",file_name[h],"_no_outliers.fas"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\n")
+            write.table(no_outliers_dataset,file=paste0(Work_loc,"/",file_name[h],"_no_outliers.fas"),append=TRUE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\n")
+
+            ### Barcode gap overlap plots ###
+
+            p_x <- as.numeric(log_df$p_x)
+            q_x <- as.numeric(log_df$q_x)
+            p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
+            q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
+
+            # Since p and q can be 0, plotting on log10 scale allows easier visualization
+
+            df_pq <- data.frame(log10(p_x), log10(q_x))
+            df_pq <- apply(df_pq, 2, function(x) replace(x, is.infinite(x), -5)) # replace Inf with finite value
+            df_pq <- as.data.frame(df_pq)
+
+            df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
+            df_pq_prime_NN <- apply(df_pq_prime_NN, 2, function(x) replace(x, is.infinite(x), -5))
+            df_pq_prime_NN <- as.data.frame(df_pq_prime_NN)
+
+            p <- ggplot(df_pq, aes(x = log10.p_x., y = log10.q_x.)) + geom_point(colour = "blue") +
+              labs(x = expression(log[10](p)), y = expression(log[10](q)))
+
+            #save plot to file without using ggsave
+            png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
+            print(p)
+            dev.off()
+
+            p <- ggplot(df_pq_prime_NN, aes(x = log10.p_x_prime_NN., y = log10.q_x_prime_NN.)) + geom_point(colour = "blue") +
+              labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'")))
+
+            #save plot to file without using ggsave
+            png(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.png"))
+            print(p)
+            dev.off()
 
           }
 
-          log_df<-log_df[log_df$Intraspecific != "NA",]
-          log_df<-log_df[log_df$Intraspecific != "-",]
-
-
-          ### Barcode gap overlap plots ###
-
-          p_x <- as.numeric(log_df$p_x)
-          q_x <- as.numeric(log_df$q_x)
-          p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
-          q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
-
-          # Since p and q can be 0, plotting on log10 scale allows easier visualization
-
-          df_pq <- data.frame(log10(p_x), log10(q_x))
-          df_pq <- apply(df_pq, 2, function(x) replace(x, is.infinite(x), -5)) # replace Inf with finite value
-          df_pq <- as.data.frame(df_pq)
-
-          df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
-          df_pq_prime_NN <- apply(df_pq_prime_NN, 2, function(x) replace(x, is.infinite(x), -5))
-          df_pq_prime_NN <- as.data.frame(df_pq_prime_NN)
-
-          p <- ggplot(df_pq, aes(x = log10.p_x., y = log10.q_x.)) + geom_point(colour = "blue") +
-          labs(x = expression(log[10](p)), y = expression(log[10](q)))
-
-          #save plot to file without using ggsave
-          png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
-          print(p)
-          dev.off()
-
-          p <- ggplot(df_pq_prime_NN, aes(x = log10.p_x_prime_NN., y = log10.q_x_prime_NN.)) + geom_point(colour = "blue") +
-          labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'")))
-
-          #save plot to file without using ggsave
-          png(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.png"))
-          print(p)
-          dev.off()
-
-
-        } #End of gap analysis section
+        } #End of species in genus section
 
       }#End of the if more than two records in the genus loop dataset
 
@@ -930,3 +1000,4 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
   print(paste("Start time... ",start_time," and end time... ",Sys.time()))
 
 } #End of the function
+
