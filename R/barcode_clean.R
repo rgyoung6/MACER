@@ -9,7 +9,7 @@
 #' @description
 #' Takes an input fasta file and identifies genus level outliers and species outliers based on the 1.5 x greater than the interquartile range.
 #' It also, if selected, checks the sequence using amino acid translation and has the option to eliminate sequences that have non-IUPAC codes.
-#' Finally, the program calculates the barcode gap for the species in the submitted dataset.
+#' Finally, the program calculates the barcode gap for the species in the submitted dataset and outputs measures of intraspecific and interspecific distribution overlap.
 #'
 #' @details
 #' Input: A file folder with one or more fasta files of interest
@@ -668,16 +668,16 @@ barcode_clean <- function(AA_code = "invert", AGCT_only = TRUE, data_folder = NU
 
               # compute proportional overlap for nearest neighbours
 
-              splt1 <- lapply(splt, mean)
+              splt1 <- lapply(splt, min) # changed to min instead of mean
 
               x <- as.data.frame(unlist(splt1))
 
-              colnames(x) <- "Mean"
+              colnames(x) <- "Min" # changed to min instead of mean
 
-              d <- data.frame(`diag<-`(as.matrix(dist(x$Mean)), Inf))
+              d <- data.frame(`diag<-`(as.matrix(dist(x$Min)), Inf))
               ids <- unlist(Map(which.min, d))
-              Neighbour <- x$Mean[ids]
-              x <- data.frame(names(splt), x$Mean, Neighbour)
+              Neighbour <- x$Min[ids]
+              x <- data.frame(names(splt), x$Min, Neighbour)
               names(x)[1] <- "Species"
               names(x)[2] <- "Mean Intraspecific Distance"
               x[, 3] <- x$Species[ids]
