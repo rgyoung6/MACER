@@ -493,7 +493,7 @@
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
               loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
-              intra <- as.vector(loop_species_dist_matrix_within)
+              intra <- na.omit(as.vector(loop_species_dist_matrix_within))
               ################
              
               
