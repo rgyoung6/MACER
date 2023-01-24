@@ -462,6 +462,16 @@
                                  "q_x_prime_NN")
           log_df[,barcode_gap_columns] <- "-"
           
+          ### Step [1] ###
+          # Generate one vector that consists of all interspecific differences across all species pairs
+          
+          # logical matrix showing where species pairs are equal
+          res <- outer(Species, Species, "==")
+          # Since matrix is symmetric, replace upper triangle with NA and then subset to get lower triangular matrix
+          no_outliers_dist_matrix[upper.tri(no_outliers_dist_matrix, diag = FALSE)] <- NA
+          inter <- na.omit(no_outliers_dist_matrix[!res])
+          ###############
+          
         }
         
         #*********************** Begin looping through the species in the genus ***************************
@@ -478,18 +488,9 @@
               
               
               
-              
-              
-              
-              ### Step [1] ###
-              # Generate one vector that consists of all interspecific differences across all species pairs
-              res <- outer(Species, Species, "==")
-              # Since matrix is symmetric, replace upper triangle with NA and then subset to get lower triangular matrix
-              no_outliers_dist_matrix[upper.tri(no_outliers_dist_matrix, diag = FALSE)] <- NA
-              inter <- na.omit(no_outliers_dist_matrix[!res])
-              ###############
-              
               ### Step [2] ###
+              # Generate vectors of intraspecific differences for each species
+              
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
               loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
@@ -501,12 +502,13 @@
               loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header), drop=FALSE]
               
               
-              ##### Steps [3] and [4] #####
-              # split interspecific distance matrix by species
-              # is.na(no_outliers_dist_matrix_lower) <- !res
-              splt <- split(no_outliers_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(no_outliers_dist_matrix)))
+              ##### Steps [3] #####
+              # For a focal species, find its nearest neighbour using minimum interspecfic distance. If there are ties, then maybe go to mean distance.
               
-              # compute proportional overlap for nearest neighbours using mean distance
+              # split interspecific distance matrix by species
+              splt <- split(inter, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(no_outliers_dist_matrix)))
+              
+              # compute proportional overlap for nearest neighbours using mean interspecific distance
               splt1 <- lapply(splt, mean) 
 
               # convert to dataframe
@@ -519,10 +521,19 @@
               Neighbour <- x$Mean[ids]
               x <- data.frame(names(splt), x$Mean, Neighbour)
               names(x)[1] <- "Species"
-              names(x)[2] <- "Mean Intraspecific Distance"
+              names(x)[2] <- "Mean Interspecific Distance"
               x[, 3] <- x$Species[ids]
 
               splt2 <- splt[c(t(x[, c("Species", "Neighbour")]))] # rearrange list of distances so that focal species and nearest neighbours occur together
+              ##########
+              
+              ##### Step [4] #####
+              # Generate a vector that consists of interspecific differences between the focal species and its nearest neighbour
+              
+              
+              
+              
+              
               ##########
               
               ##### Step [5] #####
@@ -540,8 +551,10 @@
               # for (i in 1:length(splt2)) {
               #   for (j in 1:length(splt2)) {
               #     if ((i %% 2 == 1) && (j %% 2 == 0)) {
-              #       p_x_prime_NN <- length(which(splt2[[i]] >= min(splt2[[j]]))) / length(splt2[[i]])
-              #       q_x_prime_NN <- length(which(splt2[[j]] <= max(splt2[[i]]))) / length(splt2[[j]])
+                      # p_x_prime_NN is overlap of target species with focal species plus its nearest neighbour
+              #       p_x_prime_NN <- length(which(unlist(splt2[[i]][1]) >= min(unlist(splt2[[i]])))) / length(unlist(splt2[[i]]))
+              #       # q_x_prime_NN is overlap of target species plus its nearest neighbour with target species
+              #       q_x_prime_NN <- 
               #     }
               #   }
               # }
@@ -579,10 +592,10 @@
               loop_species_num_barcode_gap_overlap_taxa <- "-"
               loop_species_barcode_gap_overlap_taxa <- "-"
               loop_species_result <- "-"
-              # p_x <- "-"
-              # q_x <- "-"
-              # p_x_prime_NN <- "-"
-              # q_x_prime_NN <- "-"
+              p_x <- "-"
+              q_x <- "-"
+              p_x_prime_NN <- "-"
+              q_x_prime_NN <- "-"
               
             }#closing the if else checking if there is more than one species record
             
