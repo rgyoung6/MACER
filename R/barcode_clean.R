@@ -518,8 +518,9 @@
               ##### Steps [3] #####
               # For a focal species, find its nearest neighbour using minimum interspecific distance. If there are ties, then maybe go to mean distance.
               
-              splt <- split(no_outliers_dist_matrix, colnames(no_outliers_dist_matrix))
-             
+              # splt <- split(no_outliers_dist_matrix, colnames(no_outliers_dist_matrix)) # this is wrong!
+              splt <- split(no_outliers_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(no_outliers_dist_matrix)))
+              
               # compute proportional overlap for nearest neighbours using mean interspecific distance
               splt1 <- lapply(splt, mean, na.rm = TRUE) 
 
