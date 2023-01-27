@@ -462,27 +462,27 @@
                                  "q_x_prime_NN")
           log_df[,barcode_gap_columns] <- "-"
           
-          ### Step [1] ###
-          # Generate one vector that consists of all interspecific differences across all species pairs
+          #####
           
-          # logical matrix showing where species pairs are equal
-          # res <- outer(Species, Species, "==")
-          # rownames(res) <- Species
-          # colnames(res) <- Species
-          # Since matrix is symmetric, replace upper triangle with NA and then subset to get lower triangular matrix
-          no_outliers_dist_matrix[upper.tri(no_outliers_dist_matrix, diag = FALSE)] <- NA
-          # get interspecific distances by taking all off-diagonals of res
-          # inter1 <- na.omit(no_outliers_dist_matrix[!res])
+          no_outliers_dist_matrix[upper.tri(no_outliers_dist_matrix, diag = TRUE)] <- NA
           
-          no_outliers_dist_matrix_copy <- no_outliers_dist_matrix
+          for (rowLoopCounter in 1:nrow(no_outliers_dist_matrix)){
+            
+            #Get the row of interest
+            no_outliers_dist_matrix_work<-no_outliers_dist_matrix[rowLoopCounter,,drop=FALSE]
+            
+            for (colLoopCounter in 1:nrow(no_outliers_dist_matrix)) {
+              if(row.names(no_outliers_dist_matrix)[rowLoopCounter] == colnames(no_outliers_dist_matrix)[colLoopCounter]){
+                no_outliers_dist_matrix[rowLoopCounter, colLoopCounter] <- NA
+              }
+            }
+          }
+        
+          inter <- na.omit(as.vector(no_outliers_dist_matrix))
           
-          colnames(no_outliers_dist_matrix_copy) <- data.frame(do.call("rbind", strsplit(as.character(colnames(no_outliers_dist_matrix_copy)), "|", fixed = TRUE)))[,4]
-          row.names(no_outliers_dist_matrix_copy) <- data.frame(do.call("rbind", strsplit(as.character(row.names(no_outliers_dist_matrix_copy)), "|", fixed = TRUE)))[,4]
-          replace_index <- cbind(row = 1:nrow(no_outliers_dist_matrix_copy), column = match(rownames(no_outliers_dist_matrix_copy), colnames(no_outliers_dist_matrix_copy)))
-          no_outliers_dist_matrix_copy[replace_index] <- NA
+          #####
           
-          inter <- na.omit(as.vector(no_outliers_dist_matrix_copy))
-          
+        
           ###############
           
         }
@@ -518,11 +518,10 @@
               ##### Steps [3] #####
               # For a focal species, find its nearest neighbour using minimum interspecific distance. If there are ties, then maybe go to mean distance.
               
-              # split interspecific distance matrix by species
-              splt <- split(no_outliers_dist_matrix_copy, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(no_outliers_dist_matrix_copy)))
-              
+              splt <- split(no_outliers_dist_matrix, colnames(no_outliers_dist_matrix))
+             
               # compute proportional overlap for nearest neighbours using mean interspecific distance
-              splt1 <- lapply(splt, mean) 
+              splt1 <- lapply(splt, mean, na.rm = TRUE) 
 
               # convert to dataframe
               x <- as.data.frame(unlist(splt1))
@@ -538,6 +537,7 @@
               x[, 3] <- x$Species[ids]
 
               splt2 <- splt[c(t(x[, c("Species", "Neighbour")]))] # rearrange list of distances so that focal species and nearest neighbours occur together
+              
               ##########
               
               ##### Step [4] #####
@@ -573,11 +573,6 @@
               # }
               
               ##########
-              
-              
-              
-              
-              
               
               #Get the number of records for the target species
               loop_species_target<-nrow(loop_species_dist_matrix_within)
