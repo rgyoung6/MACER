@@ -466,10 +466,23 @@
           # Generate one vector that consists of all interspecific differences across all species pairs
           
           # logical matrix showing where species pairs are equal
-          res <- outer(Species, Species, "==")
+          # res <- outer(Species, Species, "==")
+          # rownames(res) <- Species
+          # colnames(res) <- Species
           # Since matrix is symmetric, replace upper triangle with NA and then subset to get lower triangular matrix
           no_outliers_dist_matrix[upper.tri(no_outliers_dist_matrix, diag = FALSE)] <- NA
-          inter <- na.omit(no_outliers_dist_matrix[!res])
+          # get interspecific distances by taking all off-diagonals of res
+          # inter1 <- na.omit(no_outliers_dist_matrix[!res])
+          
+          no_outliers_dist_matrix_copy <- no_outliers_dist_matrix
+          
+          colnames(no_outliers_dist_matrix_copy) <- data.frame(do.call("rbind", strsplit(as.character(colnames(no_outliers_dist_matrix_copy)), "|", fixed = TRUE)))[,4]
+          row.names(no_outliers_dist_matrix_copy) <- data.frame(do.call("rbind", strsplit(as.character(row.names(no_outliers_dist_matrix_copy)), "|", fixed = TRUE)))[,4]
+          replace_index <- cbind(row = 1:nrow(no_outliers_dist_matrix_copy), column = match(rownames(no_outliers_dist_matrix_copy), colnames(no_outliers_dist_matrix_copy)))
+          no_outliers_dist_matrix_copy[replace_index] <- NA
+          
+          inter <- na.omit(as.vector(no_outliers_dist_matrix_copy))
+          
           ###############
           
         }
@@ -503,10 +516,10 @@
               
               
               ##### Steps [3] #####
-              # For a focal species, find its nearest neighbour using minimum interspecfic distance. If there are ties, then maybe go to mean distance.
+              # For a focal species, find its nearest neighbour using minimum interspecific distance. If there are ties, then maybe go to mean distance.
               
               # split interspecific distance matrix by species
-              splt <- split(inter, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(no_outliers_dist_matrix)))
+              splt <- split(no_outliers_dist_matrix_copy, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(no_outliers_dist_matrix_copy)))
               
               # compute proportional overlap for nearest neighbours using mean interspecific distance
               splt1 <- lapply(splt, mean) 
@@ -580,18 +593,6 @@
               
               loop_species_target <- "-"
               loop_target_haplotypes <- "-"
-              loop_species_nontarget <- "-"
-              loop_genus_haplotypes <- "-"
-              loop_species_num_overlap_haplotypes <- "-"
-              loop_species_overlap_haplotypes <- "-"
-              loop_species_dist_matrix_within <- "-"
-              loop_species_dist_matrix_between_dist <- "-"
-              loop_species_barcode_gap <- "-"
-              loop_species_num_barcode_gap_overlap_records <- "-"
-              loop_species_barcode_gap_overlap_records <- "-"
-              loop_species_num_barcode_gap_overlap_taxa <- "-"
-              loop_species_barcode_gap_overlap_taxa <- "-"
-              loop_species_result <- "-"
               p_x <- "-"
               q_x <- "-"
               p_x_prime_NN <- "-"
