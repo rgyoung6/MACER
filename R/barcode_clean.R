@@ -462,14 +462,21 @@
                                  "q_x_prime_NN")
           log_df[,barcode_gap_columns] <- "-"
           
-          #####
           
+          #colnames(no_outliers_dist_matrix) <- data.frame(do.call("rbind", strsplit(as.character(colnames(no_outliers_dist_matrix)), "|", fixed = TRUE)))[,4]
+          #row.names(no_outliers_dist_matrix) <- data.frame(do.call("rbind", strsplit(as.character(row.names(no_outliers_dist_matrix)), "|", fixed = TRUE)))[,4]
+          
+          # get lower trianular matrix with main diagonal removed
           no_outliers_dist_matrix[upper.tri(no_outliers_dist_matrix, diag = TRUE)] <- NA
           
+          # assign o_outliers_dist_matrix to temporary variable to avoid overwriting
+          #no_outliers_dist_matrix_tmp <- no_outliers_dist_matrix
+          
+          # loop to remove self comparisons
           for (rowLoopCounter in 1:nrow(no_outliers_dist_matrix)){
             
             #Get the row of interest
-            no_outliers_dist_matrix_work<-no_outliers_dist_matrix[rowLoopCounter,,drop=FALSE]
+            no_outliers_dist_matrix_work <- no_outliers_dist_matrix[rowLoopCounter,,drop = FALSE]
             
             for (colLoopCounter in 1:nrow(no_outliers_dist_matrix)) {
               if(row.names(no_outliers_dist_matrix)[rowLoopCounter] == colnames(no_outliers_dist_matrix)[colLoopCounter]){
@@ -477,13 +484,22 @@
               }
             }
           }
-        
-          inter <- na.omit(as.vector(no_outliers_dist_matrix))
+
+          # create a list according to column names.
+          list_1 <- split(no_outliers_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(no_outliers_dist_matrix)))
           
-          #####
+          # create a second list according to row names by transposing matrix.
+          list_2 <- split(t(no_outliers_dist_matrix), sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(t(no_outliers_dist_matrix))))
           
+          # combine thes lists
+          splt <- mapply(c, list_1, list_2)
+          
+          # get rid of NAs
+          splt <- lapply(splt, function(x) x[!is.na(x)])
         
-          ###############
+          # get vector of interspecific distances
+          inter <- na.omit(unlist(splt))
+
           
         }
         
@@ -509,21 +525,16 @@
               loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
               intra <- na.omit(as.vector(loop_species_dist_matrix_within))
               ################
-             
-              
-              #Now get comparisons between the loop species and all other records
-              loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header), drop=FALSE]
               
               
-              ##### Steps [3] #####
+              
+              ##### Steps [3] and Step [4] #####
               # For a focal species, find its nearest neighbour using minimum interspecific distance. If there are ties, then maybe go to mean distance.
               
-              # splt <- split(no_outliers_dist_matrix, colnames(no_outliers_dist_matrix)) # this is wrong!
-              splt <- split(no_outliers_dist_matrix, sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(no_outliers_dist_matrix)))
               
               # compute proportional overlap for nearest neighbours using mean interspecific distance
               splt1 <- lapply(splt, mean, na.rm = TRUE) 
-
+              
               # convert to dataframe
               x <- as.data.frame(unlist(splt1))
               colnames(x) <- "Mean"
@@ -539,10 +550,9 @@
 
               splt2 <- splt[c(t(x[, c("Species", "Neighbour")]))] # rearrange list of distances so that focal species and nearest neighbours occur together
               
-              ##########
               
-              ##### Step [4] #####
-              # Generate a vector that consists of interspecific differences between the focal species and its nearest neighbour
+              ##########
+           
               
               
               
@@ -559,6 +569,8 @@
               
               # q_x is overlap of inter with intra
               q_x <- length(which(inter <= max(intra))) / length(inter)
+              
+              # Generate a vector that consists of interspecific differences between the focal species and its nearest neighbour
               
               # # loop through the splt2 list to compute p' and q'
               # # target species are in odd positions, nearest neighbours are in even positions
