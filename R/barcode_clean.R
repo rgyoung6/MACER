@@ -469,7 +469,7 @@
           # get lower trianular matrix with main diagonal removed
           no_outliers_dist_matrix[upper.tri(no_outliers_dist_matrix, diag = TRUE)] <- NA
           
-          # assign o_outliers_dist_matrix to temporary variable to avoid overwriting
+          # assign no_outliers_dist_matrix to temporary variable to avoid overwriting
           #no_outliers_dist_matrix_tmp <- no_outliers_dist_matrix
           
           # loop to remove self comparisons
@@ -491,7 +491,7 @@
           # create a second list according to row names by transposing matrix.
           list_2 <- split(t(no_outliers_dist_matrix), sub("(?:(.*)\\|){2}(\\w+)\\|(\\w+)\\|.*?$", "\\1-\\2", colnames(t(no_outliers_dist_matrix))))
           
-          # combine thes lists
+          # combine the lists
           splt <- mapply(c, list_1, list_2)
           
           # get rid of NAs
@@ -549,7 +549,7 @@
               x[, 3] <- x$Species[ids]
 
               splt2 <- splt[c(t(x[, c("Species", "Neighbour")]))] # rearrange list of distances so that focal species and nearest neighbours occur together
-              
+              splt2 <- as.vector(splt2)
               
               ##########
            
@@ -574,16 +574,16 @@
               
               # # loop through the splt2 list to compute p' and q'
               # # target species are in odd positions, nearest neighbours are in even positions
-              # for (i in 1:length(splt2)) {
-              #   for (j in 1:length(splt2)) {
-              #     if ((i %% 2 == 1) && (j %% 2 == 0)) {
-                      # p_x_prime_NN is overlap of target species with focal species plus its nearest neighbour
-              #       p_x_prime_NN <- length(which(unlist(splt2[[i]][1]) >= min(unlist(splt2[[i]])))) / length(unlist(splt2[[i]]))
-              #       # q_x_prime_NN is overlap of target species plus its nearest neighbour with target species
-              #       q_x_prime_NN <- 
-              #     }
-              #   }
-              # }
+              for (i in 1:length(splt2)) {
+                for (j in 1:length(splt2)) {
+                  if ((i %% 2 == 1) && (j %% 2 == 0)) {
+              # p_x_prime_NN is overlap of target species with focal species plus its nearest neighbour
+                    p_x_prime_NN <- length(which(splt2[[i]] >= min(splt2[[i]] + splt2[[j]]))) / length(splt2[[i]])
+                    # q_x_prime_NN is overlap of target species plus its nearest neighbour with target species
+                    q_x_prime_NN <- length(which((splt2[[i]] + splt2[[j]]) >= max(splt2[[i]]))) / length(splt2[[i]] + splt2[[j]])
+                  }
+                }
+              }
               
               ##########
               
