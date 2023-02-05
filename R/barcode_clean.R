@@ -580,7 +580,7 @@
                     # p_x_prime_NN is overlap of target species with focal species plus its nearest neighbour
                     p_x_prime_NN <- length(which(splt2[[i]] >= min(c(splt2[[i]], splt2[[j]])))) / length(splt2[[i]])
                     # q_x_prime_NN is overlap of target species plus its nearest neighbour with target species
-                    q_x_prime_NN <- length(which((c(splt2[[i]], splt2[[j]])) >= max(splt2[[i]]))) / length(c(splt2[[i]], splt2[[j]]))
+                    q_x_prime_NN <- length(which((c(splt2[[i]], splt2[[j]])) <= max(splt2[[i]]))) / length(c(splt2[[i]], splt2[[j]]))
                   }
                 }
               }
