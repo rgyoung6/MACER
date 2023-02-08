@@ -459,7 +459,8 @@
                                  "p_x",
                                  "q_x",
                                  "p_x_prime_NN",
-                                 "q_x_prime_NN")
+                                 "q_x_prime_NN",
+                                 "near_neigh")
           log_df[,barcode_gap_columns] <- "-"
           
           # assign no_outliers_dist_matrix to temporary variable to avoid overwriting
@@ -503,9 +504,7 @@
           # get rid of NAs
           splt <- lapply(splt, function(x) x[!is.na(x)])
 
-          # splt1 <- lapply(splt, min, na.rm = TRUE) # getting min value for each species
-          
-          # get interspecfic distaces as a vector
+          # get interspecific distances as a vector
           inter <- as.vector(unlist(splt))
           
         }
@@ -539,20 +538,20 @@
               ##### Steps [3] and Step [4] #####
               # For a focal species, find its nearest neighbour using minimum interspecific distance. If there are ties, then maybe go to mean distance.
               
-              # Get the min value for the speices of interestt from teh split list
+              # Get the min value for the species of interestt from the split list
               loop_interspecific_min <- min(splt[[Species[species_list_counter]]])
               
               # Get the species (colnames) for every column with the target value
-              loop_col_species <- unlist(lapply(apply(no_outliers_dist_matrix_tmp, 1, function(x)which(x==loop_interspecific_min)), names))
+              loop_col_species <- unlist(lapply(apply(no_outliers_dist_matrix_tmp, 1, function(x) which(x == loop_interspecific_min)), names))
               
               # Get the species (row.names) for every row with the target value
-              loop_row_species <- unlist(lapply(apply(t(no_outliers_dist_matrix_tmp), 1, function(x)which(x==loop_interspecific_min)), names))
+              loop_row_species <- unlist(lapply(apply(t(no_outliers_dist_matrix_tmp), 1, function(x) which(x == loop_interspecific_min)), names))
               
               # Bring all column and row names together
               near_neigh <- unique(na.omit(c(unlist(loop_col_species), unlist(loop_row_species))))
               
               # Remove the target species name from the list
-              near_neigh = near_neigh[!(near_neigh %in% Species[species_list_counter])]
+              near_neigh <- near_neigh[!(near_neigh %in% Species[species_list_counter])]
               
               
               ##########
@@ -571,16 +570,16 @@
               
               # loop through the splt2 list to compute p' and q'
               # target species are in odd positions, nearest neighbours are in even positions
-              for (i in 1:length(splt2)) {
-                for (j in 1:length(splt2)) {
-                  if ((i %% 2 == 1) && (j %% 2 == 0)) {
-                    # p_x_prime_NN is overlap of target species with focal species plus its nearest neighbour
-                    p_x_prime_NN <- length(which(splt2[[i]] >= min(c(splt2[[i]], splt2[[j]])))) / length(splt2[[i]])
-                    # q_x_prime_NN is overlap of target species plus its nearest neighbour with target species
-                    q_x_prime_NN <- length(which((c(splt2[[i]], splt2[[j]])) <= max(splt2[[i]]))) / length(c(splt2[[i]], splt2[[j]]))
-                  }
-                }
-              }
+              # for (i in 1:length(splt2)) {
+              #   for (j in 1:length(splt2)) {
+              #     if ((i %% 2 == 1) && (j %% 2 == 0)) {
+              #       # p_x_prime_NN is overlap of target species with focal species plus its nearest neighbour
+              #       p_x_prime_NN <- length(which(splt2[[i]] >= min(c(splt2[[i]], splt2[[j]])))) / length(splt2[[i]])
+              #       # q_x_prime_NN is overlap of target species plus its nearest neighbour with target species
+              #       q_x_prime_NN <- length(which((c(splt2[[i]], splt2[[j]])) <= max(splt2[[i]]))) / length(c(splt2[[i]], splt2[[j]]))
+              #     }
+              #   }
+              # }
               
               ##########
               
@@ -600,8 +599,9 @@
               loop_target_haplotypes <- "-"
               p_x <- "-"
               q_x <- "-"
-              p_x_prime_NN <- "-"
-              q_x_prime_NN <- "-"
+              #p_x_prime_NN <- "-"
+              #q_x_prime_NN <- "-"
+              near_neigh <- "-"
               
             }#closing the if else checking if there is more than one species record
             
@@ -617,11 +617,14 @@
             #add the results of q_x
             log_df$q_x[log_df$Species %in% Species[species_list_counter] ]<- q_x
             
+            #add the results of near_neigh
+            log_df$near_neigh[log_df$Species %in% Species[species_list_counter] ]<- paste0(near_neigh, collapse = ",")
+            
             #add the results of p_x_prime_NN
-            log_df$p_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime_NN
+            #log_df$p_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime_NN
             
             #add the results of q_x_prime_NN
-            log_df$q_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime_NN
+            #log_df$q_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- q_x_prime_NN
             
             
             #Get the row for this loop to output to the file and
@@ -683,18 +686,18 @@
             # since p and q can be 0, plotting on log10 scale allows easier visualization
             p_x <- as.numeric(log_df$p_x)
             q_x <- as.numeric(log_df$q_x)
-            p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
-            q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
+            # p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
+            # q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
             
             # replace infinite values with -5
             df_pq <- data.frame(log10(p_x), log10(q_x))
             df_pq <- apply(df_pq, 2, function(x) replace(x, is.infinite(x), -5)) # replace Inf with finite value
             df_pq <- as.data.frame(df_pq)
             
-            df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
-            df_pq_prime_NN <- apply(df_pq_prime_NN, 2, function(x) replace(x, is.infinite(x), -5))
-            df_pq_prime_NN <- as.data.frame(df_pq_prime_NN)
-            # 
+            # df_pq_prime_NN <- data.frame(log10(p_x_prime_NN), log10(q_x_prime_NN))
+            # df_pq_prime_NN <- apply(df_pq_prime_NN, 2, function(x) replace(x, is.infinite(x), -5))
+            # df_pq_prime_NN <- as.data.frame(df_pq_prime_NN)
+            
             # Plot the results
             p <- ggplot(df_pq, aes(x = log10.p_x., y = log10.q_x.)) + geom_point(colour = "blue") +
               labs(x = expression(log[10](p)), y = expression(log[10](q)))
@@ -704,12 +707,12 @@
             print(p)
             dev.off()
             
-            p <- ggplot(df_pq_prime_NN, aes(x = log10.p_x_prime_NN., y = log10.q_x_prime_NN.)) + geom_point(colour = "blue") +
-            labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'")))
-
-            png(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.png"))
-            print(p)
-            dev.off()
+            # p <- ggplot(df_pq_prime_NN, aes(x = log10.p_x_prime_NN., y = log10.q_x_prime_NN.)) + geom_point(colour = "blue") +
+            # labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'")))
+            # 
+            # png(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.png"))
+            # print(p)
+            # dev.off()
             
           }
           
