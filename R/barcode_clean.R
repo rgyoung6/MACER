@@ -68,7 +68,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 #  gen_outliers = TRUE
 #  sp_outliers = TRUE
 #  dist_model = "raw"
-#  replicates = 0
+#  replicates = 10
 #  replacement = TRUE
 #  conf_level = 1
 #  numCores = 1
@@ -183,7 +183,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
     colnames(Main_Seq_file_data_frame)<-c("Header", "ID", "Accession", "Genus", "Species", "BIN_OTU", "Gene", "Sequence", "Flags")
 
     #Remove Duplicates
-    Main_Seq_file_data_frame<- Main_Seq_file_data_frame[!duplicated(Main_Seq_file_data_frame$Header),]
+    Main_Seq_file_data_frame<- Main_Seq_file_data_frame[!duplicated(Main_Seq_file_data_frame$Header),, drop=FALSE]
 
     #For each genus in the data file
     unique_genera_list <- unique(Main_Seq_file_data_frame$Genus)
@@ -191,7 +191,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
     for(unique_genera in 1:length(unique_genera_list)){
 
       #Get the dataframe with the records from the loop genus
-      Seq_file_data_frame <- Main_Seq_file_data_frame[Main_Seq_file_data_frame$Genus == unique_genera_list[unique_genera],]
+      Seq_file_data_frame <- Main_Seq_file_data_frame[Main_Seq_file_data_frame$Genus == unique_genera_list[unique_genera],, drop=FALSE]
 
       if(nrow(Seq_file_data_frame)>1){
 
@@ -249,7 +249,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           if((as.numeric(nrow(flag_subset))>0) && (as.numeric(nrow(no_AGCT_seq))>0) ){
 
             #Getting the records with - in Flag and have characters other than AGCT and are listed in no_AGCT_seq
-            flag_subset<-flag_subset[flag_subset$Header %in% no_AGCT_seq$Header,]
+            flag_subset<-flag_subset[flag_subset$Header %in% no_AGCT_seq$Header,, drop=FALSE]
 
             #Adding the results of AA check to the Seq_file_data_frame Flags column
             Seq_file_data_frame$Flags[Seq_file_data_frame$Header %in% c(flag_subset$Header)]<- "non_AGCT"
@@ -260,7 +260,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           seq_to_remove<-unique(c(seq_to_remove,no_AGCT_seq$Header))
 
           #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
+          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),, drop=FALSE]
 
           if(nrow(no_outliers_dataset)>0){
 
@@ -305,7 +305,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           if((as.numeric(nrow(flag_subset))>0) && (as.numeric(nrow(AA_string))>0) ){
 
             #Getting the records with - in Flag and have a stop codon
-            flag_subset<-flag_subset[flag_subset$Header %in% row.names(AA_string),]
+            flag_subset<-flag_subset[flag_subset$Header %in% row.names(AA_string),, drop=FALSE]
 
             #Adding the results of AA check to the Seq_file_data_frame Flags column
             Seq_file_data_frame$Flags[Seq_file_data_frame$Header %in% c(flag_subset$Header)]<- "Stop_Codon"
@@ -316,7 +316,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           seq_to_remove<-c(seq_to_remove,rownames(AA_string))
 
           #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
+          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),, drop=FALSE]
 
           if(nrow(no_outliers_dataset)>0){
 
@@ -350,12 +350,15 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           #Making the contents of the matrix numeric
           dist_matrix<-apply(dist_matrix, 2, as.numeric)
 
+          #Making the diagonals of the symetric matrix NA so that there are no self comparisons
+          diag(dist_matrix)<-NA
+
           #This is adding the row names back to the matrix as the above line removed it.
           row.names(dist_matrix)<-colnames(dist_matrix)
 
           #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
-          no_outliers_dist_matrix <- dist_matrix[!(rownames(dist_matrix) %in% seq_to_remove),]
-          no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
+          no_outliers_dist_matrix <- dist_matrix[!(rownames(dist_matrix) %in% seq_to_remove),, drop=FALSE]
+          no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove), drop=FALSE]
 
         }#output is the no_outliers_dist_matrix
 
@@ -390,7 +393,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           if((as.numeric(nrow(flag_subset))>0) && (as.numeric(length(seq_to_remove_outlier))>0) ){
 
             #Getting the records with - in Flag and are statistical outliers by genetic distance
-            flag_subset<-flag_subset[flag_subset$Header %in% seq_to_remove_outlier,]
+            flag_subset<-flag_subset[flag_subset$Header %in% seq_to_remove_outlier,, drop=FALSE]
 
             #Adding the results of AA check to the Seq_file_data_frame Flags column
             Seq_file_data_frame$Flags[Seq_file_data_frame$Header %in% c(flag_subset$Header)]<- "Genus_Outlier"
@@ -401,7 +404,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           seq_to_remove<-c(seq_to_remove,seq_to_remove_outlier)
 
           #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
+          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),, drop=FALSE]
 
           if(nrow(no_outliers_dataset)>0){
 
@@ -432,23 +435,23 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           Species<-unique(no_outliers_dataset$Species)
 
           #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
-          no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),]
-          no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
+          no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),, drop=FALSE]
+          no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove), drop=FALSE]
 
           #loop through the species
           for (species_outlier_list_counter in 1:length(Species)){
 
             #Get the records for the outlier loop species - I can use the no_outliers_dataset
             #because I still have it from the Genus outlier check
-            outlier_loop_species_records<-no_outliers_dataset[no_outliers_dataset$Species==Species[species_outlier_list_counter],]
+            outlier_loop_species_records<-no_outliers_dataset[no_outliers_dataset$Species==Species[species_outlier_list_counter],, drop=FALSE]
 
             if(nrow(outlier_loop_species_records)>2) {
 
               #Get the rows of the no outgroup distance matrix for the species of interest
-              outlier_loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% outlier_loop_species_records$Header),]
+              outlier_loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% outlier_loop_species_records$Header),, drop=FALSE]
 
               #Get the columns with the species of interest from the rows of the species of interest.
-              outlier_loop_species_dist_matrix_within <- outlier_loop_species_dist_matrix[,(colnames(outlier_loop_species_dist_matrix) %in% outlier_loop_species_records$Header)]
+              outlier_loop_species_dist_matrix_within <- outlier_loop_species_dist_matrix[,(colnames(outlier_loop_species_dist_matrix) %in% outlier_loop_species_records$Header), drop=FALSE]
 
               #Getting the inter quartiles for only the species to species comparisons
               dist_matrix_quant <- quantile( outlier_loop_species_dist_matrix_within , na.rm=TRUE)
@@ -476,7 +479,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               if((as.numeric(nrow(flag_subset))>0) && (as.numeric(length(seq_to_remove_outlier))>0) ){
 
                 #Getting the records with - in Flag and are statistical outliers by genetic distance
-                flag_subset<-flag_subset[flag_subset$Header %in% seq_to_remove_outlier,]
+                flag_subset<-flag_subset[flag_subset$Header %in% seq_to_remove_outlier,, drop=FALSE]
 
                 #Adding the results of check to the Seq_file_data_frame Flags column
                 Seq_file_data_frame$Flags[Seq_file_data_frame$Header %in% c(flag_subset$Header)]<- "Species_Outlier"
@@ -491,7 +494,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           }# end of loop going through species in the genus
 
           #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
+          no_outliers_dataset<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),, drop=FALSE]
 
           if(nrow(no_outliers_dataset)>0){
 
@@ -517,13 +520,13 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
           #Remove outliers from the calculated distance matrix now using all of the seq_to_remove obtained
           no_outliers_dist_matrix <- dist_matrix[ !(rownames(dist_matrix) %in% seq_to_remove),]
-          no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove)]
+          no_outliers_dist_matrix <- no_outliers_dist_matrix[ , !(colnames(no_outliers_dist_matrix) %in% seq_to_remove), drop=FALSE]
 
           #Remove the identified outliers from the main Seq file now using all of the seq_to_remove obtained
-          barcode_gap_data_frame<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),]
+          barcode_gap_data_frame<-Seq_file_data_frame[!(Seq_file_data_frame$Header %in% seq_to_remove),, drop=FALSE]
 
           #Sort the data frame by Species
-          barcode_gap_data_frame<- barcode_gap_data_frame[order(barcode_gap_data_frame$Species),]
+          barcode_gap_data_frame<- barcode_gap_data_frame[order(barcode_gap_data_frame$Species),, drop=FALSE]
 
           #Get a unique species list
           Species<-unique(barcode_gap_data_frame$Species)
@@ -553,7 +556,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             bootstrap_records<-as.data.frame(cbind(bootstrap_records$Header, t(as.data.frame(strsplit(as.character(bootstrap_records$Sequence), "")))))
 
             #Sort the dataframe by headers
-            bootstrap_records<-bootstrap_records[order(bootstrap_records[,1]),]
+            bootstrap_records<-bootstrap_records[order(bootstrap_records[,1]),, drop=FALSE]
 
             #Make the Headers column the rownames
             row.names(bootstrap_records)<-bootstrap_records[,1]
@@ -568,7 +571,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             boot_species_results<-as.data.frame(cbind(list_of_species,boot_results=0))
             boot_species_results_final<-as.data.frame(list_of_species)
             row.names(boot_species_results_final)<-boot_species_results_final[,1]
-            boot_species_results_final<-boot_species_results_final[,-1]
+            boot_species_results_final<-boot_species_results_final[,-1, drop=FALSE]
 
             bootstrap_barcode_gap <- function(i){
 
@@ -621,7 +624,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
           for (species_list_counter in 1:length(Species)){
 
             #Get the records for the loop species
-            loop_species_records<-barcode_gap_data_frame[barcode_gap_data_frame$Species==Species[species_list_counter],]
+            loop_species_records<-barcode_gap_data_frame[barcode_gap_data_frame$Species==Species[species_list_counter],, drop= FALSE]
 
             #Initialize the variable to hold the bootstrap results
             loop_species_bootstrap = 0
@@ -630,8 +633,8 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
             if (nrow(loop_species_records)>1 && length(Species)>1){
 
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
-              loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
-              loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),, drop=FALSE]
+              loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header), drop=FALSE]
 
               #Now get comparisons between the loop species and all other records
               loop_species_dist_matrix_between <- loop_species_dist_matrix[,!(colnames(loop_species_dist_matrix) %in% loop_species_records$Header), drop=FALSE]
@@ -642,23 +645,19 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
               #Get the number of non target records in the genus
               loop_species_nontarget<-ncol(loop_species_dist_matrix_between)
 
-              #Reporting the barcode gap overlapping taxa
-              loop_species_barcode_gap_overlap_records <- loop_species_dist_matrix_between
-
               #Getting the maximum within species distance
-              loop_species_dist_matrix_within<-round(max(loop_species_dist_matrix_within), digits = 4)
+              loop_species_dist_matrix_within<-round(max(loop_species_dist_matrix_within, na.rm=TRUE), digits = 4)
 
               #Getting the minimum between distance
-              loop_species_dist_matrix_between_dist<-round(min(loop_species_dist_matrix_between), digits = 4)
+              loop_species_dist_matrix_between_dist<-round(min(loop_species_dist_matrix_between, na.rm=TRUE), digits = 4)
 
               #calculating the gap
               loop_species_barcode_gap<-round(as.numeric(loop_species_dist_matrix_between_dist) - as.numeric(loop_species_dist_matrix_within), digits = 4)
 
-              if(nrow(loop_species_barcode_gap_overlap_records)>1){
-
+              #Reporting the barcode gap overlapping taxa
+              if(nrow(loop_species_dist_matrix_between)>1){
                 #Get the min value of each column and place into a matrix row name and min value
-                loop_species_barcode_gap_overlap_records<- as.data.frame(apply(loop_species_barcode_gap_overlap_records,2,min))
-
+                loop_species_barcode_gap_overlap_records<- as.data.frame(apply(loop_species_dist_matrix_between,2,min))
               }
 
               #Drop min values greater than the max between to get the overlapping records
