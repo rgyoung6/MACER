@@ -479,10 +479,7 @@
           
           # loop to remove self comparisons
           for (rowLoopCounter in 1:nrow(no_outliers_dist_matrix_tmp)){
-
-            #Get the row of interest
-            no_outliers_dist_matrix_work <- no_outliers_dist_matrix_tmp[rowLoopCounter,,drop = FALSE]
-
+            
             for (colLoopCounter in 1:nrow(no_outliers_dist_matrix_tmp)) {
           
                   if (row.names(no_outliers_dist_matrix_tmp)[rowLoopCounter] == colnames(no_outliers_dist_matrix_tmp)[colLoopCounter]){
@@ -542,10 +539,10 @@
               loop_interspecific_min <- min(splt[[Species[species_list_counter]]])
               
               # Get the species (colnames) for every column with the target value
-              loop_col_species <- unlist(lapply(apply(no_outliers_dist_matrix_tmp, 1, function(x) which(x == loop_interspecific_min)), names))
+              loop_row_species <- unlist(lapply(apply(no_outliers_dist_matrix_tmp, 1, function(x) which(x == loop_interspecific_min)), names))
               
               # Get the species (row.names) for every row with the target value
-              loop_row_species <- unlist(lapply(apply(t(no_outliers_dist_matrix_tmp), 1, function(x) which(x == loop_interspecific_min)), names))
+              loop_col_species <- unlist(lapply(apply(no_outliers_dist_matrix_tmp, 2, function(x) which(x == loop_interspecific_min)), names))
               
               # Bring all column and row names together
               near_neigh <- unique(na.omit(c(unlist(loop_col_species), unlist(loop_row_species))))
