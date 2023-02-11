@@ -560,15 +560,22 @@
               near_neigh_dists <- splt[near_neigh]
               
               # Compute mean interspecific distance
-              near_neigh_mean_dists <- lapply(near_neigh_dists, mean, na.rm = TRUE)
+              if (length(any(near_neigh  > 1))) {
+                near_neigh_mean_dists <- lapply(near_neigh_dists, mean, na.rm = TRUE)
+              }
               
               # Get the name of the species with the smallest mean distance
-              near_neigh <- which.min(near_neigh_mean_dists)
+              # breaking ties by choosing one species at random among the ties
+              if (!anyDuplicated(near_neigh_mean_dists)) {
+                near_neigh <- which.min(near_neigh_mean_dists)
+              } else {
+                near_neigh <- sample(which.min(near_neigh_mean_dists), 1)
+              }
               
               # Get the distances of the species with the smallest mean distance
               near_neigh <- near_neigh_dists[near_neigh]
               
-              # combines target species distances with nearest neighbour
+              # Combine target species distances with nearest neighbour into one vector
               comb <- unlist(c(splt[[Species[species_list_counter]]], near_neigh))
               
               
