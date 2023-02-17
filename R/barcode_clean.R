@@ -602,6 +602,11 @@
               # q_x_prime_NN is overlap of target species plus its nearest neighbour with target species
               q_x_prime_NN <- length(which(comb <= max(splt[[Species[species_list_counter]]]))) / length(comb)
 
+              # all neighbours - for heatmaps
+              
+              p_x_prime_NN_all <- sapply(splt, function(y) sapply(setNames(splt, paste0(Species, seq_along(splt))), function(z) sum(y >= min(z)) / length(y)))
+              q_x_prime_NN_all <- sapply(splt, function(y) sapply(setNames(splt, paste0(Species, seq_along(splt))), function(z) sum(y <= max(z)) / length(y)))
+              
               
               ##########
               
@@ -638,9 +643,6 @@
             
             #add the results of q_x
             log_df$q_x[log_df$Species %in% Species[species_list_counter] ]<- q_x
-            
-            #add the results of near_neigh
-            log_df$near_neigh[log_df$Species %in% Species[species_list_counter] ]<- paste0(near_neigh, collapse = ",")
             
             #add the results of p_x_prime_NN
             log_df$p_x_prime_NN[log_df$Species %in% Species[species_list_counter] ]<- p_x_prime_NN
