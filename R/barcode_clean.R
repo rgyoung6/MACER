@@ -1,4 +1,4 @@
-#Get the initial working directory
+# Get the initial working directory
   start_wd <- getwd()
   on.exit(setwd(start_wd))
   
@@ -6,12 +6,13 @@
   
   if (is.null(data_folder)){
     
-    # prompting to choose the folder location of the working directory with the input file to run the program
+    # Prompting user to choose the folder location of the working directory with the input file to run the program
     n <- substr(readline(prompt="Choose a file in the folder location where your input files are located. Hit enter key to continue..."),1,1)
-    #Get the directory
+    
+    #Get the working directory
     Work_loc<-dirname(file.choose())
     
-  }else{
+  } else{
     
     Work_loc = data_folder
     
@@ -19,13 +20,13 @@
   
   setwd(Work_loc)
   
-  #set the format for the date for all operating systems
+  # Set the format for the date for all operating systems
   Sys.setlocale("LC_TIME", "C")
   
   # Current Date - for file naming use
   date <- sub("-", "", sub("-", "", Sys.Date()))
   
-  #creating a log file
+  # Create a log file
   current_time<-as.character(Sys.time())
   current_time<-gsub(" ","",current_time)
   current_time<-gsub(":","",current_time)
@@ -33,40 +34,40 @@
   log_header<- paste0("DNA_Clean_Log_File - File name = ", log_file_name, " - AA code = ", AA_code, " - AGCT only = ", AGCT_only,
                       " dist_model = ", dist_model, " replicates = ", replicates, " replacement = ", replacement," conf_level = ", conf_level, " numCores = ", numCores)
   
-  #Making the amino acid translation codes into numbers for the ape package.
+  # Convert the amino acid translation codes into numbers for the ape package.
   if (is.null(AA_code)){
-    AA_code = 0
+    AA_code <- 0
   }else if (AA_code == "vert"){
-    AA_code = 2
+    AA_code <- 2
   }else if (AA_code == "invert"){
-    AA_code = 5
+    AA_code <- 5
   }else if (AA_code == "std"){
-    AA_code = 1
+    AA_code <- 1
   }else if (AA_code == "moldPlus"){
-    AA_code = 4
+    AA_code <- 4
   }else if (AA_code == "yeast"){
-    AA_code = 3
+    AA_code <- 3
   }else {
-    AA_code = 0
+    AA_code <- 0
   }
   
   start_time=Sys.time()
   print(paste("Start time... ",start_time))
   
-  #Get all files located in this folder.
-  #Initiating the list of files in the folders
+  # Get all files located in this folder.
+  # Initiate the list of files in the folders
   path_list <- list.files(path=Work_loc, pattern = "*[.][Ff][Aa][Ss]$", full.names = TRUE)
   file_list <- list.files(path=Work_loc, pattern = "*[.][Ff][Aa][Ss]$")
   file_name <- sub("\\..*","",as.vector(file_list))
   
-  #Initialize the no_outliers_dist_matrix
-  no_outliers_dist_matrix=""
-  no_outliers_dataset=""
+  # Initialize the no_outliers_dist_matrix
+  no_outliers_dist_matrix <- ""
+  no_outliers_dataset <- ""
   
-  #outputing the header to the log file
-  write.table(log_header, file=paste0(Work_loc,"/",log_file_name,".dat"),append=FALSE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\n")
+  # Output the header to the log file
+  write.table(log_header, file=paste0(Work_loc,"/",log_file_name,".dat"), append = FALSE,na = "", row.names = FALSE, col.names = FALSE, quote = FALSE, sep = "\n")
   
-  #************************** LOOPING THROUGH EACH OF THE FILES IN THE TARGET DIRECTORY *******************************************************************
+  #************************** LOOP THROUGH EACH OF THE FILES IN THE TARGET DIRECTORY *******************************************************************
   
   for(h in 1:length(file_name)){
     
@@ -459,8 +460,7 @@
                                  "p_x",
                                  "q_x",
                                  "p_x_prime_NN",
-                                 "q_x_prime_NN",
-                                 "near_neigh")
+                                 "q_x_prime_NN")
           log_df[,barcode_gap_columns] <- "-"
           
           # assign no_outliers_dist_matrix to temporary variable to avoid overwriting
@@ -469,13 +469,14 @@
           colnames(no_outliers_dist_matrix_tmp) <- data.frame(do.call("rbind", strsplit(as.character(colnames(no_outliers_dist_matrix_tmp)), "|", fixed = TRUE)))[,4]
           row.names(no_outliers_dist_matrix_tmp) <- data.frame(do.call("rbind", strsplit(as.character(row.names(no_outliers_dist_matrix_tmp)), "|", fixed = TRUE)))[,4]
           
-          # get lower triangular matrix with main diagonal removed
+          # get lower triangular matrix with main diagonal removed by replacing upper triangle with NAs
           no_outliers_dist_matrix_tmp[upper.tri(no_outliers_dist_matrix_tmp, diag = TRUE)] <- NA
           
           
           ##################
           
-          ### Get interspecific distances ###
+          ### Step [1] ###
+          # Generate one vector that consists of all interspecific differences across all species pairs 
           
           # loop to remove self comparisons
           for (rowLoopCounter in 1:nrow(no_outliers_dist_matrix_tmp)){
@@ -501,8 +502,10 @@
           # get rid of NAs
           splt <- lapply(splt, function(x) x[!is.na(x)])
 
-          # get interspecific distances as a vector
+          # get interspecific distances as a vector 
           inter <- as.vector(unlist(splt))
+          
+          ##################
           
         }
         
@@ -518,20 +521,19 @@
             # for species with more than one records so that the within is able to be calculated
             if (nrow(loop_species_records)>1 && length(Species)>1){
               
-              
-              
               ### Step [2] ###
               # Generate vectors of intraspecific differences for each species
               
               #Get the rows of the target species from the dist matrix and then get the columns from the selected columns
               loop_species_dist_matrix <- no_outliers_dist_matrix[(rownames(no_outliers_dist_matrix) %in% loop_species_records$Header),]
               loop_species_dist_matrix_within <- loop_species_dist_matrix[,(colnames(loop_species_dist_matrix) %in% loop_species_records$Header)]
+              
+              # convert matrix to a vector
               intra <- na.omit(as.vector(loop_species_dist_matrix_within)) # this was added by Jarrett
               
-              ################
+              ##################
               
-              
-              ##### Steps [3] and Step [4] #####
+              ##### Steps [3] #####
               # For a focal species, find its nearest neighbour using minimum interspecific distance. If there are ties, then maybe go to mean distance.
               
               # Get the min value for the species of interest from the split list
@@ -546,46 +548,41 @@
               # Bring all column and row names together
               near_neigh <- unique(na.omit(c(unlist(loop_col_species), unlist(loop_row_species))))
               
-              # Remove the target species name from the list
+              # Remove the target species name from the list since a species neighbour can't be itself
               near_neigh <- near_neigh[!(near_neigh %in% Species[species_list_counter])]
               
-              #####
+              ##################
               
-              ### Experimental code ###
+              ### Step [4] ###
+              # Generate a vector that consists of interspecific differences between the focal species and its nearest neighbour.
               
-              # Because a target species can have multiple nearest neighbours, ties can be broken using the species 
-              # with the smallest mean interspecfic distance
+              # Because a target species can have multiple nearest neighbours, ties can be broken using the species with the smallest mean interspecific distance
               
               # Get list of nearest neighbour distances
               near_neigh_dists <- splt[near_neigh]
               
-              # Compute mean interspecific distance
-              if (length(any(near_neigh  > 1))) {
+              # Compute mean interspecific distance for species with more than one nearest neighbour
+              if (length(any(near_neigh > 1))) {
                 near_neigh_mean_dists <- lapply(near_neigh_dists, mean, na.rm = TRUE)
               }
               
               # Get the name of the species with the smallest mean distance
-              # breaking ties by choosing one species at random among the ties
               if (!anyDuplicated(near_neigh_mean_dists)) {
                 near_neigh <- which.min(near_neigh_mean_dists)
-              } else {
-                near_neigh <- sample(which.min(near_neigh_mean_dists), 1)
-              }
+              } 
               
               # Get the distances of the species with the smallest mean distance
               near_neigh <- near_neigh_dists[near_neigh]
               
-              # Combine target species distances with nearest neighbour into one vector
+              # Combine target species interspecific distances with nearest neighbour into one vector
               comb <- unlist(c(splt[[Species[species_list_counter]]], near_neigh))
-              
-              
-              #####
-              
-              
-              ##########
+
+              ##################
               
               ##### Step [5] #####
-         
+              # Use the "which" code in Jarrett's section within MACER to get p, q, p', q'
+              # for large datasets, sum(...) can be used in place of length(which(...)), at the cost of understandability
+              
               # compute proportional overlap of intraspecific and interspecific distributions
               
               # p_x is overlap of intra with inter
@@ -594,21 +591,15 @@
               # q_x is overlap of inter with intra
               q_x <- length(which(inter <= max(intra))) / length(inter)
               
-              # compute proportional overlap of target species with taget species plus nearest neighbour
+              # compute proportional overlap of target species with target species plus its nearest neighbour
               
-              # p_x_prime_NN is overlap of target species with focal species plus its nearest neighbour
-              p_x_prime_NN <- length(which(splt[[Species[species_list_counter]]] >= min(comb))) / length(splt[[Species[species_list_counter]]])
+              # p_x_prime_NN is overlap of target species with target species plus its nearest neighbour
+              p_x_prime_NN <- length(which(intra >= min(comb))) / length(intra)
               
-              # q_x_prime_NN is overlap of target species plus its nearest neighbour with target species
-              q_x_prime_NN <- length(which(comb <= max(splt[[Species[species_list_counter]]]))) / length(comb)
-
-              # all neighbours - for heatmaps
+              # q_x_prime_NN is overlap of target species plus its nearest neighbour with the target species
+              q_x_prime_NN <- length(which(comb <= max(intra))) / length(comb)
               
-              p_x_prime_NN_all <- sapply(splt, function(y) sapply(setNames(splt, paste0(Species, seq_along(splt))), function(z) sum(y >= min(z)) / length(y)))
-              q_x_prime_NN_all <- sapply(splt, function(y) sapply(setNames(splt, paste0(Species, seq_along(splt))), function(z) sum(y <= max(z)) / length(y)))
-              
-              
-              ##########
+              ##################
               
               #Get the number of records for the target species
               loop_species_target<-nrow(loop_species_dist_matrix_within)
@@ -616,11 +607,11 @@
               #Get the unique target sequences for the haplotype reporting
               loop_target_haplotypes <- length(unique(barcode_gap_data_frame[barcode_gap_data_frame$Header %in% loop_species_records$Header, "Sequence"]))
               
-              #There was clearly more than one record as we made it here past the more than one species record if so that means that the two records or more were
+              # There was clearly more than one record as we made it here past the more than one species record if so that means that the two records or more were
               #dereplicated. So, then that would mean that the between species distance will be 0 and the only record would have this as the comparison
               #Create the variable to report
               
-            }else{ #Closing the if more than one species if
+            } else { #Closing the if more than one species if
               
               loop_species_target <- "-"
               loop_target_haplotypes <- "-"
@@ -628,7 +619,6 @@
               q_x <- "-"
               p_x_prime_NN <- "-"
               q_x_prime_NN <- "-"
-              near_neigh <- "-"
               
             }#closing the if else checking if there is more than one species record
             
@@ -703,7 +693,6 @@
             #outputting the fasta reduced file
             write.table(no_outliers_dataset,file=paste0(Work_loc,"/",file_name[h],"_no_outliers.fas"),append=TRUE,na="",row.names = FALSE, col.names=FALSE, quote = FALSE,sep="\n")
             
-           
             ### DNA barcode gap overlap plots ###
             
             # convert to log-10 scale
@@ -713,7 +702,7 @@
             p_x_prime_NN <- as.numeric(log_df$p_x_prime_NN)
             q_x_prime_NN <- as.numeric(log_df$q_x_prime_NN)
             
-            # replace infinite values with -5
+            # replace infinite values with -5 (not needed for current paper)
             df_pq <- data.frame(log10(p_x), log10(q_x))
             df_pq <- apply(df_pq, 2, function(x) replace(x, is.infinite(x), -5)) # replace Inf with finite value
             df_pq <- as.data.frame(df_pq)
@@ -724,7 +713,8 @@
             
             # Plot the results
             p <- ggplot(df_pq, aes(x = log10.p_x., y = log10.q_x.)) + geom_point(colour = "blue") +
-              labs(x = expression(log[10](p)), y = expression(log[10](q)))
+              labs(x = expression(log[10](p)), y = expression(log[10](q))) +
+              xlim(c(-5, 0))
             
             #save plot to file without using ggsave
             png(paste0(Work_loc,"/",file_name[h],"_pq.png"))
@@ -732,7 +722,8 @@
             dev.off()
             
             p <- ggplot(df_pq_prime_NN, aes(x = log10.p_x_prime_NN., y = log10.q_x_prime_NN.)) + geom_point(colour = "blue") +
-            labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'")))
+            labs(x = expression(log[10](p*"'")), y = expression(log[10](q*"'"))) +
+            xlim(c(-5, 0))
 
             png(paste0(Work_loc,"/",file_name[h],"_pq_prime_NN.png"))
             print(p)
