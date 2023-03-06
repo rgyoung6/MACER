@@ -62,25 +62,25 @@
 ##################################### Main FUNCTION ##############################################################
 barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL, gen_outliers = TRUE, sp_outliers = TRUE, dist_model = "raw", replicates = 1000, replacement = TRUE,conf_level = 1,  numCores = 1){
 
-#  AA_code="invert"
-#  AGCT_only = TRUE
-#  data_folder = NULL
-#  gen_outliers = TRUE
-#  sp_outliers = TRUE
-#  dist_model = "raw"
-#  replicates = 10
-#  replacement = TRUE
-#  conf_level = 1
-#  numCores = 1
+  AA_code="vert"
+  AGCT_only = TRUE
+  data_folder = NULL
+  gen_outliers = TRUE
+  sp_outliers = TRUE
+  dist_model = "raw"
+  replicates = 10
+  replacement = TRUE
+  conf_level = 1
+  numCores = 1
 
-#  library(ape)
-#  library(stats)
-#  library(utils)
-#  library(ggplot2)
-#  library(parallel)
-#  library(pbapply)
-#  library(grDevices)
-#  library(png)
+  library(ape)
+  library(stats)
+  library(utils)
+  library(ggplot2)
+  library(parallel)
+  library(pbapply)
+  library(grDevices)
+  library(png)
 
 
   #Get the initial working directory
@@ -596,7 +596,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
                 between_values<-boot_loop_dist_matrix[grepl( list_of_species[species_count] , rownames( boot_loop_dist_matrix ) ) , !grepl( list_of_species[species_count] , colnames( boot_loop_dist_matrix ) ) ,drop=FALSE]
                 within_values<-boot_loop_dist_matrix[grepl( list_of_species[species_count] , rownames( boot_loop_dist_matrix ) ) , grepl( list_of_species[species_count] , colnames( boot_loop_dist_matrix ) ) ,drop=FALSE]
                 if(!is.null(between_values) & !is.null(within_values)){
-                  if(nrow(between_values)>0 & nrow(within_values)>0 ){
+                  if(ncol(between_values)>0 & nrow(within_values)>0 ){
                     if((as.numeric(min(between_values))- as.numeric(max(within_values)))>0){
                       #There is a barcode gap so add one to the results
                       boot_species_results[boot_species_results[,1]==list_of_species[species_count],2]<-as.numeric(boot_species_results[boot_species_results[,1]==list_of_species[species_count],2]) + 1
