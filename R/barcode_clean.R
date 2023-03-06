@@ -62,25 +62,25 @@
 ##################################### Main FUNCTION ##############################################################
 barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL, gen_outliers = TRUE, sp_outliers = TRUE, dist_model = "raw", replicates = 1000, replacement = TRUE,conf_level = 1,  numCores = 1){
 
-  AA_code="vert"
-  AGCT_only = TRUE
-  data_folder = NULL
-  gen_outliers = TRUE
-  sp_outliers = TRUE
-  dist_model = "raw"
-  replicates = 10
-  replacement = TRUE
-  conf_level = 1
-  numCores = 1
+#  AA_code="vert"
+#  AGCT_only = TRUE
+#  data_folder = NULL
+#  gen_outliers = TRUE
+#  sp_outliers = TRUE
+#  dist_model = "raw"
+#  replicates = 10
+#  replacement = TRUE
+#  conf_level = 1
+#  numCores = 1
 
-  library(ape)
-  library(stats)
-  library(utils)
-  library(ggplot2)
-  library(parallel)
-  library(pbapply)
-  library(grDevices)
-  library(png)
+#  library(ape)
+#  library(stats)
+#  library(utils)
+#  library(ggplot2)
+#  library(parallel)
+#  library(pbapply)
+#  library(grDevices)
+#  library(png)
 
 
   #Get the initial working directory
