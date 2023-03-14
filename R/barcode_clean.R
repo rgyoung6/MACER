@@ -62,13 +62,13 @@
 ##################################### Main FUNCTION ##############################################################
 barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL, gen_outliers = TRUE, sp_outliers = TRUE, dist_model = "raw", replicates = 1000, replacement = TRUE,conf_level = 1,  numCores = 1){
 
-#  AA_code="vert"
+#  AA_code=0
 #  AGCT_only = TRUE
 #  data_folder = NULL
-#  gen_outliers = TRUE
-#  sp_outliers = TRUE
+#  gen_outliers = FALSE
+#  sp_outliers = FALSE
 #  dist_model = "raw"
-#  replicates = 10
+#  replicates = 1000
 #  replacement = TRUE
 #  conf_level = 1
 #  numCores = 1
@@ -190,6 +190,7 @@ barcode_clean <- function(AA_code="invert", AGCT_only = TRUE, data_folder = NULL
 
     for(unique_genera in 1:length(unique_genera_list)){
 
+      print(paste("Genus ", unique_genera_list[unique_genera], " - ",unique_genera, " of ", length(unique_genera_list)))
       #Get the dataframe with the records from the loop genus
       Seq_file_data_frame <- Main_Seq_file_data_frame[Main_Seq_file_data_frame$Genus == unique_genera_list[unique_genera],, drop=FALSE]
 
