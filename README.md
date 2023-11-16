@@ -148,20 +148,20 @@ While not an R dependency, the use of the MAFFT program as installed on the loca
 A file folder with one or more fasta files of interest
 
 ### Arguments
-AA_code – This is the amino acid translation matrix used to check the sequences for stop codons. The following codes are available. The Invertebrate matrix, 2, is the default.
+- AA_code – This is the amino acid translation matrix used to check the sequences for stop codons. The following codes are available. The Invertebrate matrix, 2, is the default.
   - std (1 in ape) is standard code
   - vert (2 in ape) is vertebrate mitochondrial
   - invert (5 in ape) is invertebrate mitochondrial
   - FALSE skips the AA clean section
-AGCT_only – This only keeps sequences with AGCT exclusively, not IUPAC characters.
+- AGCT_only – This only keeps sequences with AGCT exclusively, not IUPAC characters.
   - TRUE is on 
   - FALSE is accepting all IUPAC characters
-data_folder This variable can be used to provide a location for the file containing all of the fasta files wanting to be aligned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
-dist_model - This is the model of nucleotide evolution that the ape program will use (see ape documentation for options. Default is "raw"
-replicates - This is the number of replicates that the bootstrapping will perform. Note: more replicates will take longer. Default is 1000
-replacement - This indicates that the replacement of MSA nucleotide columns will be replaced in the random resampling. Default is set to TRUE
-conf_level - This is a percentage of the initial MSA nucleotide length. When set to 1 the bootstrapped resampling will have the same length as the initial MSA. Default is set to 1
-numCores - This is the number of cores that the user would like to use where multithreading is available. Default is set to 1, indicating only a single thread will be used.
+- data_folder This variable can be used to provide a location for the file containing all of the fasta files wanting to be aligned. The default value is set to NULL where the program will prompt the user to select the folder through point-and-click.
+- dist_model - This is the model of nucleotide evolution that the ape program will use (see ape documentation for options. Default is "raw"
+- replicates - This is the number of replicates that the bootstrapping will perform. Note: more replicates will take longer. Default is 1000
+- replacement - This indicates that the replacement of MSA nucleotide columns will be replaced in the random resampling. Default is set to TRUE
+- conf_level - This is a percentage of the initial MSA nucleotide length. When set to 1 the bootstrapped resampling will have the same length as the initial MSA. Default is set to 1
+- numCores - This is the number of cores that the user would like to use where multithreading is available. Default is set to 1, indicating only a single thread will be used.
 
 
 ### Output
